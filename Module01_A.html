@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP31A · Module 1 Study Activities — Introduction to C++ Programming</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --user-primary:#1a4480;
+    --user-accent:#c8102e;
+    --user-background:#ffffff;
+    --primary-dark:#0f2c54;
+    --primary-tint:#eaf0f8;
+    --accent-tint:#fbe9ec;
+    --ink:#12203a;
+    --muted:#52627a;
+    --border:#d7e0ea;
+    --success:#1e7d4a;
+    --success-tint:#e6f4ec;
+    --warn-tint:#fff4e0;
+    --warn:#a35b00;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(15,44,84,0.08);
+    --shadow-lg:0 12px 32px rgba(15,44,84,0.16);
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--user-background);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-weight:800; margin:0 0 .4em; line-height:1.25;}
+  p{margin:0 0 .8em;}
+  code, .mono{font-family:var(--font-mono);}
+  button{font-family:inherit; cursor:pointer;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  /* ---------- Header / Tabs ---------- */
+  header.app-header{
+    position:sticky; top:0; z-index:50;
+    background:var(--user-primary);
+    color:#fff;
+    box-shadow:var(--shadow-lg);
+  }
+  .header-inner{
+    max-width:1100px; margin:0 auto; padding:14px 20px 0;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:.14em; font-weight:700; text-transform:uppercase;
+    color:#bcd0ee; margin-bottom:2px;
+  }
+  .app-header h1{
+    font-size:22px; margin:0 0 12px; color:#fff;
+  }
+  nav.tabbar{
+    display:flex; gap:4px; overflow-x:auto; scrollbar-width:none;
+    border-bottom:1px solid rgba(255,255,255,0.18);
+  }
+  nav.tabbar::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    background:transparent; border:none; color:#cfe0f5;
+    padding:11px 18px; font-size:14.5px; font-weight:600;
+    border-bottom:3px solid transparent; white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .tab-btn .tab-emoji{margin-right:6px;}
+  .tab-btn:hover{color:#fff; background:rgba(255,255,255,0.08);}
+  .tab-btn[aria-selected="true"]{
+    color:#fff; border-bottom-color:var(--user-accent);
+  }
+
+  main{max-width:1100px; margin:0 auto; padding:28px 20px 80px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .intro-lead{
+    font-size:16px; color:var(--muted); max-width:760px;
+  }
+
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.03em;
+    padding:3px 9px; border-radius:999px; text-transform:uppercase;
+  }
+  .badge-remember{background:#e7edf8; color:#2a4c85;}
+  .badge-understand{background:#e2f2ec; color:#1e7d4a;}
+  .badge-apply{background:#fff1de; color:#a35b00;}
+  .badge-analyze{background:#f7e6ea; color:#a01238;}
+  .badge-evaluate{background:#efe4f7; color:#6a2fa3;}
+  .badge-create{background:#e0f2f7; color:#0d6d84;}
+
+  /* ---------- Accordion (Learn tab) ---------- */
+  .section-card{
+    border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:14px; overflow:hidden; background:#fff;
+  }
+  .section-head{
+    width:100%; display:flex; align-items:center; gap:12px;
+    background:var(--primary-tint); border:none; padding:16px 18px;
+    text-align:left; font-size:16px; font-weight:700; color:var(--user-primary);
+  }
+  .section-head .num{
+    display:flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:8px; background:var(--user-primary);
+    color:#fff; font-size:13px; flex-shrink:0;
+  }
+  .section-head .chev{margin-left:auto; transition:transform .2s ease; font-size:14px; color:var(--muted);}
+  .section-head[aria-expanded="true"] .chev{transform:rotate(180deg);}
+  .section-body{padding:0 20px; max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease;}
+  .section-body.open{padding:18px 20px 24px; max-height:4000px;}
+
+  ul.clean{margin:0 0 14px; padding-left:20px;}
+  ul.clean li{margin-bottom:7px;}
+  ul.clean li::marker{color:var(--user-accent);}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:680px){.two-col{grid-template-columns:1fr;}}
+
+  .mini-card{
+    background:var(--primary-tint); border-radius:12px; padding:14px 16px;
+  }
+  .mini-card h4{color:var(--user-primary); font-size:14.5px; margin-bottom:6px;}
+
+  table.data-table{
+    width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:14px;
+  }
+  table.data-table th{
+    background:var(--user-primary); color:#fff; text-align:left;
+    padding:9px 12px; font-size:12.5px; letter-spacing:.02em;
+  }
+  table.data-table td{
+    padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top;
+  }
+  table.data-table tr:nth-child(even) td{background:#f7fafc;}
+
+  /* callouts */
+  .callout{
+    border-radius:12px; padding:14px 16px; margin:14px 0; border:1px solid transparent;
+  }
+  .callout-title{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .callout.misconception{background:var(--accent-tint); border-color:#f3c3cc;}
+  .callout.misconception .callout-title{color:var(--user-accent);}
+  .callout.worked{background:var(--primary-tint); border-color:#c7d7ec;}
+  .callout.worked .callout-title{color:var(--user-primary);}
+  .callout.apply{background:var(--warn-tint); border-color:#f0d9a8;}
+  .callout.apply .callout-title{color:var(--warn);}
+  .callout.real-world{background:var(--success-tint); border-color:#bfe3cd;}
+  .callout.real-world .callout-title{color:var(--success);}
+
+  .reasoning-step{
+    display:flex; gap:10px; padding:8px 0; border-top:1px dashed #c7d7ec;
+  }
+  .reasoning-step:first-of-type{border-top:none;}
+  .reasoning-step .step-tag{
+    flex-shrink:0; font-size:11px; font-weight:800; color:#fff; background:var(--user-primary);
+    border-radius:6px; padding:3px 8px; height:fit-content; text-transform:uppercase;
+  }
+
+  textarea.answer-box{
+    width:100%; min-height:70px; border:1px solid var(--border); border-radius:10px;
+    padding:10px 12px; font-family:var(--font-body); font-size:14px; resize:vertical;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--user-primary); color:#fff; border:none; border-radius:9px;
+    padding:9px 16px; font-size:13.5px; font-weight:600; transition:filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn.secondary{background:#fff; color:var(--user-primary); border:1.5px solid var(--user-primary);}
+  .btn.accent{background:var(--user-accent);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .reveal-box{
+    display:none; margin-top:10px; background:#fff; border:1px dashed #c7d7ec; border-radius:10px; padding:12px 14px; font-size:14px;
+  }
+  .reveal-box.shown{display:block;}
+
+  /* ---------- Mini self-check ---------- */
+  .self-check{
+    margin-top:18px; border:1.5px solid var(--user-primary); border-radius:12px; padding:16px 18px;
+    background:#fbfdff;
+  }
+  .self-check-title{
+    font-weight:800; font-size:14px; color:var(--user-primary);
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .sc-question{margin-bottom:14px;}
+  .sc-question p.q-text{font-weight:600; font-size:14.5px; margin-bottom:8px;}
+  .sc-options{display:flex; flex-direction:column; gap:7px;}
+  .sc-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:9px;
+    padding:9px 12px; font-size:14px; color:var(--ink); transition:all .12s ease;
+  }
+  .sc-opt:hover{border-color:var(--user-primary);}
+  .sc-opt.correct{background:var(--success-tint); border-color:var(--success); color:#155c37; font-weight:600;}
+  .sc-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); color:#8f0c22; font-weight:600;}
+  .sc-opt[disabled]{cursor:default;}
+  .sc-feedback{font-size:13.5px; margin-top:8px; padding:8px 10px; border-radius:8px; display:none;}
+  .sc-feedback.shown{display:block;}
+  .sc-feedback.right{background:var(--success-tint); color:#155c37;}
+  .sc-feedback.wrong{background:var(--accent-tint); color:#8f0c22;}
+
+  /* ---------- Flashcards ---------- */
+  .fc-toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px;
+  }
+  .fc-toolbar select{
+    padding:8px 12px; border-radius:9px; border:1.5px solid var(--border); font-size:13.5px; font-family:inherit;
+    background:#fff;
+  }
+  .fc-progress{
+    margin-left:auto; font-size:13px; color:var(--muted); display:flex; gap:14px;
+  }
+  .fc-progress b{color:var(--ink);}
+  .fc-stage{
+    max-width:560px; margin:0 auto;
+  }
+  .fc-counter{text-align:center; font-size:13px; color:var(--muted); margin-bottom:10px;}
+  .flashcard{
+    perspective:1400px; height:260px; cursor:pointer; margin-bottom:18px;
+  }
+  .flashcard-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+  .fc-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:16px; padding:26px; display:flex; flex-direction:column;
+    box-shadow:var(--shadow-lg); border:1px solid var(--border);
+  }
+  .fc-front{background:var(--user-primary); color:#fff; justify-content:center; align-items:center; text-align:center; gap:14px;}
+  .fc-front .fc-term{font-size:22px; font-weight:800;}
+  .fc-back{background:#fff; transform:rotateY(180deg); justify-content:center;}
+  .fc-back p{font-size:15.5px; color:var(--ink); margin:0;}
+  .fc-tag-row{position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between;}
+  .fc-cat{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#cfe0f5; font-weight:700;}
+  .fc-back .fc-cat{color:var(--muted);}
+  .fc-hint{font-size:12px; color:#cfe0f5; margin-top:auto;}
+  .fc-back .fc-hint{color:var(--muted); margin-top:14px;}
+
+  .fc-controls{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .fc-nav{display:flex; justify-content:space-between; margin-top:16px;}
+
+  /* ---------- Quiz ---------- */
+  .quiz-intro{
+    background:var(--primary-tint); border-radius:14px; padding:22px; text-align:center;
+  }
+  .quiz-wrap{max-width:640px; margin:0 auto;}
+  .quiz-progress-bar{
+    height:8px; background:var(--border); border-radius:99px; overflow:hidden; margin-bottom:18px;
+  }
+  .quiz-progress-fill{height:100%; background:var(--user-accent); width:0%; transition:width .3s ease;}
+  .quiz-card{
+    border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:var(--shadow);
+  }
+  .quiz-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .quiz-qnum{font-size:13px; color:var(--muted); font-weight:600;}
+  .quiz-qtext{font-size:17px; font-weight:700; margin-bottom:16px;}
+  .quiz-options{display:flex; flex-direction:column; gap:9px;}
+  .quiz-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:10px;
+    padding:11px 14px; font-size:14.5px; transition:all .12s ease;
+  }
+  .quiz-opt:hover:not([disabled]){border-color:var(--user-primary); background:var(--primary-tint);}
+  .quiz-opt.correct{background:var(--success-tint); border-color:var(--success); font-weight:700; color:#155c37;}
+  .quiz-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); font-weight:700; color:#8f0c22;}
+  .quiz-explain{
+    margin-top:14px; padding:12px 14px; border-radius:10px; background:#f7fafc; font-size:13.5px; display:none;
+  }
+  .quiz-explain.shown{display:block;}
+  .quiz-footer{display:flex; justify-content:flex-end; margin-top:16px;}
+  .quiz-results{text-align:center; padding:30px 10px;}
+  .quiz-score{font-size:46px; font-weight:800; color:var(--user-primary);}
+  .tier-breakdown{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin:22px 0;
+  }
+  .tier-chip{
+    border:1px solid var(--border); border-radius:12px; padding:12px; text-align:center;
+  }
+  .tier-chip .tier-score{font-size:20px; font-weight:800; color:var(--user-primary);}
+  .tier-chip .tier-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+
+  /* ---------- Matching ---------- */
+  .match-toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;}
+  .match-grid{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  @media (max-width:680px){.match-grid{grid-template-columns:1fr;}}
+  .match-col-title{font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:8px;}
+  .match-item{
+    display:block; width:100%; text-align:left; border:1.5px solid var(--border); background:#fff;
+    border-radius:10px; padding:11px 14px; margin-bottom:9px; font-size:14px; transition:all .12s ease;
+  }
+  .match-item:hover:not(.matched){border-color:var(--user-primary);}
+  .match-item.selected{border-color:var(--user-primary); background:var(--primary-tint); box-shadow:0 0 0 3px rgba(26,68,128,0.12);}
+  .match-item.matched{background:var(--success-tint); border-color:var(--success); color:#155c37; cursor:default; opacity:.85;}
+  .match-item.shake{animation:shake .4s ease;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(3px);}
+    30%,50%,70%{transform:translateX(-5px);} 40%,60%{transform:translateX(5px);}
+  }
+  .match-status{text-align:center; margin-top:18px; font-size:14px; color:var(--muted);}
+  .match-complete{
+    text-align:center; padding:24px; background:var(--success-tint); border-radius:14px; color:#155c37; font-weight:700;
+    display:none;
+  }
+  .match-complete.shown{display:block;}
+
+  footer.app-footer{
+    text-align:center; padding:24px 20px 40px; color:var(--muted); font-size:12.5px;
+  }
+  @media (max-width:600px){
+    .flashcard{height:300px;}
+    .app-header h1{font-size:18px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="kicker">CSP31A · Module 1 Study Activities</div>
+    <h1>Introduction to C++ Programming</h1>
+    <nav class="tabbar" role="tablist" aria-label="Study activity sections">
+      <button class="tab-btn" role="tab" data-tab="learn" aria-selected="true"><span class="tab-emoji">📘</span>Learn</button>
+      <button class="tab-btn" role="tab" data-tab="flashcards" aria-selected="false"><span class="tab-emoji">🗂️</span>Flashcards</button>
+      <button class="tab-btn" role="tab" data-tab="quiz" aria-selected="false"><span class="tab-emoji">✅</span>Quiz</button>
+      <button class="tab-btn" role="tab" data-tab="matching" aria-selected="false"><span class="tab-emoji">🔗</span>Matching</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================ LEARN PANEL ============================================================ -->
+  <section class="panel active" id="panel-learn" role="tabpanel" aria-labelledby="tab-learn">
+    <p class="intro-lead">Six short sections walk through everything from Module 1 — computer systems, how a computer works, programming languages, the Input–Process–Output model, the programming process, and procedural vs. object-oriented design. Each section ends with a quick self-check. Then head to <strong>Flashcards</strong>, the <strong>Quiz</strong>, or the <strong>Matching</strong> activity to practice.</p>
+
+    <!-- SECTION 1 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="true" data-target="sec1"><span class="num">1</span> The Computer System <span class="badge badge-remember" style="margin-left:8px;">Remember</span><span class="chev">▾</span></button>
+      <div class="section-body open" id="sec1">
+        <div class="two-col">
+          <div class="mini-card">
+            <h4>🖥️ Hardware</h4>
+            <ul class="clean">
+              <li>The physical, tangible parts of a computer</li>
+              <li><strong>CPU</strong> — the "brain"; fetches and executes instructions</li>
+              <li><strong>RAM (Memory)</strong> — fast, temporary workspace</li>
+              <li><strong>Storage (SSD/HDD)</strong> — permanent storage for files</li>
+              <li><strong>I/O devices</strong> — keyboard, mouse, monitor, printer</li>
+            </ul>
+          </div>
+          <div class="mini-card">
+            <h4>💻 Software</h4>
+            <ul class="clean">
+              <li>The instructions hardware follows</li>
+              <li><strong>System software</strong> — manages hardware &amp; resources (the OS, drivers, utilities)</li>
+              <li><strong>Application software</strong> — helps users do tasks (browsers, games, the C++ programs you'll write)</li>
+              <li>Without software, hardware just sits idle</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"RAM and storage (SSD/HDD) are basically the same thing."</strong> They're not. RAM is fast and <em>volatile</em> — it holds whatever the CPU is actively using right now, and it empties out when the power is off. Storage is slower but <em>non-volatile</em> — it keeps your files and programs permanently, even after a shutdown. A computer needs both: RAM for speed while it's running, storage for keeping things afterward.</p>
+        </div>
+
+        <div class="self-check" data-section="sec1">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">1. Which of these is application software rather than system software?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">The Windows or macOS operating system</button>
+              <button class="sc-opt" data-idx="1">A printer device driver</button>
+              <button class="sc-opt" data-idx="2">A word processor</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. Which best describes RAM?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Permanent storage that keeps data with the power off</button>
+              <button class="sc-opt" data-idx="1">Fast, temporary workspace that clears when power is off</button>
+              <button class="sc-opt" data-idx="2">An input device for interacting with the computer</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec2"><span class="num">2</span> How a Computer Works <span class="badge badge-understand" style="margin-left:8px;">Understand</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec2">
+        <h4 style="color:var(--user-primary); font-size:14.5px;">The Fetch – Decode – Execute Cycle</h4>
+        <ul class="clean">
+          <li><strong>Fetch</strong> — the CPU retrieves the next instruction from memory</li>
+          <li><strong>Decode</strong> — the CPU translates the instruction into a signal it can act on</li>
+          <li><strong>Execute</strong> — the CPU carries out the instruction (calculate, move, compare)</li>
+          <li>This cycle repeats — billions of times per second</li>
+        </ul>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px;">Where Data Lives While It Works</h4>
+        <table class="data-table">
+          <tr><th>Tier</th><th>Speed</th><th>Capacity</th><th>Holds</th></tr>
+          <tr><td><strong>CPU Registers</strong></td><td>Fastest</td><td>Tiniest</td><td>Data being used right now</td></tr>
+          <tr><td><strong>RAM (Memory)</strong></td><td>Fast</td><td>Larger</td><td>Running programs &amp; active data</td></tr>
+          <tr><td><strong>Storage (SSD/HDD)</strong></td><td>Slower</td><td>Largest</td><td>Data permanently, even powered off</td></tr>
+        </table>
+        <p style="font-size:13.5px; color:var(--muted);"><em>Speed decreases and capacity increases as you move down the hierarchy.</em></p>
+
+        <div class="self-check" data-section="sec2">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. What happens during the "Decode" stage?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">The CPU retrieves the next instruction from memory</button>
+              <button class="sc-opt" data-idx="1">The CPU translates the instruction into a signal it can act on</button>
+              <button class="sc-opt" data-idx="2">The CPU carries out the instruction</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. Which is ordered fastest → slowest?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">CPU Registers → RAM → Storage</button>
+              <button class="sc-opt" data-idx="1">Storage → RAM → CPU Registers</button>
+              <button class="sc-opt" data-idx="2">RAM → CPU Registers → Storage</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec3"><span class="num">3</span> Why Program? Programs &amp; Languages <span class="badge badge-understand" style="margin-left:8px;">Understand</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec3">
+        <p>A computer does nothing until a human tells it what to do, step by step. We program to automate tedious tasks, solve problems at scale, build the tools we use every day, and model real-world systems.</p>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px;">Three Levels of Programming Languages</h4>
+        <table class="data-table">
+          <tr><th>Level</th><th>What It Looks Like</th><th>Trade-off</th></tr>
+          <tr><td><strong>Machine Language</strong></td><td>Binary — 1s and 0s the CPU runs directly</td><td>No translation needed, but unreadable to humans</td></tr>
+          <tr><td><strong>Assembly Language</strong></td><td>Short mnemonics (<code>MOV</code>, <code>ADD</code>, <code>JMP</code>)</td><td>Closer to hardware, still tied to one CPU type</td></tr>
+          <tr><td><strong>High-Level Language</strong></td><td>English-like syntax — C++, Python, Java</td><td>Readable &amp; portable, but needs a compiler/interpreter</td></tr>
+        </table>
+
+        <div class="two-col">
+          <div class="mini-card">
+            <h4>Syntax vs. Semantics</h4>
+            <p style="margin:0; font-size:14px;"><strong>Syntax</strong> — the rules that define valid statements (like grammar). <strong>Semantics</strong> — the meaning behind those statements (what they actually do).</p>
+          </div>
+          <div class="mini-card">
+            <h4>Why C++?</h4>
+            <p style="margin:0; font-size:14px;">Combines high-level readability with low-level control. Used in games, operating systems, embedded devices, and finance — and gives you a strong foundation for learning object-oriented design.</p>
+          </div>
+        </div>
+
+        <div class="self-check" data-section="sec3">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">1. Which language level is closest to what the CPU runs directly?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">High-level language (e.g., C++)</button>
+              <button class="sc-opt" data-idx="1">Assembly language</button>
+              <button class="sc-opt" data-idx="2">Machine language</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. "Every statement must end with a semicolon in C++" is an example of...</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Semantics</button>
+              <button class="sc-opt" data-idx="1">Syntax</button>
+              <button class="sc-opt" data-idx="2">Machine code</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec4"><span class="num">4</span> What Is a Program Made Of? (IPO) <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec4">
+        <p>Every program can be broken into three stages: <strong>Input</strong> (data the program receives), <strong>Process</strong> (instructions that transform the data), and <strong>Output</strong> (the result the program produces).</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example — Rectangle Area Program</div>
+          <p style="margin-bottom:10px;">Here's the reasoning a programmer walks through to map a task onto the IPO model:</p>
+          <div class="reasoning-step"><span class="step-tag">Ask</span><span>What data does the program need before it can do anything? → The user's <strong>length</strong> and <strong>width</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Input</span><span>Those two values are gathered from the user. In C++, that's the job of <code>cin</code>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Ask</span><span>What needs to happen to that data to get a useful result? → Multiply length × width.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Process</span><span>The multiplication is the transformation step — handled by an expression like <code>area = length * width;</code></span></div>
+          <div class="reasoning-step"><span class="step-tag">Ask</span><span>What does the program need to show the user? → The calculated area.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Output</span><span>The result is displayed back to the user. In C++, that's the job of <code>cout</code>.</span></div>
+        </div>
+
+        <div class="callout apply">
+          <div class="callout-title">✍️ Your Turn — Apply It</div>
+          <p style="margin-bottom:8px;">Using the same reasoning, map out the IPO model for a program that <strong>converts a temperature from Celsius to Fahrenheit</strong> (formula: F = C × 9/5 + 32). What is the Input? What is the Process? What is the Output? Jot down your answer, then reveal a model answer to compare.</p>
+          <textarea class="answer-box" placeholder="Input: ...&#10;Process: ...&#10;Output: ..."></textarea>
+          <div style="margin-top:10px;"><button class="btn secondary reveal-btn" data-reveal="reveal-ipo">Show Model Answer</button></div>
+          <div class="reveal-box" id="reveal-ipo">
+            <strong>Input:</strong> the Celsius temperature from the user.<br>
+            <strong>Process:</strong> multiply by 9/5, then add 32.<br>
+            <strong>Output:</strong> display the calculated Fahrenheit temperature.
+          </div>
+        </div>
+
+        <div class="self-check" data-section="sec4">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. In a grade-average calculator, "adding up the scores and dividing by the count" is which IPO stage?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Input</button>
+              <button class="sc-opt" data-idx="1">Process</button>
+              <button class="sc-opt" data-idx="2">Output</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. Displaying "Your average is 87.5" to the user is which IPO stage?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Input</button>
+              <button class="sc-opt" data-idx="1">Process</button>
+              <button class="sc-opt" data-idx="2">Output</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec5"><span class="num">5</span> The Programming Process <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec5">
+        <ul class="clean">
+          <li><strong>Analyze</strong> — understand the problem &amp; requirements</li>
+          <li><strong>Design</strong> — plan the algorithm or logic</li>
+          <li><strong>Code</strong> — write the source code</li>
+          <li><strong>Compile</strong> — translate code into machine instructions</li>
+          <li><strong>Test &amp; Debug</strong> — run it, find issues, and fix them</li>
+          <li><strong>Maintain</strong> — update and improve it over time</li>
+        </ul>
+        <p style="font-size:13.5px; color:var(--muted);">This is a <em>cycle</em>, not strictly linear — testing often sends you back to design or code.</p>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"If my program compiles successfully, it's finished and bug-free."</strong> Not true. Compiling only translates your code and catches <em>syntax</em> errors — typos in the language's grammar. It cannot catch <em>logic</em> errors, like a formula that runs fine but produces the wrong answer. Logic errors are only caught by <strong>testing</strong> (comparing actual output to expected output) and fixed by <strong>debugging</strong>.</p>
+        </div>
+
+        <div class="self-check" data-section="sec5">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">1. Your program compiles with no errors but gives the wrong output. What's the most likely issue?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">A logic error, which compiling can't catch</button>
+              <button class="sc-opt" data-idx="1">A syntax error the compiler missed</button>
+              <button class="sc-opt" data-idx="2">The computer's hardware is broken</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. Which step comes right after "Design" in the programming process?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Test &amp; Debug</button>
+              <button class="sc-opt" data-idx="1">Code</button>
+              <button class="sc-opt" data-idx="2">Maintain</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec6"><span class="num">6</span> Procedural → Object-Oriented Programming <span class="badge badge-analyze" style="margin-left:8px;">Analyze</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec6">
+        <div class="two-col">
+          <div class="mini-card">
+            <h4>Procedural Programming</h4>
+            <ul class="clean">
+              <li>Code is a sequence of steps, grouped into functions</li>
+              <li>Data and functions are kept separate</li>
+              <li>Runs top to bottom with loops &amp; branches</li>
+              <li>Works well for small, straightforward tasks</li>
+            </ul>
+          </div>
+          <div class="mini-card">
+            <h4>Where It Struggles</h4>
+            <ul class="clean">
+              <li>Large programs get hard to organize &amp; maintain</li>
+              <li>Data can change unexpectedly from many places</li>
+              <li>Real-world "things" (a Car, a Student) are hard to model directly</li>
+              <li>Code reuse across projects is limited</li>
+            </ul>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <tr><th>Aspect</th><th>Procedural</th><th>Object-Oriented</th></tr>
+          <tr><td><strong>Focus</strong></td><td>Functions &amp; step-by-step logic</td><td>Objects that combine data and behavior</td></tr>
+          <tr><td><strong>Data handling</strong></td><td>Separate from functions</td><td>Bundled with related behavior</td></tr>
+          <tr><td><strong>Real-world modeling</strong></td><td>Weaker fit</td><td>Strong, natural fit</td></tr>
+          <tr><td><strong>Code reuse</strong></td><td>Limited</td><td>High — via classes &amp; inheritance</td></tr>
+        </table>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"OOP is just procedural programming with fancier syntax."</strong> It's more than syntax — it's a different way of <em>organizing</em> a program. OOP bundles data and the behavior that acts on it into a single unit (an object), so a <code>Car</code> object owns its own <code>speed</code> and its own <code>accelerate()</code> behavior together. That bundling is what enables better modeling, reuse, and maintainability — not just a new way to write the same structure.</p>
+        </div>
+
+        <div class="callout real-world">
+          <div class="callout-title">🌍 Real-World Case Study — Library Management System</div>
+          <p>Imagine you're asked to build software for your campus library to track books and members. A <strong>procedural</strong> approach might use separate arrays for book titles, due dates, and borrower names, with standalone functions like <code>checkOutBook()</code> that reach into all of them — data and logic scattered and easy to desynchronize.</p>
+          <p style="margin-bottom:8px;">An <strong>object-oriented</strong> approach instead creates a <code>Book</code> object (with its own title, due date, and <code>isOverdue()</code> behavior) and a <code>Member</code> object (with their own name and borrowed-books list). Each object manages its own data — which is exactly the kind of real-world modeling OOP is built for.</p>
+          <p style="margin-bottom:8px; font-weight:600;">Your turn (design/create): sketch two more classes this Library System would probably need. For each, name one property (data) and one behavior (action) it would have.</p>
+          <textarea class="answer-box" placeholder="Class name: ...&#10;Property: ...&#10;Behavior: ..."></textarea>
+          <div style="margin-top:10px;"><button class="btn secondary reveal-btn" data-reveal="reveal-library">Show a Sample Answer</button></div>
+          <div class="reveal-box" id="reveal-library">
+            <strong>Librarian</strong> — property: <code>employeeId</code>; behavior: <code>issueFine()</code>.<br>
+            <strong>Catalog</strong> — property: <code>bookList</code>; behavior: <code>search(title)</code>.<br>
+            <em>Many valid answers exist — the key is that each class bundles its own data with its own relevant actions.</em>
+          </div>
+        </div>
+
+        <div class="self-check" data-section="sec6">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. A delivery company wants to track many trucks, each with its own mileage and its own deliver() action. Which paradigm fits best?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Procedural — one shared array with separate functions</button>
+              <button class="sc-opt" data-idx="1">Object-oriented — each truck as its own object</button>
+              <button class="sc-opt" data-idx="2">Neither approach could model this</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. What's the core idea behind object-oriented programming?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Bundling data and the behavior that acts on it into one unit</button>
+              <button class="sc-opt" data-idx="1">Writing every instruction as one long sequential list</button>
+              <button class="sc-opt" data-idx="2">Avoiding the use of functions entirely</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================ FLASHCARDS PANEL ============================================================ -->
+  <section class="panel" id="panel-flashcards" role="tabpanel" aria-labelledby="tab-flashcards">
+    <p class="intro-lead">20 terms from Module 1, ordered from foundational recall to applied and analytical thinking. Click a card to flip it, then mark whether you knew it.</p>
+
+    <div class="fc-toolbar">
+      <select id="fc-category-filter" aria-label="Filter flashcards by category">
+        <option value="all">All Categories</option>
+      </select>
+      <button class="btn secondary" id="fc-shuffle">🔀 Shuffle</button>
+      <button class="btn secondary" id="fc-reset">↺ Reset Progress</button>
+      <div class="fc-progress">
+        <span>Known: <b id="fc-known-count">0</b></span>
+        <span>Reviewing: <b id="fc-review-count">0</b></span>
+        <span>Total: <b id="fc-total-count">0</b></span>
+      </div>
+    </div>
+
+    <div class="fc-stage">
+      <div class="fc-counter"><span id="fc-position">1</span> / <span id="fc-total">20</span></div>
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <div class="flashcard-inner">
+          <div class="fc-face fc-front">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-front"></span><span class="badge" id="fc-level-front"></span></div>
+            <div class="fc-term" id="fc-term"></div>
+            <div class="fc-hint">Click to reveal the answer</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-back"></span><span class="badge" id="fc-level-back"></span></div>
+            <p id="fc-definition"></p>
+            <div class="fc-hint">Click to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-controls">
+        <button class="btn secondary" id="fc-mark-review">🔁 Still Learning</button>
+        <button class="btn" id="fc-mark-known">✔️ Got It</button>
+      </div>
+      <div class="fc-nav">
+        <button class="btn secondary" id="fc-prev">← Previous</button>
+        <button class="btn secondary" id="fc-next">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ QUIZ PANEL ============================================================ -->
+  <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+    <div class="quiz-wrap">
+      <div class="quiz-intro" id="quiz-intro">
+        <h3 style="color:var(--user-primary);">Module 1 Comprehension Quiz</h3>
+        <p style="color:var(--muted); max-width:460px; margin:0 auto 16px;">12 questions, scaffolded from basic recall up through analysis and evaluation. You'll get feedback and an explanation after every answer.</p>
+        <button class="btn accent" id="quiz-start">Start Quiz</button>
+      </div>
+
+      <div id="quiz-active" style="display:none;">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+        <div class="quiz-card">
+          <div class="quiz-meta">
+            <span class="quiz-qnum" id="quiz-qnum">Question 1 of 12</span>
+            <span class="badge" id="quiz-level-badge"></span>
+          </div>
+          <div class="quiz-qtext" id="quiz-qtext"></div>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-explain" id="quiz-explain"></div>
+          <div class="quiz-footer">
+            <button class="btn" id="quiz-next" disabled>Next Question →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quiz-results" style="display:none;">
+        <div class="quiz-results">
+          <div style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Your Score</div>
+          <div class="quiz-score" id="quiz-final-score">0 / 12</div>
+          <div class="tier-breakdown" id="tier-breakdown"></div>
+          <button class="btn accent" id="quiz-retry">Retry Quiz</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ MATCHING PANEL ============================================================ -->
+  <section class="panel" id="panel-matching" role="tabpanel" aria-labelledby="tab-matching">
+    <p class="intro-lead">Click a term on the left, then click its matching definition on the right. Matched pairs lock in green.</p>
+
+    <div class="match-toolbar">
+      <select id="match-set-select" aria-label="Choose matching set">
+        <option value="0">Set A — Hardware &amp; Software</option>
+        <option value="1">Set B — Process &amp; Paradigm Terms</option>
+      </select>
+      <button class="btn secondary" id="match-reset">↺ Reset</button>
+    </div>
+
+    <div class="match-grid">
+      <div>
+        <div class="match-col-title">Terms</div>
+        <div id="match-terms"></div>
+      </div>
+      <div>
+        <div class="match-col-title">Definitions</div>
+        <div id="match-defs"></div>
+      </div>
+    </div>
+    <div class="match-status" id="match-status">0 of 6 matched</div>
+    <div class="match-complete" id="match-complete">🎉 Great work — all pairs matched correctly!</div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  CSP31A · Module 1 — Introduction to C++ Programming &nbsp;|&nbsp; San Joaquin Delta College, Department of Computer Science
+</footer>
+<script>
+/* ============================================================ DATA ============================================================ */
+
+const flashcardsData = [
+  {cat:"Hardware", level:"Remember", term:"CPU", def:"The computer's \u201cbrain\u201d \u2014 it fetches, decodes, and executes instructions."},
+  {cat:"Hardware", level:"Remember", term:"RAM (Memory)", def:"Fast, temporary workspace that holds the programs and data currently in use. Volatile \u2014 contents are lost when power is off."},
+  {cat:"Hardware", level:"Remember", term:"Storage (SSD/HDD)", def:"Permanent storage for programs and files. Slower than RAM but non-volatile \u2014 it keeps data even when the power is off."},
+  {cat:"Hardware", level:"Remember", term:"I/O Devices", def:"Input and output devices \u2014 keyboard, mouse, monitor, printer \u2014 that let humans interact with the computer."},
+  {cat:"Software", level:"Understand", term:"System Software", def:"Manages hardware and resources so other software can run \u2014 e.g., the operating system, device drivers, and utilities."},
+  {cat:"Software", level:"Understand", term:"Application Software", def:"Software that helps users accomplish tasks \u2014 web browsers, word processors, games, and the C++ programs you'll write."},
+  {cat:"Software", level:"Apply", term:"Classify: Is a web browser system or application software?", def:"Application software \u2014 it helps the user accomplish a task (browsing the web), rather than managing hardware."},
+  {cat:"How It Works", level:"Understand", term:"Fetch\u2013Decode\u2013Execute Cycle", def:"Fetch: CPU retrieves the next instruction. Decode: CPU translates it into an actionable signal. Execute: CPU carries it out. Then it repeats."},
+  {cat:"How It Works", level:"Apply", term:"Order by speed (fastest\u2192slowest): Storage, RAM, CPU Registers", def:"CPU Registers \u2192 RAM \u2192 Storage. Speed decreases and capacity increases as you move down the hierarchy."},
+  {cat:"Languages", level:"Remember", term:"Machine Language", def:"Binary (1s and 0s) that the CPU runs directly. No translation needed, but essentially unreadable to humans."},
+  {cat:"Languages", level:"Remember", term:"Assembly Language", def:"Short mnemonics (MOV, ADD, JMP) that map closely to machine instructions \u2014 closer to hardware, but still tied to one CPU type."},
+  {cat:"Languages", level:"Understand", term:"High-Level Language", def:"English-like syntax (C++, Python, Java). Readable and portable, but needs a compiler or interpreter to run."},
+  {cat:"Languages", level:"Understand", term:"Syntax vs. Semantics", def:"Syntax = the grammar rules for valid statements. Semantics = the actual meaning/behavior of those statements."},
+  {cat:"IPO", level:"Remember", term:"Input \u2192 Process \u2192 Output", def:"Input: data the program receives. Process: instructions that transform the data. Output: the result the program produces."},
+  {cat:"IPO", level:"Apply", term:"Apply IPO: a program that converts miles to kilometers", def:"Input: miles value. Process: multiply by 1.609. Output: display the kilometers value."},
+  {cat:"Process", level:"Understand", term:"Compiling", def:"Translates source code into machine code and catches syntax errors along the way \u2014 but does NOT guarantee the logic is correct."},
+  {cat:"Process", level:"Understand", term:"Testing vs. Debugging", def:"Testing runs the program and compares actual results to expected results. Debugging locates and fixes the logic errors testing revealed."},
+  {cat:"Paradigms", level:"Remember", term:"Procedural Programming", def:"Organizes code as a sequence of steps grouped into functions; data and functions are kept separate."},
+  {cat:"Paradigms", level:"Understand", term:"Object-Oriented Programming (OOP)", def:"Bundles data and behavior together into objects that model real-world entities (e.g., a Car object with speed and accelerate())."},
+  {cat:"Paradigms", level:"Analyze", term:"Analyze: modeling a fleet of delivery trucks, each with mileage, cargo, and a deliver() action \u2014 procedural or OOP?", def:"Object-Oriented \u2014 each truck is naturally an object bundling its own data (mileage, cargo) with its own behavior (deliver())."}
+];
+
+const quizData = [
+  {level:"Remember", q:"Which of these is an example of hardware?", opts:["The operating system","A web browser","RAM","A C++ compiler program"], correct:2, explain:"RAM is a physical component inside the computer. The OS, browser, and compiler are all software \u2014 instructions the hardware runs."},
+  {level:"Remember", q:"What does the \u201cD\u201d stand for in the Fetch\u2013Decode\u2013Execute cycle?", opts:["Data","Decode","Display","Debug"], correct:1, explain:"Decode is the middle stage: the CPU translates the fetched instruction into a signal it can act on, right before executing it."},
+  {level:"Understand", q:"Which best describes RAM?", opts:["Permanent storage that keeps data with the power off","Fast, temporary workspace that loses its contents when power is off","An input device for interacting with the computer","A type of high-level programming language"], correct:1, explain:"RAM is volatile \u2014 fast, but it clears when power is lost. That's the opposite of storage (SSD/HDD), which is slower but non-volatile."},
+  {level:"Understand", q:"Which programming language level is closest to what the CPU runs directly?", opts:["High-level language","Assembly language","Machine language","Pseudocode"], correct:2, explain:"Machine language is pure binary \u2014 the CPU executes it with no translation step. Assembly is closer than high-level, but still needs an assembler."},
+  {level:"Understand", q:"A compiler's job is to\u2026", opts:["Guarantee the program's logic is completely correct","Translate source code into machine code and catch syntax errors","Physically speed up the CPU","Automatically design the algorithm for you"], correct:1, explain:"Compiling only catches syntax errors during translation. It cannot catch logic errors \u2014 those are found through testing and fixed through debugging."},
+  {level:"Apply", q:"In a BMI calculator program, \u201cmultiplying and dividing the height and weight values\u201d belongs to which IPO stage?", opts:["Input","Process","Output","None of these"], correct:1, explain:"Any step that transforms the data you already have is the Process stage \u2014 input is collecting the raw values, output is displaying the result."},
+  {level:"Apply", q:"You just finished writing your C++ source code with no errors visible. What's the very next step in the programming process?", opts:["Maintain","Analyze the problem","Compile","Ship it to users"], correct:2, explain:"Analyze and Design happen before coding. Once code is written, the next step is to Compile it \u2014 translating it into machine instructions and catching syntax errors."},
+  {level:"Apply", q:"For a Celsius-to-Fahrenheit converter (F = C \u00d7 9/5 + 32), what is the Process step?", opts:["Reading the Celsius value from the user","Multiplying by 9/5 and adding 32","Displaying the Fahrenheit value","Declaring a variable named temperature"], correct:1, explain:"The Process stage is the transformation of the input data \u2014 here, applying the conversion formula to the Celsius value."},
+  {level:"Analyze", q:"Which scenario is better suited to an object-oriented design?", opts:["Printing \u201cHello, World!\u201d to the screen once","Averaging three test scores entered by the user","Managing a fleet of hundreds of delivery trucks, each with its own mileage, cargo, and delivery behavior","Converting a single temperature value from one unit to another"], correct:2, explain:"OOP shines when you have many similar real-world entities that each carry their own data and behavior \u2014 exactly the fleet-of-trucks case. The other tasks are simple, linear, and well-suited to a short procedural script."},
+  {level:"Analyze", q:"Why does procedural programming tend to struggle as real-world systems grow large?", opts:["It runs slower on modern CPUs","Data and the functions that operate on it are kept separate, making related things hard to keep organized and model directly","It cannot use loops or conditionals","It requires a different CPU than object-oriented code"], correct:1, explain:"The core limitation is organizational: when data lives apart from the functions that use it, large programs become harder to maintain, and real-world entities (a Car, a Student) are harder to represent directly."},
+  {level:"Evaluate", q:"A classmate says: \u201cOOP is just procedural programming with extra syntax.\u201d Which response best evaluates that claim?", opts:["Agree \u2014 both eventually compile to the same machine code, so there's no real difference", "Disagree \u2014 OOP bundles data and behavior into objects, changing how a program is organized and modeled, not just how it's written", "Agree \u2014 OOP doesn't use functions at all, so it's a completely separate skill", "Disagree \u2014 procedural programming cannot use variables, while OOP can"], correct:1, explain:"The disagreement is well-founded: OOP's core difference is structural \u2014 bundling data with the behavior that acts on it \u2014 which is a design/organizational shift, not merely a syntax change."},
+  {level:"Evaluate", q:"Which design best reflects object-oriented principles for a Library Management System?", opts:["One giant function that loops through global arrays of titles, due dates, and borrower names", "A Book class (title, due date, isOverdue()) and a Member class (name, borrowedBooks) that each manage their own data", "A single text file with no code structure at all", "A set of unrelated global variables edited directly by every function in the program"], correct:1, explain:"Bundling each entity's data with its own relevant behavior \u2014 Book with isOverdue(), Member with its borrowed list \u2014 is the hallmark of object-oriented design, and it's what makes the system easier to extend and maintain."}
+];
+
+const matchingSets = [
+  {
+    name:"Hardware & Software",
+    pairs:[
+      {term:"CPU", def:"Fetches and executes instructions"},
+      {term:"RAM", def:"Fast, temporary workspace for running programs"},
+      {term:"Storage", def:"Permanent, non-volatile storage for files"},
+      {term:"System Software", def:"Manages hardware and resources"},
+      {term:"Application Software", def:"Helps users accomplish tasks"},
+      {term:"I/O Device", def:"Lets humans interact with the computer"}
+    ]
+  },
+  {
+    name:"Process & Paradigm Terms",
+    pairs:[
+      {term:"Analyze", def:"Understand the problem and requirements"},
+      {term:"Design", def:"Plan the algorithm or logic"},
+      {term:"Compile", def:"Translate code into machine instructions"},
+      {term:"Debug", def:"Locate and fix logic errors"},
+      {term:"Procedural", def:"Keeps functions and data separate"},
+      {term:"Object-Oriented", def:"Bundles data and behavior into objects"}
+    ]
+  }
+];
+
+const levelBadgeClass = {
+  "Remember":"badge-remember", "Understand":"badge-understand", "Apply":"badge-apply",
+  "Analyze":"badge-analyze", "Evaluate":"badge-evaluate", "Create":"badge-create"
+};
+
+/* ============================================================ TABS ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ============================================================ ACCORDION ============================================================ */
+document.querySelectorAll('.section-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    const body = document.getElementById(head.dataset.target);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    head.setAttribute('aria-expanded', String(!isOpen));
+  });
+});
+
+/* ============================================================ REVEAL BUTTONS (worked example / case study) ============================================================ */
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const box = document.getElementById(btn.dataset.reveal);
+    box.classList.toggle('shown');
+    btn.textContent = box.classList.contains('shown') ? 'Hide Model Answer' : btn.textContent.replace('Hide','Show');
+  });
+});
+
+/* ============================================================ MINI SELF-CHECKS ============================================================ */
+document.querySelectorAll('.sc-question').forEach(q=>{
+  const correctIdx = parseInt(q.dataset.correct, 10);
+  const feedback = q.querySelector('.sc-feedback');
+  q.querySelectorAll('.sc-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const idx = parseInt(opt.dataset.idx, 10);
+      q.querySelectorAll('.sc-opt').forEach(o=>o.disabled = true);
+      if(idx === correctIdx){
+        opt.classList.add('correct');
+        feedback.textContent = '\u2713 Correct \u2014 nice work.';
+        feedback.className = 'sc-feedback shown right';
+      } else {
+        opt.classList.add('incorrect');
+        q.querySelector('[data-idx="'+correctIdx+'"]').classList.add('correct');
+        feedback.textContent = '\u2717 Not quite \u2014 review the highlighted answer above.';
+        feedback.className = 'sc-feedback shown wrong';
+      }
+    });
+  });
+});
+
+/* ============================================================ FLASHCARDS ============================================================ */
+let fcDeck = flashcardsData.map((c,i)=>({...c, id:i, status:'new'}));
+let fcFiltered = [...fcDeck];
+let fcIndex = 0;
+
+function fcPopulateCategories(){
+  const sel = document.getElementById('fc-category-filter');
+  const cats = [...new Set(flashcardsData.map(c=>c.cat))];
+  cats.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function fcRender(){
+  const card = fcFiltered[fcIndex];
+  const el = document.getElementById('flashcard');
+  el.classList.remove('flipped');
+  if(!card){
+    document.getElementById('fc-term').textContent = 'No cards in this category.';
+    document.getElementById('fc-definition').textContent = '';
+    return;
+  }
+  document.getElementById('fc-term').textContent = card.term;
+  document.getElementById('fc-definition').textContent = card.def;
+  document.getElementById('fc-cat-front').textContent = card.cat;
+  document.getElementById('fc-cat-back').textContent = card.cat;
+  const badgeFront = document.getElementById('fc-level-front');
+  const badgeBack = document.getElementById('fc-level-back');
+  badgeFront.textContent = card.level; badgeFront.className = 'badge ' + levelBadgeClass[card.level];
+  badgeBack.textContent = card.level; badgeBack.className = 'badge ' + levelBadgeClass[card.level];
+  document.getElementById('fc-position').textContent = fcIndex + 1;
+  document.getElementById('fc-total').textContent = fcFiltered.length;
+  fcUpdateProgress();
+}
+
+function fcUpdateProgress(){
+  const known = fcDeck.filter(c=>c.status==='known').length;
+  const review = fcDeck.filter(c=>c.status==='review').length;
+  document.getElementById('fc-known-count').textContent = known;
+  document.getElementById('fc-review-count').textContent = review;
+  document.getElementById('fc-total-count').textContent = fcDeck.length;
+}
+
+document.getElementById('flashcard').addEventListener('click', ()=>{
+  document.getElementById('flashcard').classList.toggle('flipped');
+});
+document.getElementById('flashcard').addEventListener('keypress', (e)=>{
+  if(e.key === 'Enter' || e.key === ' '){ document.getElementById('flashcard').classList.toggle('flipped'); }
+});
+
+document.getElementById('fc-next').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex + 1) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-prev').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex - 1 + fcFiltered.length) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-mark-known').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'known';
+  fcUpdateProgress();
+});
+document.getElementById('fc-mark-review').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'review';
+  fcUpdateProgress();
+});
+document.getElementById('fc-shuffle').addEventListener('click', ()=>{
+  for(let i = fcFiltered.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [fcFiltered[i], fcFiltered[j]] = [fcFiltered[j], fcFiltered[i]];
+  }
+  fcIndex = 0;
+  fcRender();
+});
+document.getElementById('fc-reset').addEventListener('click', ()=>{
+  fcDeck.forEach(c=>c.status='new');
+  fcUpdateProgress();
+});
+document.getElementById('fc-category-filter').addEventListener('change', (e)=>{
+  const val = e.target.value;
+  fcFiltered = val==='all' ? [...fcDeck] : fcDeck.filter(c=>c.cat===val);
+  fcIndex = 0;
+  fcRender();
+});
+
+fcPopulateCategories();
+fcRender();
+
+/* ============================================================ QUIZ ============================================================ */
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let quizTierResults = {};
+
+function quizStart(){
+  quizIndex = 0; quizScore = 0; quizAnswered = false;
+  quizTierResults = {};
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-active').style.display = 'block';
+  quizRenderQuestion();
+}
+
+function quizRenderQuestion(){
+  quizAnswered = false;
+  const q = quizData[quizIndex];
+  document.getElementById('quiz-qnum').textContent = 'Question ' + (quizIndex+1) + ' of ' + quizData.length;
+  const badge = document.getElementById('quiz-level-badge');
+  badge.textContent = q.level; badge.className = 'badge ' + levelBadgeClass[q.level];
+  document.getElementById('quiz-qtext').textContent = q.q;
+  document.getElementById('quiz-progress-fill').style.width = (quizIndex/quizData.length*100) + '%';
+
+  const optsWrap = document.getElementById('quiz-options');
+  optsWrap.innerHTML = '';
+  q.opts.forEach((optText, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'quiz-opt';
+    b.textContent = optText;
+    b.addEventListener('click', ()=>quizAnswer(idx));
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('quiz-explain').classList.remove('shown');
+  document.getElementById('quiz-next').disabled = true;
+}
+
+function quizAnswer(idx){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i)=>{
+    o.disabled = true;
+    if(i === q.correct) o.classList.add('correct');
+    else if(i === idx) o.classList.add('incorrect');
+  });
+  quizTierResults[q.level] = quizTierResults[q.level] || {correct:0, total:0};
+  quizTierResults[q.level].total++;
+  if(idx === q.correct){
+    quizScore++;
+    quizTierResults[q.level].correct++;
+  }
+  const explainBox = document.getElementById('quiz-explain');
+  explainBox.innerHTML = (idx===q.correct ? '<strong>\u2713 Correct.</strong> ' : '<strong>\u2717 Not quite.</strong> ') + q.explain;
+  explainBox.classList.add('shown');
+  document.getElementById('quiz-next').disabled = false;
+}
+
+document.getElementById('quiz-next').addEventListener('click', ()=>{
+  quizIndex++;
+  if(quizIndex >= quizData.length){
+    quizShowResults();
+  } else {
+    quizRenderQuestion();
+  }
+});
+
+function quizShowResults(){
+  document.getElementById('quiz-active').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'block';
+  document.getElementById('quiz-final-score').textContent = quizScore + ' / ' + quizData.length;
+  const tierWrap = document.getElementById('tier-breakdown');
+  tierWrap.innerHTML = '';
+  Object.keys(quizTierResults).forEach(level=>{
+    const r = quizTierResults[level];
+    const chip = document.createElement('div');
+    chip.className = 'tier-chip';
+    chip.innerHTML = '<div class="tier-score">'+r.correct+'/'+r.total+'</div><div class="tier-label">'+level+'</div>';
+    tierWrap.appendChild(chip);
+  });
+}
+
+document.getElementById('quiz-start').addEventListener('click', quizStart);
+document.getElementById('quiz-retry').addEventListener('click', ()=>{
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-intro').style.display = 'block';
+});
+
+/* ============================================================ MATCHING ============================================================ */
+let matchCurrentSet = 0;
+let matchSelectedTerm = null;
+let matchSelectedDef = null;
+let matchMatchedCount = 0;
+let matchTermOrder = [];
+let matchDefOrder = [];
+
+function matchInit(setIdx){
+  matchCurrentSet = setIdx;
+  matchSelectedTerm = null; matchSelectedDef = null; matchMatchedCount = 0;
+  document.getElementById('match-complete').classList.remove('shown');
+  const pairs = matchingSets[setIdx].pairs;
+
+  matchTermOrder = pairs.map((p,i)=>i);
+  matchDefOrder = pairs.map((p,i)=>i);
+  shuffleArr(matchTermOrder);
+  shuffleArr(matchDefOrder);
+
+  const termsWrap = document.getElementById('match-terms');
+  const defsWrap = document.getElementById('match-defs');
+  termsWrap.innerHTML = '';
+  defsWrap.innerHTML = '';
+
+  matchTermOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].term;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectTerm(b, i));
+    termsWrap.appendChild(b);
+  });
+  matchDefOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].def;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectDef(b, i));
+    defsWrap.appendChild(b);
+  });
+  matchUpdateStatus();
+}
+
+function shuffleArr(arr){
+  for(let i=arr.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+
+function matchSelectTerm(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-terms .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedTerm = {el, pairIdx};
+  matchTryPair();
+}
+function matchSelectDef(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-defs .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedDef = {el, pairIdx};
+  matchTryPair();
+}
+
+function matchTryPair(){
+  if(!matchSelectedTerm || !matchSelectedDef) return;
+  if(matchSelectedTerm.pairIdx === matchSelectedDef.pairIdx){
+    matchSelectedTerm.el.classList.remove('selected');
+    matchSelectedDef.el.classList.remove('selected');
+    matchSelectedTerm.el.classList.add('matched');
+    matchSelectedDef.el.classList.add('matched');
+    matchMatchedCount++;
+    matchUpdateStatus();
+    if(matchMatchedCount === matchingSets[matchCurrentSet].pairs.length){
+      document.getElementById('match-complete').classList.add('shown');
+    }
+  } else {
+    matchSelectedTerm.el.classList.add('shake');
+    matchSelectedDef.el.classList.add('shake');
+    setTimeout(()=>{
+      matchSelectedTerm.el.classList.remove('selected','shake');
+      matchSelectedDef.el.classList.remove('selected','shake');
+    }, 420);
+  }
+  matchSelectedTerm = null; matchSelectedDef = null;
+}
+
+function matchUpdateStatus(){
+  document.getElementById('match-status').textContent = matchMatchedCount + ' of ' + matchingSets[matchCurrentSet].pairs.length + ' matched';
+}
+
+document.getElementById('match-set-select').addEventListener('change', (e)=>{
+  matchInit(parseInt(e.target.value,10));
+});
+document.getElementById('match-reset').addEventListener('click', ()=>{
+  matchInit(matchCurrentSet);
+});
+
+matchInit(0);
+</script>
+</body>
+</html>
