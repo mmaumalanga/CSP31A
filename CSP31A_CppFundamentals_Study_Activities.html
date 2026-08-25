@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP31A · C++ Fundamentals Study Activities — San Joaquin Delta College</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --user-primary:#1a4480;
+    --user-accent:#c8102e;
+    --user-background:#ffffff;
+    --primary-dark:#0f2c54;
+    --primary-tint:#eaf0f8;
+    --accent-tint:#fbe9ec;
+    --ink:#12203a;
+    --muted:#52627a;
+    --border:#d7e0ea;
+    --success:#1e7d4a;
+    --success-tint:#e6f4ec;
+    --warn-tint:#fff4e0;
+    --warn:#a35b00;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(15,44,84,0.08);
+    --shadow-lg:0 12px 32px rgba(15,44,84,0.16);
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--user-background);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-weight:800; margin:0 0 .4em; line-height:1.25;}
+  p{margin:0 0 .8em;}
+  code, .mono{font-family:var(--font-mono);}
+  button{font-family:inherit; cursor:pointer;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  /* ---------- Header / Tabs ---------- */
+  header.app-header{
+    position:sticky; top:0; z-index:50;
+    background:var(--user-primary);
+    color:#fff;
+    box-shadow:var(--shadow-lg);
+  }
+  .header-inner{
+    max-width:1100px; margin:0 auto; padding:14px 20px 0;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:.14em; font-weight:700; text-transform:uppercase;
+    color:#bcd0ee; margin-bottom:2px;
+  }
+  .app-header h1{
+    font-size:22px; margin:0 0 12px; color:#fff;
+  }
+  nav.tabbar{
+    display:flex; gap:4px; overflow-x:auto; scrollbar-width:none;
+    border-bottom:1px solid rgba(255,255,255,0.18);
+  }
+  nav.tabbar::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    background:transparent; border:none; color:#cfe0f5;
+    padding:11px 18px; font-size:14.5px; font-weight:600;
+    border-bottom:3px solid transparent; white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .tab-btn .tab-emoji{margin-right:6px;}
+  .tab-btn:hover{color:#fff; background:rgba(255,255,255,0.08);}
+  .tab-btn[aria-selected="true"]{
+    color:#fff; border-bottom-color:var(--user-accent);
+  }
+
+  main{max-width:1100px; margin:0 auto; padding:28px 20px 80px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .intro-lead{
+    font-size:16px; color:var(--muted); max-width:760px;
+  }
+
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.03em;
+    padding:3px 9px; border-radius:999px; text-transform:uppercase;
+  }
+  .badge-remember{background:#e7edf8; color:#2a4c85;}
+  .badge-understand{background:#e2f2ec; color:#1e7d4a;}
+  .badge-apply{background:#fff1de; color:#a35b00;}
+  .badge-analyze{background:#f7e6ea; color:#a01238;}
+  .badge-evaluate{background:#efe4f7; color:#6a2fa3;}
+  .badge-create{background:#e0f2f7; color:#0d6d84;}
+
+  /* ---------- Accordion (Learn tab) ---------- */
+  .section-card{
+    border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:14px; overflow:hidden; background:#fff;
+  }
+  .section-head{
+    width:100%; display:flex; align-items:center; gap:12px;
+    background:var(--primary-tint); border:none; padding:16px 18px;
+    text-align:left; font-size:16px; font-weight:700; color:var(--user-primary);
+  }
+  .section-head .num{
+    display:flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:8px; background:var(--user-primary);
+    color:#fff; font-size:13px; flex-shrink:0;
+  }
+  .section-head .chev{margin-left:auto; transition:transform .2s ease; font-size:14px; color:var(--muted);}
+  .section-head[aria-expanded="true"] .chev{transform:rotate(180deg);}
+  .section-body{padding:0 20px; max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease;}
+  .section-body.open{padding:18px 20px 24px; max-height:4000px;}
+
+  ul.clean{margin:0 0 14px; padding-left:20px;}
+  ul.clean li{margin-bottom:7px;}
+  ul.clean li::marker{color:var(--user-accent);}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:680px){.two-col{grid-template-columns:1fr;}}
+
+  .mini-card{
+    background:var(--primary-tint); border-radius:12px; padding:14px 16px;
+  }
+  .mini-card h4{color:var(--user-primary); font-size:14.5px; margin-bottom:6px;}
+
+  table.data-table{
+    width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:14px;
+  }
+  table.data-table th{
+    background:var(--user-primary); color:#fff; text-align:left;
+    padding:9px 12px; font-size:12.5px; letter-spacing:.02em;
+  }
+  table.data-table td{
+    padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top;
+  }
+  table.data-table tr:nth-child(even) td{background:#f7fafc;}
+
+  /* callouts */
+  .callout{
+    border-radius:12px; padding:14px 16px; margin:14px 0; border:1px solid transparent;
+  }
+  .callout-title{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .callout.misconception{background:var(--accent-tint); border-color:#f3c3cc;}
+  .callout.misconception .callout-title{color:var(--user-accent);}
+  .callout.worked{background:var(--primary-tint); border-color:#c7d7ec;}
+  .callout.worked .callout-title{color:var(--user-primary);}
+  .callout.apply{background:var(--warn-tint); border-color:#f0d9a8;}
+  .callout.apply .callout-title{color:var(--warn);}
+  .callout.real-world{background:var(--success-tint); border-color:#bfe3cd;}
+  .callout.real-world .callout-title{color:var(--success);}
+
+  .reasoning-step{
+    display:flex; gap:10px; padding:8px 0; border-top:1px dashed #c7d7ec;
+  }
+  .reasoning-step:first-of-type{border-top:none;}
+  .reasoning-step .step-tag{
+    flex-shrink:0; font-size:11px; font-weight:800; color:#fff; background:var(--user-primary);
+    border-radius:6px; padding:3px 8px; height:fit-content; text-transform:uppercase;
+  }
+
+  textarea.answer-box{
+    width:100%; min-height:70px; border:1px solid var(--border); border-radius:10px;
+    padding:10px 12px; font-family:var(--font-body); font-size:14px; resize:vertical;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--user-primary); color:#fff; border:none; border-radius:9px;
+    padding:9px 16px; font-size:13.5px; font-weight:600; transition:filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn.secondary{background:#fff; color:var(--user-primary); border:1.5px solid var(--user-primary);}
+  .btn.accent{background:var(--user-accent);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .reveal-box{
+    display:none; margin-top:10px; background:#fff; border:1px dashed #c7d7ec; border-radius:10px; padding:12px 14px; font-size:14px;
+  }
+  .reveal-box.shown{display:block;}
+
+  /* ---------- Mini self-check ---------- */
+  .self-check{
+    margin-top:18px; border:1.5px solid var(--user-primary); border-radius:12px; padding:16px 18px;
+    background:#fbfdff;
+  }
+  .self-check-title{
+    font-weight:800; font-size:14px; color:var(--user-primary);
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .sc-question{margin-bottom:14px;}
+  .sc-question p.q-text{font-weight:600; font-size:14.5px; margin-bottom:8px;}
+  .sc-options{display:flex; flex-direction:column; gap:7px;}
+  .sc-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:9px;
+    padding:9px 12px; font-size:14px; color:var(--ink); transition:all .12s ease;
+  }
+  .sc-opt:hover{border-color:var(--user-primary);}
+  .sc-opt.correct{background:var(--success-tint); border-color:var(--success); color:#155c37; font-weight:600;}
+  .sc-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); color:#8f0c22; font-weight:600;}
+  .sc-opt[disabled]{cursor:default;}
+  .sc-feedback{font-size:13.5px; margin-top:8px; padding:8px 10px; border-radius:8px; display:none;}
+  .sc-feedback.shown{display:block;}
+  .sc-feedback.right{background:var(--success-tint); color:#155c37;}
+  .sc-feedback.wrong{background:var(--accent-tint); color:#8f0c22;}
+
+  /* ---------- Flashcards ---------- */
+  .fc-toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px;
+  }
+  .fc-toolbar select{
+    padding:8px 12px; border-radius:9px; border:1.5px solid var(--border); font-size:13.5px; font-family:inherit;
+    background:#fff;
+  }
+  .fc-progress{
+    margin-left:auto; font-size:13px; color:var(--muted); display:flex; gap:14px;
+  }
+  .fc-progress b{color:var(--ink);}
+  .fc-stage{
+    max-width:560px; margin:0 auto;
+  }
+  .fc-counter{text-align:center; font-size:13px; color:var(--muted); margin-bottom:10px;}
+  .flashcard{
+    perspective:1400px; height:260px; cursor:pointer; margin-bottom:18px;
+  }
+  .flashcard-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+  .fc-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:16px; padding:26px; display:flex; flex-direction:column;
+    box-shadow:var(--shadow-lg); border:1px solid var(--border);
+  }
+  .fc-front{background:var(--user-primary); color:#fff; justify-content:center; align-items:center; text-align:center; gap:14px;}
+  .fc-front .fc-term{font-size:22px; font-weight:800;}
+  .fc-back{background:#fff; transform:rotateY(180deg); justify-content:center;}
+  .fc-back p{font-size:15.5px; color:var(--ink); margin:0;}
+  .fc-tag-row{position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between;}
+  .fc-cat{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#cfe0f5; font-weight:700;}
+  .fc-back .fc-cat{color:var(--muted);}
+  .fc-hint{font-size:12px; color:#cfe0f5; margin-top:auto;}
+  .fc-back .fc-hint{color:var(--muted); margin-top:14px;}
+
+  .fc-controls{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .fc-nav{display:flex; justify-content:space-between; margin-top:16px;}
+
+  /* ---------- Quiz ---------- */
+  .quiz-intro{
+    background:var(--primary-tint); border-radius:14px; padding:22px; text-align:center;
+  }
+  .quiz-wrap{max-width:640px; margin:0 auto;}
+  .quiz-progress-bar{
+    height:8px; background:var(--border); border-radius:99px; overflow:hidden; margin-bottom:18px;
+  }
+  .quiz-progress-fill{height:100%; background:var(--user-accent); width:0%; transition:width .3s ease;}
+  .quiz-card{
+    border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:var(--shadow);
+  }
+  .quiz-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .quiz-qnum{font-size:13px; color:var(--muted); font-weight:600;}
+  .quiz-qtext{font-size:17px; font-weight:700; margin-bottom:16px;}
+  .quiz-options{display:flex; flex-direction:column; gap:9px;}
+  .quiz-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:10px;
+    padding:11px 14px; font-size:14.5px; transition:all .12s ease;
+  }
+  .quiz-opt:hover:not([disabled]){border-color:var(--user-primary); background:var(--primary-tint);}
+  .quiz-opt.correct{background:var(--success-tint); border-color:var(--success); font-weight:700; color:#155c37;}
+  .quiz-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); font-weight:700; color:#8f0c22;}
+  .quiz-explain{
+    margin-top:14px; padding:12px 14px; border-radius:10px; background:#f7fafc; font-size:13.5px; display:none;
+  }
+  .quiz-explain.shown{display:block;}
+  .quiz-footer{display:flex; justify-content:flex-end; margin-top:16px;}
+  .quiz-results{text-align:center; padding:30px 10px;}
+  .quiz-score{font-size:46px; font-weight:800; color:var(--user-primary);}
+  .tier-breakdown{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin:22px 0;
+  }
+  .tier-chip{
+    border:1px solid var(--border); border-radius:12px; padding:12px; text-align:center;
+  }
+  .tier-chip .tier-score{font-size:20px; font-weight:800; color:var(--user-primary);}
+  .tier-chip .tier-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+
+  /* ---------- Matching ---------- */
+  .match-toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;}
+  .match-grid{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  @media (max-width:680px){.match-grid{grid-template-columns:1fr;}}
+  .match-col-title{font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:8px;}
+  .match-item{
+    display:block; width:100%; text-align:left; border:1.5px solid var(--border); background:#fff;
+    border-radius:10px; padding:11px 14px; margin-bottom:9px; font-size:14px; transition:all .12s ease;
+  }
+  .match-item:hover:not(.matched){border-color:var(--user-primary);}
+  .match-item.selected{border-color:var(--user-primary); background:var(--primary-tint); box-shadow:0 0 0 3px rgba(26,68,128,0.12);}
+  .match-item.matched{background:var(--success-tint); border-color:var(--success); color:#155c37; cursor:default; opacity:.85;}
+  .match-item.shake{animation:shake .4s ease;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(3px);}
+    30%,50%,70%{transform:translateX(-5px);} 40%,60%{transform:translateX(5px);}
+  }
+  .match-status{text-align:center; margin-top:18px; font-size:14px; color:var(--muted);}
+  .match-complete{
+    text-align:center; padding:24px; background:var(--success-tint); border-radius:14px; color:#155c37; font-weight:700;
+    display:none;
+  }
+  .match-complete.shown{display:block;}
+
+  footer.app-footer{
+    text-align:center; padding:24px 20px 40px; color:var(--muted); font-size:12.5px;
+  }
+  @media (max-width:600px){
+    .flashcard{height:300px;}
+    .app-header h1{font-size:18px;}
+  }
+
+  /* ---------- Code snippets (C++ Fundamentals) ---------- */
+  code{font-family:var(--font-mono); background:#eef2f6; padding:1px 5px; border-radius:4px; font-size:.93em;}
+  .code-block{
+    background:#0f2c54; color:#e8f0fb; font-family:var(--font-mono); font-size:13px;
+    border-radius:10px; padding:12px 16px; margin:10px 0; line-height:1.6; white-space:pre-wrap;
+  }
+  .code-block .cmt{color:#8fb3dd;}
+  .output-box{
+    background:#0b0b0b; color:#c9f7c9; font-family:var(--font-mono); font-size:13px;
+    border-radius:8px; padding:8px 14px; display:inline-block; margin:4px 0;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="kicker">CSP31A · C++ Programming I · San Joaquin Delta College</div>
+    <h1>C++ Fundamentals</h1>
+    <nav class="tabbar" role="tablist" aria-label="Study activity sections">
+      <button class="tab-btn" role="tab" data-tab="learn" aria-selected="true"><span class="tab-emoji">📘</span>Learn</button>
+      <button class="tab-btn" role="tab" data-tab="flashcards" aria-selected="false"><span class="tab-emoji">🗂️</span>Flashcards</button>
+      <button class="tab-btn" role="tab" data-tab="quiz" aria-selected="false"><span class="tab-emoji">✅</span>Quiz</button>
+      <button class="tab-btn" role="tab" data-tab="matching" aria-selected="false"><span class="tab-emoji">🔗</span>Matching</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================ LEARN PANEL ============================================================ -->
+  <section class="panel active" id="panel-learn" role="tabpanel" aria-labelledby="tab-learn">
+    <p class="intro-lead">Six sections build from basic program structure up through operator precedence and program errors. Each section ends with a quick self-check. Then head to <strong>Flashcards</strong>, the <strong>Quiz</strong>, or the <strong>Matching</strong> activity to practice.</p>
+
+    <!-- SECTION 1 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="true" data-target="sec1"><span class="num">1</span> C++ Program Basics <span class="badge badge-remember" style="margin-left:8px;">Remember</span><span class="chev">▾</span></button>
+      <div class="section-body open" id="sec1">
+        <p>C++ is governed by the ISO C++ standard. <strong>C++11</strong> marked the start of "modern" C++ in 2011, followed by C++14, C++17, C++20, and C++23.</p>
+
+        <table class="data-table">
+          <tr><th>Directive / Operator</th><th>Purpose</th></tr>
+          <tr><td><code>#include</code></td><td>Inserts the content of another file into the program (a preprocessor directive)</td></tr>
+          <tr><td><code>#define</code></td><td>A search-and-replace mechanism (a preprocessor directive)</td></tr>
+          <tr><td><code>&lt;&lt;</code></td><td>Stream insertion operator \u2014 sends its right-hand side to <code>cout</code>, which displays it on screen</td></tr>
+        </table>
+
+        <div class="code-block">cout &lt;&lt; "Programming is fun!";
+cout &lt;&lt; "Hello " &lt;&lt; "there!";  <span class="cmt">// multiple items in one statement</span></div>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px;">Escape Sequences</h4>
+        <p>An escape sequence starts with a backslash (<code>\</code>) and represents a special or non-printable character:</p>
+        <table class="data-table">
+          <tr><th>Sequence</th><th>Meaning</th></tr>
+          <tr><td><code>\n</code></td><td>New line (same as the <code>endl</code> manipulator)</td></tr>
+          <tr><td><code>\t</code></td><td>Tab</td></tr>
+          <tr><td><code>\\</code></td><td>A single backslash character</td></tr>
+          <tr><td><code>\"</code> and <code>\'</code></td><td>Double and single quotation marks</td></tr>
+          <tr><td><code>\0</code></td><td>The null character</td></tr>
+        </table>
+
+        <div class="self-check" data-section="sec1">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. What does the #include directive do?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Defines a search-and-replace macro</button>
+              <button class="sc-opt" data-idx="1">Inserts the content of another file into the program</button>
+              <button class="sc-opt" data-idx="2">Sends output to the screen</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. Which escape sequence produces a new line?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0"><code>\t</code></button>
+              <button class="sc-opt" data-idx="1"><code>\0</code></button>
+              <button class="sc-opt" data-idx="2"><code>\n</code></button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec2"><span class="num">2</span> Data Types &amp; Variables <span class="badge badge-understand" style="margin-left:8px;">Understand</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec2">
+        <p>A <strong>data type</strong> describes the set of possible values and operations for a piece of data. A <strong>variable</strong> is a named storage location in memory (RAM) \u2014 unlike a file on disk, memory is <em>volatile</em> and loses its contents when power is off.</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example \u2014 Binary Storage</div>
+          <p style="margin-bottom:10px;">A char variable named <code>letter</code> stores the bit pattern <code>01000001</code>. What decimal value does that represent?</p>
+          <div class="reasoning-step"><span class="step-tag">Convert</span><span>01000001 in binary = (0×128)+(1×64)+(0×32)+(0×16)+(0×8)+(0×4)+(0×2)+(1×1) = 64+1 = <strong>65</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Interpret</span><span>65 is also the ASCII code for the character <code>'A'</code> \u2014 which is exactly what a char variable holding this bit pattern would print.</span></div>
+        </div>
+
+        <p>C++ offers <strong>type modifiers</strong> to adjust the size and range of the basic integer types:</p>
+        <table class="data-table">
+          <tr><th>Declaration</th><th>Size</th><th>Holds</th></tr>
+          <tr><td class="math">int count;</td><td>4 bytes</td><td>Positive and negative integers</td></tr>
+          <tr><td class="math">unsigned int count;</td><td>4 bytes</td><td>Positive integers only</td></tr>
+          <tr><td class="math">short int count;</td><td>2 bytes</td><td>Positive and negative integers</td></tr>
+          <tr><td class="math">unsigned short int count;</td><td>2 bytes</td><td>Positive integers only (0 to 65,535)</td></tr>
+        </table>
+
+        <div class="self-check" data-section="sec2">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">1. What decimal value does the binary pattern 01000001 represent?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">65</button>
+              <button class="sc-opt" data-idx="1">41</button>
+              <button class="sc-opt" data-idx="2">97</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. Which declaration allocates 2 bytes and holds only non-negative values?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0"><code>int count;</code></button>
+              <button class="sc-opt" data-idx="1"><code>unsigned short int count;</code></button>
+              <button class="sc-opt" data-idx="2"><code>short int count;</code></button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec3"><span class="num">3</span> Type Casting, Floating Point &amp; Literals <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec3">
+        <p><strong>Type coercion</strong> happens automatically: a "shorter" data type is promoted to a "larger" one when needed for an operation.</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example \u2014 Integer vs. Floating-Point Division</div>
+          <div class="reasoning-step"><span class="step-tag">10 / 4</span><span>Both operands are int, so C++ performs integer division and truncates: result is <strong>2</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">10.0 / 4</span><span>One operand (10.0) is floating point, so the other is promoted, giving a floating-point result: <strong>2.5</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">10 / 4.0</span><span>Same promotion applies regardless of which side is floating point: <strong>2.5</strong>.</span></div>
+        </div>
+
+        <p>The floating-point types are <code>float</code>, <code>double</code>, and <code>long double</code>. Floating-point literals like <code>3.14159</code> are <strong>double</strong> by default \u2014 append <code>f</code> to force float (<code>3.14159f</code>) or <code>L</code> to force long double.</p>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px;">The sizeof() Function</h4>
+        <p>The <code>sizeof()</code> function returns the number of bytes a specified data type occupies \u2014 e.g. <code>sizeof(int)</code> typically returns 4.</p>
+
+        <div class="self-check" data-section="sec3">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. What is the result of 13 / 5 in C++, where both operands are int?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">2.6</button>
+              <button class="sc-opt" data-idx="1">2</button>
+              <button class="sc-opt" data-idx="2">3</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. What type is the literal 3.14159 by default, without a suffix?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">double</button>
+              <button class="sc-opt" data-idx="1">float</button>
+              <button class="sc-opt" data-idx="2">int</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec4"><span class="num">4</span> Identifiers, Operators &amp; Constants <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec4">
+        <p><strong>Identifier rules:</strong> the first character must be alphabetic or an underscore; later characters may be alphabetic, digits, or underscores; and identifiers are <strong>case-sensitive</strong> (<code>total</code> and <code>Total</code> are different names).</p>
+
+        <p>The <strong>assignment operator</strong> (<code>=</code>) assigns the right-hand value to the left-hand variable \u2014 it is <em>not</em> a test for equality. Modern C++11 brace initialization (<code>int x{5};</code>) checks type compatibility strictly: <code>int b{2.5};</code> is a syntax error, since a fractional value can't safely fit an int this way.</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example \u2014 Tracing Increment/Decrement</div>
+          <div class="code-block">int count = 5;
+cout &lt;&lt; count;    <span class="cmt">// line A</span>
+cout &lt;&lt; count++;  <span class="cmt">// line B</span>
+cout &lt;&lt; ++count;  <span class="cmt">// line C</span></div>
+          <div class="reasoning-step"><span class="step-tag">Line A</span><span>Simply prints the current value: <strong>5</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Line B</span><span><code>count++</code> is <em>postincrement</em>: it prints the <em>original</em> value first, <strong>5</strong>, then increments count to 6 afterward.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Line C</span><span><code>++count</code> is <em>preincrement</em>: it increments count first (6 → 7), then prints the <em>new</em> value: <strong>7</strong>.</span></div>
+        </div>
+
+        <p>Augmented assignment operators combine an operation with assignment: <code>i += 8;</code> is equivalent to <code>i = i + 8;</code> (similarly for <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>%=</code>).</p>
+
+        <p>A <strong>constant</strong> is declared with the <code>const</code> keyword and cannot change during execution, e.g. <code>const double TAX_RATE = 0.0675;</code> \u2014 often named in uppercase by convention.</p>
+
+        <div class="self-check" data-section="sec4">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">1. int count = 5; cout &lt;&lt; count++; What value is printed, and what is count afterward?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Prints 6; count is 6</button>
+              <button class="sc-opt" data-idx="1">Prints 6; count is 5</button>
+              <button class="sc-opt" data-idx="2">Prints 5; count is 6</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. Which is equivalent to i += 8;?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0"><code>i = 8;</code></button>
+              <button class="sc-opt" data-idx="1"><code>i = i + 8;</code></button>
+              <button class="sc-opt" data-idx="2"><code>i == i + 8;</code></button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec5"><span class="num">5</span> Overflow, Precedence &amp; Associativity <span class="badge badge-analyze" style="margin-left:8px;">Analyze</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec5">
+        <p><strong>Overflow</strong> occurs when a number exceeds a type's maximum limit. <strong>Underflow</strong> (technically "integer wrap-around") occurs when a value drops below the minimum.</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example \u2014 Watching an unsigned short int Overflow</div>
+          <div class="code-block">unsigned short int count = 65534;  <span class="cmt">// max is 65,535</span>
+count = count + 1;
+cout &lt;&lt; count;   <span class="cmt">// line 1</span>
+count = count + 1;
+cout &lt;&lt; count;   <span class="cmt">// line 2</span></div>
+          <div class="reasoning-step"><span class="step-tag">Line 1</span><span>65534 + 1 = 65535, still within range. Prints <strong>65535</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Line 2</span><span>65535 + 1 would be 65536 \u2014 outside the type's range (0 to 65,535). The value wraps back around to <strong>0</strong>. This is overflow in action.</span></div>
+        </div>
+
+        <div class="callout apply">
+          <div class="callout-title">✍️ Your Turn \u2014 Apply It</div>
+          <p style="margin-bottom:8px;">Using the same reasoning, what would <code>cout &lt;&lt; count;</code> print if the code ran <em>one more</em> <code>count = count + 1;</code> after line 2 above (i.e., a third increment)? Write your answer and reasoning, then reveal the answer.</p>
+          <textarea class="answer-box" placeholder="count after the third increment = ..."></textarea>
+          <div style="margin-top:10px;"><button class="btn secondary reveal-btn" data-reveal="reveal-overflow">Show Answer</button></div>
+          <div class="reveal-box" id="reveal-overflow">
+            After line 2, count = 0. Adding 1 gives <strong>1</strong> \u2014 well within range, so no further wrap-around happens this time. Overflow only occurs right at the moment a value would exceed the type's maximum.
+          </div>
+        </div>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px; margin-top:16px;">Precedence &amp; Associativity</h4>
+        <p><code>2 + 6 * 5</code> equals <strong>32</strong>, not 40 \u2014 multiplication has higher precedence than addition, so <code>6*5</code> is evaluated first. When operators share the same precedence, <strong>associativity</strong> decides the order: most arithmetic operators are left-to-right, so <code>5*6.0/4*2</code> evaluates as <code>((5*6.0)/4)*2 = 15.0</code>, not 3.75.</p>
+
+        <div class="self-check" data-section="sec5">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. What is the value of 2 + 6 * 5?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">40</button>
+              <button class="sc-opt" data-idx="1">32</button>
+              <button class="sc-opt" data-idx="2">22</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. An unsigned short int is at its maximum value (65535) and 1 is added. What happens?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">It wraps around to 0</button>
+              <button class="sc-opt" data-idx="1">It becomes 65536 normally</button>
+              <button class="sc-opt" data-idx="2">The program stops with an error message</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec6"><span class="num">6</span> Input/Output, Scope, Errors &amp; Style <span class="badge badge-evaluate" style="margin-left:8px;">Analyze / Evaluate</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec6">
+        <p><code>cin</code> reads from standard input (the keyboard) using the <strong>extraction operator</strong> (<code>&gt;&gt;</code>). Whitespace between values is ignored, but <code>cin</code> stops working as soon as it encounters an invalid value for the target type.</p>
+
+        <p><strong>Scope</strong>: variables declared outside and before <code>main()</code> have <em>global</em> scope and are visible everywhere \u2014 which is why only constants or function prototypes should typically be global (an ordinary global variable can be changed by any function, with no protection). Variables declared inside a function are <em>local</em> to it; keeping variables local is good practice.</p>
+
+        <table class="data-table">
+          <tr><th>Error Type</th><th>Description</th></tr>
+          <tr><td><strong>Syntax error</strong></td><td>A grammar mistake; the compiler catches it and gives hints (missing braces, semicolons, quotation marks, misspelled names)</td></tr>
+          <tr><td><strong>Logic error</strong></td><td>The program runs, but produces the wrong result; found only by desk-checking against expected output</td></tr>
+          <tr><td><strong>Run-time error</strong></td><td>Happens while the program executes, e.g. division by zero</td></tr>
+        </table>
+
+        <div class="callout real-world">
+          <div class="callout-title">🌍 Real-World Application \u2014 Simulating a Die Roll</div>
+          <p>Games and multi-factor authentication codes both rely on random numbers. C++'s <code>srand()</code> sets a starting seed (which must differ each run, or the same "random" sequence repeats every time), and <code>rand()</code> then generates pseudo-random values. To simulate rolling a six-sided die, the raw output of <code>rand()</code> is mapped into the range 1 to 6 inclusive \u2014 a practical example of combining a math library function with a real constraint (a die only has 6 faces).</p>
+        </div>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"Good programming style is just about looks \u2014 it doesn't matter to the compiler."</strong> That's actually correct about the compiler (indentation, spacing, and blank lines don't change how a program runs) \u2014 but style still matters enormously to <em>people</em>. Poor style (no comments, inconsistent indentation, unclear variable names) makes a program much harder for you or a teammate to read, debug, and maintain later, even though it compiles and runs identically either way.</p>
+        </div>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"If my program compiles with no errors, it must be correct."</strong> Compiling successfully only rules out <em>syntax</em> errors. A program can compile perfectly and still contain a <strong>logic error</strong> (like <code>sum = num1 = num2;</code> instead of <code>sum = num1 + num2;</code>) that produces the wrong result every time it runs \u2014 or a <strong>run-time error</strong> (like a division by zero) that only shows up under certain conditions. Compiling clean is necessary, but never sufficient, for correctness.</p>
+        </div>
+
+        <div class="self-check" data-section="sec6">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. A program runs and compiles fine but consistently gives the wrong answer for every input. What kind of error is this?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Syntax error</button>
+              <button class="sc-opt" data-idx="1">Logic error</button>
+              <button class="sc-opt" data-idx="2">Run-time error</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. Why should ordinary (non-constant) variables generally avoid global scope?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Any function could change their value with no protection or control</button>
+              <button class="sc-opt" data-idx="1">C++ does not technically allow global variables at all</button>
+              <button class="sc-opt" data-idx="2">Global variables always cause syntax errors</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============================================================ FLASHCARDS PANEL ============================================================ -->
+  <section class="panel" id="panel-flashcards" role="tabpanel" aria-labelledby="tab-flashcards">
+    <p class="intro-lead">26 terms from C++ Fundamentals, ordered from foundational recall to applied and analytical thinking. Click a card to flip it, then mark whether you knew it.</p>
+
+    <div class="fc-toolbar">
+      <select id="fc-category-filter" aria-label="Filter flashcards by category">
+        <option value="all">All Categories</option>
+      </select>
+      <button class="btn secondary" id="fc-shuffle">🔀 Shuffle</button>
+      <button class="btn secondary" id="fc-reset">↺ Reset Progress</button>
+      <div class="fc-progress">
+        <span>Known: <b id="fc-known-count">0</b></span>
+        <span>Reviewing: <b id="fc-review-count">0</b></span>
+        <span>Total: <b id="fc-total-count">0</b></span>
+      </div>
+    </div>
+
+    <div class="fc-stage">
+      <div class="fc-counter"><span id="fc-position">1</span> / <span id="fc-total">26</span></div>
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <div class="flashcard-inner">
+          <div class="fc-face fc-front">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-front"></span><span class="badge" id="fc-level-front"></span></div>
+            <div class="fc-term" id="fc-term"></div>
+            <div class="fc-hint">Click to reveal the answer</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-back"></span><span class="badge" id="fc-level-back"></span></div>
+            <p id="fc-definition"></p>
+            <div class="fc-hint">Click to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-controls">
+        <button class="btn secondary" id="fc-mark-review">🔁 Still Learning</button>
+        <button class="btn" id="fc-mark-known">✔️ Got It</button>
+      </div>
+      <div class="fc-nav">
+        <button class="btn secondary" id="fc-prev">← Previous</button>
+        <button class="btn secondary" id="fc-next">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ QUIZ PANEL ============================================================ -->
+  <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+    <div class="quiz-wrap">
+      <div class="quiz-intro" id="quiz-intro">
+        <h3 style="color:var(--user-primary);">C++ Fundamentals Comprehension Quiz</h3>
+        <p style="color:var(--muted); max-width:460px; margin:0 auto 16px;">14 questions, scaffolded from basic recall up through analysis and evaluation. You'll get feedback and an explanation after every answer.</p>
+        <button class="btn accent" id="quiz-start">Start Quiz</button>
+      </div>
+
+      <div id="quiz-active" style="display:none;">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+        <div class="quiz-card">
+          <div class="quiz-meta">
+            <span class="quiz-qnum" id="quiz-qnum">Question 1 of 14</span>
+            <span class="badge" id="quiz-level-badge"></span>
+          </div>
+          <div class="quiz-qtext" id="quiz-qtext"></div>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-explain" id="quiz-explain"></div>
+          <div class="quiz-footer">
+            <button class="btn" id="quiz-next" disabled>Next Question →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quiz-results" style="display:none;">
+        <div class="quiz-results">
+          <div style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Your Score</div>
+          <div class="quiz-score" id="quiz-final-score">0 / 12</div>
+          <div class="tier-breakdown" id="tier-breakdown"></div>
+          <button class="btn accent" id="quiz-retry">Retry Quiz</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ MATCHING PANEL ============================================================ -->
+  <section class="panel" id="panel-matching" role="tabpanel" aria-labelledby="tab-matching">
+    <p class="intro-lead">Click a term on the left, then click its matching definition on the right. Matched pairs lock in green.</p>
+
+    <div class="match-toolbar">
+      <select id="match-set-select" aria-label="Choose matching set">
+        <option value="0">Set A — Syntax &amp; I/O Vocabulary</option>
+        <option value="1">Set B — Data Types, Constants &amp; Errors</option>
+      </select>
+      <button class="btn secondary" id="match-reset">↺ Reset</button>
+    </div>
+
+    <div class="match-grid">
+      <div>
+        <div class="match-col-title">Terms</div>
+        <div id="match-terms"></div>
+      </div>
+      <div>
+        <div class="match-col-title">Definitions</div>
+        <div id="match-defs"></div>
+      </div>
+    </div>
+    <div class="match-status" id="match-status">0 of 6 matched</div>
+    <div class="match-complete" id="match-complete">🎉 Great work — all pairs matched correctly!</div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  CSP31A · C++ Programming I — C++ Fundamentals &nbsp;|&nbsp; San Joaquin Delta College, Department of Computer Science
+</footer>
+<script>
+/* ============================================================ DATA ============================================================ */
+
+const flashcardsData = [
+  {cat:"Program Basics", level:"Remember", term:"C++11", def:"The 2011 update to the ISO C++ standard that marked the start of \u201cmodern\u201d C++, followed by C++14, C++17, C++20, and C++23."},
+  {cat:"Program Basics", level:"Remember", term:"#include", def:"A preprocessor directive that inserts the content of another file into the program."},
+  {cat:"Program Basics", level:"Remember", term:"#define", def:"A preprocessor directive that acts as a search-and-replace mechanism."},
+  {cat:"Program Basics", level:"Remember", term:"<< (stream insertion operator)", def:"Sends whatever is on its right-hand side to cout, displaying it on the screen."},
+  {cat:"Program Basics", level:"Remember", term:"\\n and \\t", def:"Escape sequences: \\n produces a new line (same as endl); \\t produces a tab."},
+  {cat:"Data Types", level:"Remember", term:"Data Type", def:"A property describing the set of possible values and operations for a piece of data."},
+  {cat:"Data Types", level:"Remember", term:"Variable", def:"A named storage location in memory (RAM). Memory is volatile \u2014 it loses its contents when power is off, unlike a file on disk."},
+  {cat:"Data Types", level:"Apply", term:"What decimal value does the binary pattern 01000001 represent?", def:"65 \u2014 which is also the ASCII code for the character 'A'."},
+  {cat:"Data Types", level:"Understand", term:"unsigned short int", def:"A 2-byte integer type that holds only non-negative values, from 0 to 65,535."},
+  {cat:"Casting & Literals", level:"Understand", term:"Type Coercion", def:"Automatic type casting \u2014 a \u201cshorter\u201d data type is promoted to a \u201clarger\u201d one when needed for an operation."},
+  {cat:"Casting & Literals", level:"Apply", term:"What is 10 / 4 in C++ (both operands int)?", def:"2 \u2014 integer division truncates any remainder."},
+  {cat:"Casting & Literals", level:"Apply", term:"What is 10.0 / 4 in C++?", def:"2.5 \u2014 one floating-point operand promotes the whole expression to a floating-point result."},
+  {cat:"Casting & Literals", level:"Understand", term:"Floating-point literal default type", def:"A literal like 3.14159 is double by default. Append f for float (3.14159f) or L for long double."},
+  {cat:"Casting & Literals", level:"Remember", term:"sizeof()", def:"Returns the number of bytes a specified data type occupies in memory."},
+  {cat:"Identifiers & Operators", level:"Remember", term:"Identifier Rules", def:"First character must be alphabetic or an underscore; later characters may be alphabetic, digits, or underscores; identifiers are case-sensitive."},
+  {cat:"Identifiers & Operators", level:"Understand", term:"Assignment Operator (=)", def:"Assigns the right-hand value to the left-hand variable. It is NOT a test for equality (that's ==)."},
+  {cat:"Identifiers & Operators", level:"Understand", term:"auto keyword", def:"Introduced in C++11 \u2014 lets the compiler deduce a variable's data type from its initializer, instead of stating the type explicitly."},
+  {cat:"Identifiers & Operators", level:"Analyze", term:"int count=5; cout<<count++; \u2014 what prints, and what is count afterward?", def:"Prints 5 (the original value); count becomes 6 afterward. Postincrement returns the old value, then increments."},
+  {cat:"Identifiers & Operators", level:"Analyze", term:"After the above, cout<<++count; \u2014 what prints?", def:"Prints 7. Preincrement increments count first (6\u21927), then returns the new value."},
+  {cat:"Identifiers & Operators", level:"Understand", term:"Augmented Assignment (+=)", def:"i += 8; is equivalent to i = i + 8; (similarly for -=, *=, /=, %=)."},
+  {cat:"Identifiers & Operators", level:"Remember", term:"Constant (const)", def:"A value that cannot change during execution, declared with the const keyword, e.g. const double TAX_RATE = 0.0675; \u2014 often named in uppercase."},
+  {cat:"Overflow & Precedence", level:"Analyze", term:"unsigned short int count = 65535; count = count + 1; \u2014 what is count afterward?", def:"0 \u2014 65536 exceeds the type's range (max 65,535), so it wraps around back to 0. This is overflow."},
+  {cat:"Overflow & Precedence", level:"Understand", term:"Underflow (integer wrap-around)", def:"Occurs when a value drops below the minimum limit a data type can represent."},
+  {cat:"Overflow & Precedence", level:"Apply", term:"What is 2 + 6 * 5?", def:"32, not 40 \u2014 multiplication has higher precedence than addition, so 6*5 is evaluated first."},
+  {cat:"I/O, Scope & Errors", level:"Remember", term:">> (extraction operator)", def:"Used with cin to pull data from standard input (the keyboard) into a variable."},
+  {cat:"I/O, Scope & Errors", level:"Understand", term:"Logic Error", def:"The program compiles and runs, but produces the wrong result \u2014 found only by desk-checking against expected output (e.g., sum = num1 = num2; instead of sum = num1 + num2;)."}
+];
+
+const quizData = [
+  {level:"Remember", q:"What does the #include preprocessor directive do?", opts:["Defines a search-and-replace macro","Inserts the content of another file into the program","Compiles the program into machine code","Declares a new data type"], correct:1, explain:"#include inserts the content of another file (like a header) into the program before compilation."},
+  {level:"Remember", q:"Which operator sends output to the screen using cout?", opts:[">> (extraction operator)","== (equality operator)","<< (stream insertion operator)","-> (arrow operator)"], correct:2, explain:"The stream insertion operator (<<) sends whatever is on its right-hand side to cout, which displays it on the screen."},
+  {level:"Understand", q:"What does the escape sequence \\n represent?", opts:["A tab character","A new line (same as the endl manipulator)","A backslash character","The null character"], correct:1, explain:"\\n produces a new line, functioning the same way the endl manipulator does."},
+  {level:"Apply", q:"The binary value 01000001 stored in a char variable equals which decimal value?", opts:["65","41","97","1"], correct:0, explain:"01000001 in binary converts to 65 in decimal \u2014 the ASCII code for the character 'A'."},
+  {level:"Remember", q:"How many bytes does an unsigned short int occupy, and what range can it hold?", opts:["4 bytes; \u22122,147,483,648 to +2,147,483,647","2 bytes; \u221232,768 to +32,767","2 bytes; 0 to +65,535","1 byte; 0 to 255"], correct:2, explain:"unsigned short int uses 2 bytes and holds only non-negative values, from 0 to 65,535."},
+  {level:"Analyze", q:"unsigned short int count = 65534; count is incremented by 1 twice. What is count after the second increment?", opts:["65536","65535","0","The program crashes"], correct:2, explain:"After the first increment, count = 65535 (the type's maximum). Adding 1 again exceeds the range and wraps around back to 0 \u2014 this is overflow."},
+  {level:"Apply", q:"What is the result of 10 / 4 in C++, where both operands are int?", opts:["2.5","2","3","2.0"], correct:1, explain:"When both operands are integers, the / operator performs integer division, truncating any remainder: 10/4 = 2."},
+  {level:"Apply", q:"What is the result of 10.0 / 4 in C++?", opts:["2","2.5","2.0 with a compiler error","3"], correct:1, explain:"Because one operand (10.0) is floating point, the other operand is promoted, and the division yields a floating-point result: 2.5."},
+  {level:"Remember", q:"According to C++ identifier rules, what must the first character of an identifier be?", opts:["A digit","Alphabetic or an underscore ( _ )","An uppercase letter only","A special symbol such as $ or #"], correct:1, explain:"The first character of a C++ identifier must be alphabetic or an underscore; digits are allowed only after the first character."},
+  {level:"Apply", q:"Why does the declaration int b{2.5}; cause a syntax error?", opts:["Curly-brace initialization is not allowed in C++","The value 2.5 is incompatible with the int data type when using brace initialization","Variable names cannot be a single letter","int variables cannot be initialized at declaration"], correct:1, explain:"Modern brace initialization strictly checks type compatibility; assigning a non-whole value like 2.5 to an int triggers a syntax error rather than silently truncating it."},
+  {level:"Analyze", q:"int count = 5; cout << count++; is executed, followed by cout << ++count;. What two values are printed, in order?", opts:["6, then 7","5, then 7","5, then 6","6, then 6"], correct:1, explain:"count++ (postincrement) prints the original value (5) before incrementing count to 6. Then ++count (preincrement) increments count to 7 first and prints the new value, 7."},
+  {level:"Analyze", q:"What is the value of 2 + 6 * 5 in C++, and why?", opts:["40, because operators are evaluated strictly left to right","32, because multiplication has higher precedence than addition","32, because addition always happens first","40, because parentheses are implied around the whole expression"], correct:1, explain:"Multiplication has higher precedence than addition, so 6*5 is evaluated first (=30), then 2+30=32."},
+  {level:"Analyze", q:"Why is it recommended that only constants or function prototypes be given global scope, rather than ordinary variables?", opts:["Global ordinary variables can be modified by any function, creating a lack of security/control over their values","C++ does not allow ordinary variables to be declared globally at all","Global variables use more memory than local variables","Global variables cannot be used in mathematical expressions"], correct:0, explain:"A global ordinary variable can be changed by any function in the program with no protection, while a global constant's value can never be modified \u2014 making it safe to share."},
+  {level:"Evaluate", q:"A program compiles with zero errors and runs without crashing, but consistently produces the wrong result for every input. What should you conclude?", opts:["The program has no errors at all, since it compiled and ran","It very likely contains a logic error, which only desk-checking against expected output can catch","It must contain a syntax error the compiler somehow missed","It is a run-time error that will eventually crash the program"], correct:1, explain:"Compiling and running successfully only rules out syntax errors. A program that consistently gives wrong results despite running fine points to a logic error \u2014 which requires comparing actual output to expected output to catch."}
+];
+
+const matchingSets = [
+  {
+    name:"Syntax & I/O Vocabulary",
+    pairs:[
+      {term:"#include", def:"Inserts the content of another file into the program"},
+      {term:"<< (insertion operator)", def:"Sends data to cout, to be displayed on the screen"},
+      {term:">> (extraction operator)", def:"Pulls data from cin into a variable"},
+      {term:"\\n", def:"Escape sequence for a new line"},
+      {term:"\\t", def:"Escape sequence for a tab"},
+      {term:"cout", def:"The standard output stream, typically the screen"}
+    ]
+  },
+  {
+    name:"Data Types, Constants & Errors",
+    pairs:[
+      {term:"unsigned short int", def:"A 2-byte integer type holding only 0 to 65,535"},
+      {term:"const", def:"Keyword that declares a value which cannot change during execution"},
+      {term:"auto", def:"Keyword that lets the compiler deduce a variable's type from its initializer"},
+      {term:"Syntax Error", def:"A grammar mistake caught by the compiler"},
+      {term:"Logic Error", def:"The program runs but produces the wrong result"},
+      {term:"Run-time Error", def:"An error that occurs while the program is executing, e.g. division by zero"}
+    ]
+  }
+];
+
+const levelBadgeClass = {
+  "Remember":"badge-remember", "Understand":"badge-understand", "Apply":"badge-apply",
+  "Analyze":"badge-analyze", "Evaluate":"badge-evaluate", "Create":"badge-create"
+};
+
+/* ============================================================ TABS ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ============================================================ ACCORDION ============================================================ */
+document.querySelectorAll('.section-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    const body = document.getElementById(head.dataset.target);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    head.setAttribute('aria-expanded', String(!isOpen));
+  });
+});
+
+/* ============================================================ REVEAL BUTTONS (worked example / case study) ============================================================ */
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const box = document.getElementById(btn.dataset.reveal);
+    box.classList.toggle('shown');
+    btn.textContent = box.classList.contains('shown') ? 'Hide Model Answer' : btn.textContent.replace('Hide','Show');
+  });
+});
+
+/* ============================================================ MINI SELF-CHECKS ============================================================ */
+document.querySelectorAll('.sc-question').forEach(q=>{
+  const correctIdx = parseInt(q.dataset.correct, 10);
+  const feedback = q.querySelector('.sc-feedback');
+  q.querySelectorAll('.sc-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const idx = parseInt(opt.dataset.idx, 10);
+      q.querySelectorAll('.sc-opt').forEach(o=>o.disabled = true);
+      if(idx === correctIdx){
+        opt.classList.add('correct');
+        feedback.textContent = '\u2713 Correct \u2014 nice work.';
+        feedback.className = 'sc-feedback shown right';
+      } else {
+        opt.classList.add('incorrect');
+        q.querySelector('[data-idx="'+correctIdx+'"]').classList.add('correct');
+        feedback.textContent = '\u2717 Not quite \u2014 review the highlighted answer above.';
+        feedback.className = 'sc-feedback shown wrong';
+      }
+    });
+  });
+});
+
+/* ============================================================ FLASHCARDS ============================================================ */
+let fcDeck = flashcardsData.map((c,i)=>({...c, id:i, status:'new'}));
+let fcFiltered = [...fcDeck];
+let fcIndex = 0;
+
+function fcPopulateCategories(){
+  const sel = document.getElementById('fc-category-filter');
+  const cats = [...new Set(flashcardsData.map(c=>c.cat))];
+  cats.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function fcRender(){
+  const card = fcFiltered[fcIndex];
+  const el = document.getElementById('flashcard');
+  el.classList.remove('flipped');
+  if(!card){
+    document.getElementById('fc-term').textContent = 'No cards in this category.';
+    document.getElementById('fc-definition').textContent = '';
+    return;
+  }
+  document.getElementById('fc-term').textContent = card.term;
+  document.getElementById('fc-definition').textContent = card.def;
+  document.getElementById('fc-cat-front').textContent = card.cat;
+  document.getElementById('fc-cat-back').textContent = card.cat;
+  const badgeFront = document.getElementById('fc-level-front');
+  const badgeBack = document.getElementById('fc-level-back');
+  badgeFront.textContent = card.level; badgeFront.className = 'badge ' + levelBadgeClass[card.level];
+  badgeBack.textContent = card.level; badgeBack.className = 'badge ' + levelBadgeClass[card.level];
+  document.getElementById('fc-position').textContent = fcIndex + 1;
+  document.getElementById('fc-total').textContent = fcFiltered.length;
+  fcUpdateProgress();
+}
+
+function fcUpdateProgress(){
+  const known = fcDeck.filter(c=>c.status==='known').length;
+  const review = fcDeck.filter(c=>c.status==='review').length;
+  document.getElementById('fc-known-count').textContent = known;
+  document.getElementById('fc-review-count').textContent = review;
+  document.getElementById('fc-total-count').textContent = fcDeck.length;
+}
+
+document.getElementById('flashcard').addEventListener('click', ()=>{
+  document.getElementById('flashcard').classList.toggle('flipped');
+});
+document.getElementById('flashcard').addEventListener('keypress', (e)=>{
+  if(e.key === 'Enter' || e.key === ' '){ document.getElementById('flashcard').classList.toggle('flipped'); }
+});
+
+document.getElementById('fc-next').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex + 1) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-prev').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex - 1 + fcFiltered.length) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-mark-known').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'known';
+  fcUpdateProgress();
+});
+document.getElementById('fc-mark-review').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'review';
+  fcUpdateProgress();
+});
+document.getElementById('fc-shuffle').addEventListener('click', ()=>{
+  for(let i = fcFiltered.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [fcFiltered[i], fcFiltered[j]] = [fcFiltered[j], fcFiltered[i]];
+  }
+  fcIndex = 0;
+  fcRender();
+});
+document.getElementById('fc-reset').addEventListener('click', ()=>{
+  fcDeck.forEach(c=>c.status='new');
+  fcUpdateProgress();
+});
+document.getElementById('fc-category-filter').addEventListener('change', (e)=>{
+  const val = e.target.value;
+  fcFiltered = val==='all' ? [...fcDeck] : fcDeck.filter(c=>c.cat===val);
+  fcIndex = 0;
+  fcRender();
+});
+
+fcPopulateCategories();
+fcRender();
+
+/* ============================================================ QUIZ ============================================================ */
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let quizTierResults = {};
+
+function quizStart(){
+  quizIndex = 0; quizScore = 0; quizAnswered = false;
+  quizTierResults = {};
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-active').style.display = 'block';
+  quizRenderQuestion();
+}
+
+function quizRenderQuestion(){
+  quizAnswered = false;
+  const q = quizData[quizIndex];
+  document.getElementById('quiz-qnum').textContent = 'Question ' + (quizIndex+1) + ' of ' + quizData.length;
+  const badge = document.getElementById('quiz-level-badge');
+  badge.textContent = q.level; badge.className = 'badge ' + levelBadgeClass[q.level];
+  document.getElementById('quiz-qtext').textContent = q.q;
+  document.getElementById('quiz-progress-fill').style.width = (quizIndex/quizData.length*100) + '%';
+
+  const optsWrap = document.getElementById('quiz-options');
+  optsWrap.innerHTML = '';
+  q.opts.forEach((optText, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'quiz-opt';
+    b.textContent = optText;
+    b.addEventListener('click', ()=>quizAnswer(idx));
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('quiz-explain').classList.remove('shown');
+  document.getElementById('quiz-next').disabled = true;
+}
+
+function quizAnswer(idx){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i)=>{
+    o.disabled = true;
+    if(i === q.correct) o.classList.add('correct');
+    else if(i === idx) o.classList.add('incorrect');
+  });
+  quizTierResults[q.level] = quizTierResults[q.level] || {correct:0, total:0};
+  quizTierResults[q.level].total++;
+  if(idx === q.correct){
+    quizScore++;
+    quizTierResults[q.level].correct++;
+  }
+  const explainBox = document.getElementById('quiz-explain');
+  explainBox.innerHTML = (idx===q.correct ? '<strong>\u2713 Correct.</strong> ' : '<strong>\u2717 Not quite.</strong> ') + q.explain;
+  explainBox.classList.add('shown');
+  document.getElementById('quiz-next').disabled = false;
+}
+
+document.getElementById('quiz-next').addEventListener('click', ()=>{
+  quizIndex++;
+  if(quizIndex >= quizData.length){
+    quizShowResults();
+  } else {
+    quizRenderQuestion();
+  }
+});
+
+function quizShowResults(){
+  document.getElementById('quiz-active').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'block';
+  document.getElementById('quiz-final-score').textContent = quizScore + ' / ' + quizData.length;
+  const tierWrap = document.getElementById('tier-breakdown');
+  tierWrap.innerHTML = '';
+  Object.keys(quizTierResults).forEach(level=>{
+    const r = quizTierResults[level];
+    const chip = document.createElement('div');
+    chip.className = 'tier-chip';
+    chip.innerHTML = '<div class="tier-score">'+r.correct+'/'+r.total+'</div><div class="tier-label">'+level+'</div>';
+    tierWrap.appendChild(chip);
+  });
+}
+
+document.getElementById('quiz-start').addEventListener('click', quizStart);
+document.getElementById('quiz-retry').addEventListener('click', ()=>{
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-intro').style.display = 'block';
+});
+
+/* ============================================================ MATCHING ============================================================ */
+let matchCurrentSet = 0;
+let matchSelectedTerm = null;
+let matchSelectedDef = null;
+let matchMatchedCount = 0;
+let matchTermOrder = [];
+let matchDefOrder = [];
+
+function matchInit(setIdx){
+  matchCurrentSet = setIdx;
+  matchSelectedTerm = null; matchSelectedDef = null; matchMatchedCount = 0;
+  document.getElementById('match-complete').classList.remove('shown');
+  const pairs = matchingSets[setIdx].pairs;
+
+  matchTermOrder = pairs.map((p,i)=>i);
+  matchDefOrder = pairs.map((p,i)=>i);
+  shuffleArr(matchTermOrder);
+  shuffleArr(matchDefOrder);
+
+  const termsWrap = document.getElementById('match-terms');
+  const defsWrap = document.getElementById('match-defs');
+  termsWrap.innerHTML = '';
+  defsWrap.innerHTML = '';
+
+  matchTermOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].term;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectTerm(b, i));
+    termsWrap.appendChild(b);
+  });
+  matchDefOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].def;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectDef(b, i));
+    defsWrap.appendChild(b);
+  });
+  matchUpdateStatus();
+}
+
+function shuffleArr(arr){
+  for(let i=arr.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+
+function matchSelectTerm(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-terms .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedTerm = {el, pairIdx};
+  matchTryPair();
+}
+function matchSelectDef(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-defs .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedDef = {el, pairIdx};
+  matchTryPair();
+}
+
+function matchTryPair(){
+  if(!matchSelectedTerm || !matchSelectedDef) return;
+  if(matchSelectedTerm.pairIdx === matchSelectedDef.pairIdx){
+    matchSelectedTerm.el.classList.remove('selected');
+    matchSelectedDef.el.classList.remove('selected');
+    matchSelectedTerm.el.classList.add('matched');
+    matchSelectedDef.el.classList.add('matched');
+    matchMatchedCount++;
+    matchUpdateStatus();
+    if(matchMatchedCount === matchingSets[matchCurrentSet].pairs.length){
+      document.getElementById('match-complete').classList.add('shown');
+    }
+  } else {
+    matchSelectedTerm.el.classList.add('shake');
+    matchSelectedDef.el.classList.add('shake');
+    setTimeout(()=>{
+      matchSelectedTerm.el.classList.remove('selected','shake');
+      matchSelectedDef.el.classList.remove('selected','shake');
+    }, 420);
+  }
+  matchSelectedTerm = null; matchSelectedDef = null;
+}
+
+function matchUpdateStatus(){
+  document.getElementById('match-status').textContent = matchMatchedCount + ' of ' + matchingSets[matchCurrentSet].pairs.length + ' matched';
+}
+
+document.getElementById('match-set-select').addEventListener('change', (e)=>{
+  matchInit(parseInt(e.target.value,10));
+});
+document.getElementById('match-reset').addEventListener('click', ()=>{
+  matchInit(matchCurrentSet);
+});
+
+matchInit(0);
+</script>
+</body>
+</html>
