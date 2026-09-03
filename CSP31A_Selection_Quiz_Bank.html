@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selection Structures Practice Questions | CSP31A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --user-primary:#1a4480;
+    --user-accent:#c8102e;
+    --user-background:#ffffff;
+    --primary-light:#2a5ba0;
+    --primary-dark:#0f2c52;
+    --accent-light:#e3506b;
+    --ink:#1c2430;
+    --ink-soft:#4a5567;
+    --line:#dfe4ec;
+    --panel:#f5f7fb;
+    --success:#1b7f4d;
+    --success-bg:#e7f6ee;
+    --danger-bg:#fdeceb;
+    --radius:14px;
+    --shadow:0 6px 24px rgba(15,44,82,0.10);
+    --shadow-sm:0 2px 8px rgba(15,44,82,0.08);
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(180deg,#eef2f9 0%, var(--user-background) 320px);
+    color:var(--ink);
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  code, pre, .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 20px 80px;}
+
+  header.site{
+    background:linear-gradient(120deg,var(--primary-dark) 0%, var(--user-primary) 55%, var(--primary-light) 100%);
+    color:#fff;padding:32px 20px 28px;box-shadow:var(--shadow);
+  }
+  .header-inner{max-width:880px;margin:0 auto;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
+    letter-spacing:.09em;text-transform:uppercase;background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.28);padding:6px 14px;border-radius:999px;
+  }
+  h1.title{font-size:1.9rem;margin:16px 0 6px;font-weight:800;letter-spacing:-0.01em;}
+  .subtitle{font-size:1rem;color:rgba(255,255,255,0.88);max-width:620px;margin:0;}
+  .header-meta{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;}
+  .meta-pill{
+    background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.22);
+    border-radius:10px;padding:7px 12px;font-size:.8rem;color:#fff;
+  }
+  .meta-pill b{color:#ffd7dc;}
+
+  main{padding-top:30px;}
+  .view{display:none;}
+  .view.active{display:block;animation:fadein .2s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  section.block{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;margin-bottom:20px;box-shadow:var(--shadow-sm);
+  }
+
+  /* Progress + jump grid */
+  .quiz-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+  .quiz-progress-track{flex:1;min-width:160px;height:8px;background:var(--panel);border-radius:99px;overflow:hidden;}
+  .quiz-progress-fill{height:100%;background:linear-gradient(90deg,var(--user-primary),var(--user-accent));width:0%;transition:width .25s ease;}
+  .quiz-stats{font-size:.82rem;color:var(--ink-soft);white-space:nowrap;font-weight:600;}
+
+  .jumpgrid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin:14px 0 20px;}
+  @media (max-width:640px){.jumpgrid{grid-template-columns:repeat(8,1fr);}}
+  .jump-btn{
+    aspect-ratio:1;border:1.5px solid var(--line);background:#fff;border-radius:7px;
+    font-size:.75rem;font-weight:700;color:var(--ink-soft);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .jump-btn.current{border-color:var(--user-primary);box-shadow:0 0 0 2px rgba(26,68,128,0.18);}
+  .jump-btn.correct{background:var(--success-bg);border-color:var(--success);color:var(--success);}
+  .jump-btn.incorrect{background:var(--danger-bg);border-color:var(--user-accent);color:var(--user-accent);}
+
+  .q-type-tag{
+    display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--user-accent);margin-bottom:6px;
+  }
+  .q-card{border:1px solid var(--line);border-radius:12px;padding:20px 22px;background:var(--panel);}
+  .q-prompt{font-size:1.02rem;font-weight:600;color:var(--ink);margin:4px 0 6px;white-space:pre-wrap;}
+  .codebox{
+    background:#0f2c52;color:#eaf1ff;border-radius:10px;padding:14px 16px;
+    font-family:'JetBrains Mono',monospace;font-size:.84rem;overflow-x:auto;
+    margin:10px 0 14px;line-height:1.6;white-space:pre;
+  }
+  .q-options{display:flex;flex-direction:column;gap:10px;margin-top:12px;}
+  .q-opt{
+    text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;
+    padding:12px 14px;font-size:.92rem;cursor:pointer;color:var(--ink);
+    transition:border-color .15s, background .15s;font-family:'Inter',sans-serif;
+  }
+  .q-opt .opt-letter{
+    display:inline-block;width:22px;height:22px;border-radius:50%;background:var(--panel);
+    color:var(--ink-soft);font-size:.75rem;font-weight:700;text-align:center;line-height:22px;
+    margin-right:10px;
+  }
+  .q-opt:hover{border-color:var(--user-primary);}
+  .q-opt.correct{border-color:var(--success);background:var(--success-bg);}
+  .q-opt.correct .opt-letter{background:var(--success);color:#fff;}
+  .q-opt.incorrect{border-color:var(--user-accent);background:var(--danger-bg);}
+  .q-opt.incorrect .opt-letter{background:var(--user-accent);color:#fff;}
+  .q-opt.disabled{pointer-events:none;}
+  .asterisk{color:var(--user-accent);font-weight:800;margin-left:6px;}
+
+  .sa-row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .sa-input{
+    flex:1;min-width:200px;border:1.5px solid var(--line);border-radius:9px;padding:11px 14px;
+    font-size:.92rem;font-family:'JetBrains Mono',monospace;color:var(--ink);
+  }
+  .sa-input:focus{outline:none;border-color:var(--user-primary);}
+  .sa-input.correct{border-color:var(--success);background:var(--success-bg);}
+  .sa-input.incorrect{border-color:var(--user-accent);background:var(--danger-bg);}
+
+  .btn{
+    appearance:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;
+    font-size:.88rem;padding:10px 18px;border-radius:9px;transition:transform .1s, background .15s;
+    white-space:nowrap;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:var(--user-primary);color:#fff;}
+  .btn-primary:hover{background:var(--primary-light);}
+  .btn-accent{background:var(--user-accent);color:#fff;}
+  .btn-accent:hover{background:var(--accent-light);}
+  .btn-ghost{background:#fff;color:var(--user-primary);border:1.5px solid var(--line);}
+  .btn-ghost:hover{border-color:var(--user-primary);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+
+  .q-feedback{margin-top:14px;padding:13px 15px;border-radius:9px;font-size:.87rem;display:none;}
+  .q-feedback.show{display:block;animation:fadein .2s ease;}
+  .q-feedback.good{background:var(--success-bg);color:#175c3a;border:1px solid #bfe4cd;}
+  .q-feedback.bad{background:var(--danger-bg);color:#8a1d2c;border:1px solid #f3c6c2;}
+  .q-feedback b{font-weight:700;}
+
+  .quiz-footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;flex-wrap:wrap;gap:10px;}
+
+  .quiz-result{text-align:center;padding:26px 10px;}
+  .quiz-result .big{font-size:2.6rem;font-weight:800;color:var(--user-primary);}
+  .quiz-result p{color:var(--ink-soft);}
+
+  footer.site{text-align:center;padding:26px 20px 46px;color:var(--ink-soft);font-size:.8rem;}
+  footer.site .fname{font-weight:700;color:var(--user-primary);}
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="header-inner">
+    <span class="eyebrow">CSP31A &middot; C++ Programming I &middot; San Joaquin Delta College</span>
+    <h1 class="title">Selection Structures &mdash; Practice Questions</h1>
+    <p class="subtitle">40 review questions covering if/else, relational &amp; logical operators, switch, the ternary operator, and assert &mdash; true/false, multiple choice, and short answer.</p>
+    <div class="header-meta">
+      <span class="meta-pill">📝 <b>40</b> questions</span>
+      <span class="meta-pill">✅ <b>10</b> true/false</span>
+      <span class="meta-pill">🔤 <b>20</b> multiple choice</span>
+      <span class="meta-pill">✏️ <b>10</b> short answer</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ============ INTERACTIVE QUIZ VIEW ============ -->
+  <div class="view active" id="view-quiz">
+    <section class="block">
+      <div class="quiz-top">
+        <span class="quiz-stats" id="quiz-progress-text">Question 1 of 40</span>
+        <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+        <span class="quiz-stats" id="quiz-score-text">Score: 0 / 0</span>
+      </div>
+
+      <div class="jumpgrid" id="jumpgrid"></div>
+
+      <div id="quiz-live">
+        <div class="q-card">
+          <div class="q-type-tag" id="q-type-tag">True / False</div>
+          <div class="q-prompt" id="q-prompt">Loading…</div>
+          <div id="q-code-slot"></div>
+          <div class="q-options" id="q-options"></div>
+          <div class="sa-row" id="sa-row" style="display:none;">
+            <input type="text" class="sa-input" id="sa-input" placeholder="Type your answer…" autocomplete="off">
+            <button class="btn btn-accent" id="sa-check-btn">Check answer</button>
+          </div>
+          <div class="q-feedback" id="q-feedback"></div>
+        </div>
+        <div class="quiz-footer">
+          <button class="btn btn-ghost" onclick="restartQuiz()">↺ Restart quiz</button>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-ghost" id="prev-btn" onclick="prevQuestion()">← Previous</button>
+            <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">Next →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quiz-result" style="display:none;">
+        <div class="quiz-result">
+          <div class="q-type-tag" style="text-align:center;">Quiz complete</div>
+          <div class="big" id="quiz-final-score">0 / 40</div>
+          <p id="quiz-final-msg"></p>
+          <button class="btn btn-primary" onclick="restartQuiz()">Try again</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+</main>
+
+<footer class="site">
+  <p><span class="fname">CSP31A &middot; C++ Programming I</span> — San Joaquin Delta College</p>
+  <p>Selection Structures Practice Questions</p>
+</footer>
+<script>
+/* ============================================================
+   QUESTION DATA
+   type: 'tf' | 'mc' | 'sa'
+   tf/mc: options[], correct = index
+   sa: acceptable = [lowercase strings], correctText = display string
+============================================================ */
+const CODE_21 = `int x = 35;
+int y = 45;
+int z;
+
+if (x > y)
+  z = x + y;
+else
+  z = y - x;
+
+cout << x << " " << y << " " << z << endl;`;
+
+const CODE_24 = `int x = 2, y = 6, z;
+z = (y / x > 0) ? x : y;`;
+
+const CODE_25 = `int x;
+x = (5 <= 3 && 'A' < 'F') ? 3 : 4;`;
+
+const CODE_26 = `char lastInitial = 'S';
+
+switch (lastInitial)
+{
+case 'A':
+  cout << "section 1" << endl;
+  break;
+case 'B':
+  cout << "section 2" << endl;
+  break;
+case 'C':
+  cout << "section 3" << endl;
+  break;
+case 'D':
+  cout << "section 4" << endl;
+  break;
+default:
+  cout << "section 5" << endl;
+}`;
+
+const CODE_27 = `int x = 55;
+int y = 5;
+
+switch (x % 7)
+{
+case 0:
+case 1:
+  y++;
+case 2:
+case 3:
+  y = y + 2;
+case 4:
+  break;
+case 5:
+case 6:
+  y = y - 3;
+}
+
+cout << y << endl;`;
+
+const CODE_37 = `int score;
+string grade;
+
+if (score >= 65)
+  grade = "pass";
+else
+  grade = "fail";`;
+
+const quizData = [
+  {num:1, type:'tf', prompt:"A control structure alters the normal sequential flow of execution in a program.", options:["True","False"], correct:0},
+  {num:2, type:'tf', prompt:"The result of a logical expression cannot be assigned to an int variable, but it can be assigned to a bool variable.", options:["True","False"], correct:1},
+  {num:3, type:'tf', prompt:"In C++, both ! and != are relational operators.", options:["True","False"], correct:1},
+  {num:4, type:'tf', prompt:"The operators !, &&, and || are called relational operators.", options:["True","False"], correct:1},
+  {num:5, type:'tf', prompt:"The expression (x >= 0 && x <= 100) evaluates to false if either x < 0 or x >= 100.", options:["True","False"], correct:1},
+  {num:6, type:'tf', prompt:"Suppose P and Q are logical expressions. The logical expression P && Q is true if both P and Q are true.", options:["True","False"], correct:0},
+  {num:7, type:'tf', prompt:"In C++, && has a higher precedence than ||.", options:["True","False"], correct:0},
+  {num:8, type:'tf', prompt:"In C++, the operators != and == have the same order of precedence.", options:["True","False"], correct:0},
+  {num:9, type:'tf', prompt:"A compound statement functions as if it was a single statement.", options:["True","False"], correct:0},
+  {num:10, type:'tf', prompt:"If the expression in an assert statement evaluates to true, the program terminates.", options:["True","False"], correct:1},
+
+  {num:11, type:'mc', prompt:"In a ____ control structure, the computer executes particular statements depending on some condition(s).", options:["selected","responsive","selection","sequence"], correct:2},
+  {num:12, type:'mc', prompt:"What does <= mean?", options:["less than","greater than","less than or equal to","greater than or equal to"], correct:2},
+  {num:13, type:'mc', prompt:"Which of the following is a relational operator?", options:["=","==","!","&&"], correct:1},
+  {num:14, type:'mc', prompt:'Which of the following is the "not equal to" relational operator?', options:["!","|","!=","&"], correct:2},
+  {num:15, type:'mc', prompt:"Suppose x is 5 and y is 7. Choose the value of the following expression:\n\n(x != 7) && (x <= y)", options:["false","true","0","null"], correct:1},
+  {num:16, type:'mc', prompt:"Suppose that x is an int variable. Which of the following expressions always evaluates to true?", options:["(x > 0) || (x <= 0)","(x >= 0) || (x == 0)","(x > 0) && (x <= 0)","(x > 0) && (x == 0)"], correct:0},
+  {num:17, type:'mc', prompt:"Which of the operators %, =, !, and * has the highest precedence?", options:["!","*","%","="], correct:0},
+  {num:18, type:'mc', prompt:"Which of the operators &&, =, !, and || has the lowest precedence?", options:["!","||","&&","="], correct:3},
+  {num:19, type:'mc', prompt:"Which of the following expressions correctly determines that x is greater than 10 and less than 20?", options:["10 < x < 20","(10 < x < 20)","10 < x && x < 20","10 < x || x < 20"], correct:2},
+  {num:20, type:'mc', prompt:"You can use either a(n) ____ or a ____ to store the value of a logical expression.", options:["float, double","char, string","int, bool","float, string"], correct:2},
+  {num:21, type:'mc', prompt:"What is the output of the following C++ code?", code:CODE_21, options:["35 45 80","35 45 10","35 45 \u201310","35 45 0"], correct:1},
+  {num:22, type:'mc', prompt:"When one control statement is located within another, it is said to be ____.", options:["blocked","compound","nested","closed"], correct:2},
+  {num:23, type:'mc', prompt:"Which of the following will cause a logical error if you are attempting to compare x to 5?", options:["if (x == 5)","if (x = 5)","if (x <= 5)","if (x >= 5)"], correct:1},
+  {num:24, type:'mc', prompt:"Assume you have three int variables: x = 2, y = 6, and z. Choose the value of z in the following expression:", code:CODE_24, options:["2","3","4","6"], correct:0},
+  {num:25, type:'mc', prompt:"What is the value of x after the following statements execute?", code:CODE_25, options:["2","3","4","5"], correct:2},
+  {num:26, type:'mc', prompt:"What is the output of the following code?", code:CODE_26, options:["section 2","section 3","section 4","section 5"], correct:3},
+  {num:27, type:'mc', prompt:"What is the output of the following C++ code?", code:CODE_27, options:["2","5","8","10"], correct:0},
+  {num:28, type:'mc', prompt:"For a program to use the assert function, it must include which of the following preprocessor command?", options:["#include <asserts>","#include <cassert>","#include <assertc>","#include NDEBUG"], correct:1},
+  {num:29, type:'mc', prompt:"Which of the following will cause a logical error if you are attempting to compare x to 5?", options:["if (x == 5)","if (x = 5)","if (x <= 5)","if (x >= 5)"], correct:1},
+  {num:30, type:'mc', prompt:"You can disable assert statements by using which of the following preprocessor command?", options:["#include <cassert>","#define <assert>","#clear NDEBUG","#define NDEBUG"], correct:3},
+
+  {num:31, type:'sa', prompt:"The value of the expression 7 + 8 <= 15 is ____________________.", acceptable:["true"], correctText:"true"},
+  {num:32, type:'sa', prompt:"Putting ____________________ in front of a logical expression reverses the value of that logical expression.", acceptable:["!","not"], correctText:"!"},
+  {num:33, type:'sa', prompt:"The value of the expression 6 < 5 || 'g' > 'a' && 7 < 4 is ____________________.", acceptable:["false"], correctText:"false"},
+  {num:34, type:'sa', prompt:"Suppose found = true and num = 6. The value of the expression (!found) || (num > 6) is ____________________.", acceptable:["false"], correctText:"false"},
+  {num:35, type:'sa', prompt:"The ____________________ of relational and logical operators is said to be from left to right.", acceptable:["associativity"], correctText:"associativity"},
+  {num:36, type:'sa', prompt:"Putting a semicolon after the parentheses following the expression in an if statement (that is, before the statement) is a(n) ____________________ error.", acceptable:["semantic"], correctText:"semantic"},
+  {num:37, type:'sa', prompt:'If score is equal to 75, the value of grade is "____________________".', code:CODE_37, acceptable:["pass"], correctText:"pass"},
+  {num:38, type:'sa', prompt:"The term ____________________ describes a process in which the computer evaluates a logical expression from left to right and stops as soon as the value of the expression is known.", acceptable:["short-circuit evaluation","short circuit evaluation","short-circuit","shortcircuit evaluation"], correctText:"short-circuit evaluation"},
+  {num:39, type:'sa', prompt:"Once an input stream enters a(n) ____________________ state, all subsequent input statements associated with that input stream are ignored, and the computer continues to execute the program, which produces erroneous results.", acceptable:["fail","fail state"], correctText:"fail"},
+  {num:40, type:'sa', prompt:"In a switch statement, if the value of the expression does not match any of the case values, the statements following the ____________________ label execute.", acceptable:["default"], correctText:"default"},
+];
+
+const LETTERS = ["a","b","c","d"];
+
+let qIndex = 0;
+let answers = new Array(quizData.length).fill(null); // null | true | false
+let answered = new Array(quizData.length).fill(false);
+
+/* ============================================================
+   JUMP GRID
+============================================================ */
+function buildJumpgrid(){
+  const grid = document.getElementById('jumpgrid');
+  grid.innerHTML = '';
+  quizData.forEach((q,i)=>{
+    const b = document.createElement('button');
+    b.className = 'jump-btn';
+    b.textContent = q.num;
+    b.onclick = ()=>{ qIndex = i; renderQuestion(); };
+    grid.appendChild(b);
+  });
+  refreshJumpgrid();
+}
+function refreshJumpgrid(){
+  const btns = document.querySelectorAll('.jump-btn');
+  btns.forEach((b,i)=>{
+    b.classList.remove('current','correct','incorrect');
+    if(i===qIndex) b.classList.add('current');
+    if(answered[i]===true) b.classList.add('correct');
+    if(answered[i]===false && answers[i]!==null) b.classList.add('incorrect');
+  });
+}
+
+/* ============================================================
+   RENDER QUESTION
+============================================================ */
+function renderQuestion(){
+  const q = quizData[qIndex];
+  document.getElementById('quiz-progress-text').textContent = `Question ${qIndex+1} of ${quizData.length}`;
+  document.getElementById('quiz-progress-fill').style.width = ((qIndex+1)/quizData.length*100)+'%';
+  updateScoreText();
+
+  const typeLabel = q.type==='tf' ? 'True / False' : (q.type==='mc' ? 'Multiple Choice' : 'Short Answer');
+  document.getElementById('q-type-tag').textContent = `Question ${q.num} \u00b7 ${typeLabel}`;
+  document.getElementById('q-prompt').textContent = q.prompt;
+
+  const codeSlot = document.getElementById('q-code-slot');
+  codeSlot.innerHTML = '';
+  if(q.code){
+    const pre = document.createElement('div');
+    pre.className = 'codebox';
+    pre.textContent = q.code;
+    codeSlot.appendChild(pre);
+  }
+
+  const optWrap = document.getElementById('q-options');
+  const saRow = document.getElementById('sa-row');
+  optWrap.innerHTML = '';
+  const fb = document.getElementById('q-feedback');
+  fb.className = 'q-feedback';
+  fb.innerHTML = '';
+
+  if(q.type==='sa'){
+    optWrap.style.display = 'none';
+    saRow.style.display = 'flex';
+    const input = document.getElementById('sa-input');
+    input.value = '';
+    input.className = 'sa-input';
+    input.disabled = false;
+    document.getElementById('sa-check-btn').disabled = false;
+    if(answered[qIndex]!==null && answers[qIndex]!==null){
+      renderSaFeedback(q, answers[qIndex]);
+    }
+  } else {
+    optWrap.style.display = 'flex';
+    saRow.style.display = 'none';
+    q.options.forEach((opt,i)=>{
+      const b = document.createElement('button');
+      b.className = 'q-opt';
+      b.innerHTML = `<span class="opt-letter">${LETTERS[i] ? LETTERS[i] : (i+1)}</span>${escapeHtml(opt)}`;
+      b.onclick = ()=>selectOption(i);
+      optWrap.appendChild(b);
+      if(answers[qIndex]!==null){
+        b.classList.add('disabled');
+        if(i===q.correct){ b.classList.add('correct'); b.innerHTML += ' <span class="asterisk">*</span>'; }
+        if(i===answers[qIndex] && i!==q.correct){ b.classList.add('incorrect'); }
+      }
+    });
+    if(answers[qIndex]!==null){
+      renderMcFeedback(q, answers[qIndex]);
+    }
+  }
+
+  document.getElementById('prev-btn').disabled = qIndex===0;
+  document.getElementById('next-btn').textContent = qIndex===quizData.length-1 ? 'Finish quiz' : 'Next →';
+  refreshJumpgrid();
+}
+
+function escapeHtml(str){
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ============================================================
+   MC / TF ANSWER HANDLING
+============================================================ */
+function selectOption(i){
+  if(answers[qIndex]!==null) return;
+  const q = quizData[qIndex];
+  answers[qIndex] = i;
+  answered[qIndex] = (i === q.correct);
+  renderQuestion();
+}
+
+function renderMcFeedback(q, chosenIdx){
+  const fb = document.getElementById('q-feedback');
+  const isCorrect = chosenIdx === q.correct;
+  fb.classList.add('show', isCorrect ? 'good' : 'bad');
+  const correctLabel = `${LETTERS[q.correct]}. ${q.options[q.correct]}`;
+  fb.innerHTML = isCorrect
+    ? `✅ <b>Correct.</b> Answer: ${escapeHtml(correctLabel)} <span class="asterisk">*</span>`
+    : `❌ <b>Not quite.</b> Correct answer: ${escapeHtml(correctLabel)} <span class="asterisk">*</span>`;
+  updateScoreText();
+}
+
+/* ============================================================
+   SHORT ANSWER HANDLING
+============================================================ */
+function normalizeSa(s){
+  return s.trim().toLowerCase().replace(/[^a-z0-9!]+/g,' ').replace(/\s+/g,' ').trim();
+}
+
+document.getElementById('sa-check-btn').addEventListener('click', checkSaAnswer);
+document.getElementById('sa-input').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); checkSaAnswer(); }
+});
+
+function checkSaAnswer(){
+  if(answers[qIndex]!==null) return;
+  const q = quizData[qIndex];
+  const input = document.getElementById('sa-input');
+  const raw = input.value;
+  const norm = normalizeSa(raw);
+  const isCorrect = q.acceptable.some(a=>normalizeSa(a)===norm) && norm.length>0;
+  answers[qIndex] = raw;
+  answered[qIndex] = isCorrect;
+  input.disabled = true;
+  document.getElementById('sa-check-btn').disabled = true;
+  input.classList.add(isCorrect ? 'correct' : 'incorrect');
+  renderSaFeedback(q, raw);
+  refreshJumpgrid();
+  updateScoreText();
+}
+
+function renderSaFeedback(q, raw){
+  const fb = document.getElementById('q-feedback');
+  const isCorrect = answered[qIndex];
+  fb.classList.add('show', isCorrect ? 'good' : 'bad');
+  fb.innerHTML = isCorrect
+    ? `✅ <b>Correct.</b> Answer: <span class="asterisk">${escapeHtml(q.correctText)}</span>`
+    : `❌ <b>Not quite.</b> Your answer: "${escapeHtml(String(raw))}" &mdash; correct answer, spelled out: <b>${escapeHtml(q.correctText)}</b>`;
+  const input = document.getElementById('sa-input');
+  input.value = String(raw);
+  input.disabled = true;
+  input.classList.add(isCorrect ? 'correct' : 'incorrect');
+  document.getElementById('sa-check-btn').disabled = true;
+}
+
+/* ============================================================
+   NAVIGATION / SCORE
+============================================================ */
+function updateScoreText(){
+  const answeredCount = answers.filter(a=>a!==null).length;
+  const correctCount = answered.filter(a=>a===true).length;
+  document.getElementById('quiz-score-text').textContent = `Score: ${correctCount} / ${answeredCount}`;
+}
+
+function nextQuestion(){
+  if(qIndex < quizData.length-1){
+    qIndex++;
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+function prevQuestion(){
+  if(qIndex>0){ qIndex--; renderQuestion(); }
+}
+
+function showResult(){
+  document.getElementById('quiz-live').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  const correctCount = answered.filter(a=>a===true).length;
+  const answeredCount = answers.filter(a=>a!==null).length;
+  document.getElementById('quiz-final-score').textContent = `${correctCount} / ${quizData.length}`;
+  const pct = correctCount / quizData.length;
+  let msg;
+  if(answeredCount < quizData.length){
+    msg = `You answered ${answeredCount} of ${quizData.length} questions. Use the question map above to fill in the rest, or restart for a fresh attempt.`;
+  } else if(pct === 1){
+    msg = "Perfect score — every true/false, multiple choice, and short answer item nailed. Excellent command of selection structures.";
+  } else if(pct >= 0.8){
+    msg = "Strong result. Check the Answer Key tab for anything you missed, especially around operator precedence and switch fall-through.";
+  } else if(pct >= 0.6){
+    msg = "Solid effort. Review short-circuit evaluation, the ternary operator, and switch/case behavior, then try again.";
+  } else {
+    msg = "Worth another pass — review the Answer Key tab section by section before your next attempt.";
+  }
+  document.getElementById('quiz-final-msg').textContent = msg;
+}
+
+function restartQuiz(){
+  qIndex = 0;
+  answers = new Array(quizData.length).fill(null);
+  answered = new Array(quizData.length).fill(false);
+  document.getElementById('quiz-live').style.display = 'block';
+  document.getElementById('quiz-result').style.display = 'none';
+  renderQuestion();
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+buildJumpgrid();
+renderQuestion();
+</script>
+</body>
+</html>
