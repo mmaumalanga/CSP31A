@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP31A · Loops &amp; Repetition Study Activities — San Joaquin Delta College</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --user-primary:#1a4480;
+    --user-accent:#c8102e;
+    --user-background:#ffffff;
+    --primary-dark:#0f2c54;
+    --primary-tint:#eaf0f8;
+    --accent-tint:#fbe9ec;
+    --ink:#12203a;
+    --muted:#52627a;
+    --border:#d7e0ea;
+    --success:#1e7d4a;
+    --success-tint:#e6f4ec;
+    --warn-tint:#fff4e0;
+    --warn:#a35b00;
+    --font-body:'Inter',system-ui,-apple-system,sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(15,44,84,0.08);
+    --shadow-lg:0 12px 32px rgba(15,44,84,0.16);
+  }
+  *,*::before,*::after{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    background:var(--user-background);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{font-weight:800; margin:0 0 .4em; line-height:1.25;}
+  p{margin:0 0 .8em;}
+  code, .mono{font-family:var(--font-mono);}
+  button{font-family:inherit; cursor:pointer;}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  /* ---------- Header / Tabs ---------- */
+  header.app-header{
+    position:sticky; top:0; z-index:50;
+    background:var(--user-primary);
+    color:#fff;
+    box-shadow:var(--shadow-lg);
+  }
+  .header-inner{
+    max-width:1100px; margin:0 auto; padding:14px 20px 0;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:.14em; font-weight:700; text-transform:uppercase;
+    color:#bcd0ee; margin-bottom:2px;
+  }
+  .app-header h1{
+    font-size:22px; margin:0 0 12px; color:#fff;
+  }
+  nav.tabbar{
+    display:flex; gap:4px; overflow-x:auto; scrollbar-width:none;
+    border-bottom:1px solid rgba(255,255,255,0.18);
+  }
+  nav.tabbar::-webkit-scrollbar{display:none;}
+  .tab-btn{
+    background:transparent; border:none; color:#cfe0f5;
+    padding:11px 18px; font-size:14.5px; font-weight:600;
+    border-bottom:3px solid transparent; white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .tab-btn .tab-emoji{margin-right:6px;}
+  .tab-btn:hover{color:#fff; background:rgba(255,255,255,0.08);}
+  .tab-btn[aria-selected="true"]{
+    color:#fff; border-bottom-color:var(--user-accent);
+  }
+
+  main{max-width:1100px; margin:0 auto; padding:28px 20px 80px;}
+  .panel{display:none;}
+  .panel.active{display:block; animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+
+  .intro-lead{
+    font-size:16px; color:var(--muted); max-width:760px;
+  }
+
+  /* ---------- Badges ---------- */
+  .badge{
+    display:inline-block; font-size:11px; font-weight:700; letter-spacing:.03em;
+    padding:3px 9px; border-radius:999px; text-transform:uppercase;
+  }
+  .badge-remember{background:#e7edf8; color:#2a4c85;}
+  .badge-understand{background:#e2f2ec; color:#1e7d4a;}
+  .badge-apply{background:#fff1de; color:#a35b00;}
+  .badge-analyze{background:#f7e6ea; color:#a01238;}
+  .badge-evaluate{background:#efe4f7; color:#6a2fa3;}
+  .badge-create{background:#e0f2f7; color:#0d6d84;}
+
+  /* ---------- Accordion (Learn tab) ---------- */
+  .section-card{
+    border:1px solid var(--border); border-radius:var(--radius);
+    margin-bottom:14px; overflow:hidden; background:#fff;
+  }
+  .section-head{
+    width:100%; display:flex; align-items:center; gap:12px;
+    background:var(--primary-tint); border:none; padding:16px 18px;
+    text-align:left; font-size:16px; font-weight:700; color:var(--user-primary);
+  }
+  .section-head .num{
+    display:flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:8px; background:var(--user-primary);
+    color:#fff; font-size:13px; flex-shrink:0;
+  }
+  .section-head .chev{margin-left:auto; transition:transform .2s ease; font-size:14px; color:var(--muted);}
+  .section-head[aria-expanded="true"] .chev{transform:rotate(180deg);}
+  .section-body{padding:0 20px; max-height:0; overflow:hidden; transition:max-height .3s ease, padding .3s ease;}
+  .section-body.open{padding:18px 20px 24px; max-height:4000px;}
+
+  ul.clean{margin:0 0 14px; padding-left:20px;}
+  ul.clean li{margin-bottom:7px;}
+  ul.clean li::marker{color:var(--user-accent);}
+
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:680px){.two-col{grid-template-columns:1fr;}}
+
+  .mini-card{
+    background:var(--primary-tint); border-radius:12px; padding:14px 16px;
+  }
+  .mini-card h4{color:var(--user-primary); font-size:14.5px; margin-bottom:6px;}
+
+  table.data-table{
+    width:100%; border-collapse:collapse; margin:10px 0 16px; font-size:14px;
+  }
+  table.data-table th{
+    background:var(--user-primary); color:#fff; text-align:left;
+    padding:9px 12px; font-size:12.5px; letter-spacing:.02em;
+  }
+  table.data-table td{
+    padding:9px 12px; border-bottom:1px solid var(--border); vertical-align:top;
+  }
+  table.data-table tr:nth-child(even) td{background:#f7fafc;}
+
+  /* callouts */
+  .callout{
+    border-radius:12px; padding:14px 16px; margin:14px 0; border:1px solid transparent;
+  }
+  .callout-title{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:8px; margin-bottom:6px;}
+  .callout.misconception{background:var(--accent-tint); border-color:#f3c3cc;}
+  .callout.misconception .callout-title{color:var(--user-accent);}
+  .callout.worked{background:var(--primary-tint); border-color:#c7d7ec;}
+  .callout.worked .callout-title{color:var(--user-primary);}
+  .callout.apply{background:var(--warn-tint); border-color:#f0d9a8;}
+  .callout.apply .callout-title{color:var(--warn);}
+  .callout.real-world{background:var(--success-tint); border-color:#bfe3cd;}
+  .callout.real-world .callout-title{color:var(--success);}
+
+  .reasoning-step{
+    display:flex; gap:10px; padding:8px 0; border-top:1px dashed #c7d7ec;
+  }
+  .reasoning-step:first-of-type{border-top:none;}
+  .reasoning-step .step-tag{
+    flex-shrink:0; font-size:11px; font-weight:800; color:#fff; background:var(--user-primary);
+    border-radius:6px; padding:3px 8px; height:fit-content; text-transform:uppercase;
+  }
+
+  textarea.answer-box{
+    width:100%; min-height:70px; border:1px solid var(--border); border-radius:10px;
+    padding:10px 12px; font-family:var(--font-body); font-size:14px; resize:vertical;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    background:var(--user-primary); color:#fff; border:none; border-radius:9px;
+    padding:9px 16px; font-size:13.5px; font-weight:600; transition:filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.1);}
+  .btn.secondary{background:#fff; color:var(--user-primary); border:1.5px solid var(--user-primary);}
+  .btn.accent{background:var(--user-accent);}
+  .btn:disabled{opacity:.5; cursor:not-allowed;}
+  .reveal-box{
+    display:none; margin-top:10px; background:#fff; border:1px dashed #c7d7ec; border-radius:10px; padding:12px 14px; font-size:14px;
+  }
+  .reveal-box.shown{display:block;}
+
+  /* ---------- Mini self-check ---------- */
+  .self-check{
+    margin-top:18px; border:1.5px solid var(--user-primary); border-radius:12px; padding:16px 18px;
+    background:#fbfdff;
+  }
+  .self-check-title{
+    font-weight:800; font-size:14px; color:var(--user-primary);
+    display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .sc-question{margin-bottom:14px;}
+  .sc-question p.q-text{font-weight:600; font-size:14.5px; margin-bottom:8px;}
+  .sc-options{display:flex; flex-direction:column; gap:7px;}
+  .sc-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:9px;
+    padding:9px 12px; font-size:14px; color:var(--ink); transition:all .12s ease;
+  }
+  .sc-opt:hover{border-color:var(--user-primary);}
+  .sc-opt.correct{background:var(--success-tint); border-color:var(--success); color:#155c37; font-weight:600;}
+  .sc-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); color:#8f0c22; font-weight:600;}
+  .sc-opt[disabled]{cursor:default;}
+  .sc-feedback{font-size:13.5px; margin-top:8px; padding:8px 10px; border-radius:8px; display:none;}
+  .sc-feedback.shown{display:block;}
+  .sc-feedback.right{background:var(--success-tint); color:#155c37;}
+  .sc-feedback.wrong{background:var(--accent-tint); color:#8f0c22;}
+
+  /* ---------- Flashcards ---------- */
+  .fc-toolbar{
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:18px;
+  }
+  .fc-toolbar select{
+    padding:8px 12px; border-radius:9px; border:1.5px solid var(--border); font-size:13.5px; font-family:inherit;
+    background:#fff;
+  }
+  .fc-progress{
+    margin-left:auto; font-size:13px; color:var(--muted); display:flex; gap:14px;
+  }
+  .fc-progress b{color:var(--ink);}
+  .fc-stage{
+    max-width:560px; margin:0 auto;
+  }
+  .fc-counter{text-align:center; font-size:13px; color:var(--muted); margin-bottom:10px;}
+  .flashcard{
+    perspective:1400px; height:260px; cursor:pointer; margin-bottom:18px;
+  }
+  .flashcard-inner{
+    position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .flashcard.flipped .flashcard-inner{transform:rotateY(180deg);}
+  .fc-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:16px; padding:26px; display:flex; flex-direction:column;
+    box-shadow:var(--shadow-lg); border:1px solid var(--border);
+  }
+  .fc-front{background:var(--user-primary); color:#fff; justify-content:center; align-items:center; text-align:center; gap:14px;}
+  .fc-front .fc-term{font-size:22px; font-weight:800;}
+  .fc-back{background:#fff; transform:rotateY(180deg); justify-content:center;}
+  .fc-back p{font-size:15.5px; color:var(--ink); margin:0;}
+  .fc-tag-row{position:absolute; top:14px; left:16px; right:16px; display:flex; justify-content:space-between;}
+  .fc-cat{font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:#cfe0f5; font-weight:700;}
+  .fc-back .fc-cat{color:var(--muted);}
+  .fc-hint{font-size:12px; color:#cfe0f5; margin-top:auto;}
+  .fc-back .fc-hint{color:var(--muted); margin-top:14px;}
+
+  .fc-controls{
+    display:flex; justify-content:center; gap:10px; flex-wrap:wrap; margin-bottom:8px;
+  }
+  .fc-nav{display:flex; justify-content:space-between; margin-top:16px;}
+
+  /* ---------- Quiz ---------- */
+  .quiz-intro{
+    background:var(--primary-tint); border-radius:14px; padding:22px; text-align:center;
+  }
+  .quiz-wrap{max-width:640px; margin:0 auto;}
+  .quiz-progress-bar{
+    height:8px; background:var(--border); border-radius:99px; overflow:hidden; margin-bottom:18px;
+  }
+  .quiz-progress-fill{height:100%; background:var(--user-accent); width:0%; transition:width .3s ease;}
+  .quiz-card{
+    border:1px solid var(--border); border-radius:16px; padding:22px; box-shadow:var(--shadow);
+  }
+  .quiz-meta{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;}
+  .quiz-qnum{font-size:13px; color:var(--muted); font-weight:600;}
+  .quiz-qtext{font-size:17px; font-weight:700; margin-bottom:16px;}
+  .quiz-options{display:flex; flex-direction:column; gap:9px;}
+  .quiz-opt{
+    text-align:left; border:1.5px solid var(--border); background:#fff; border-radius:10px;
+    padding:11px 14px; font-size:14.5px; transition:all .12s ease;
+  }
+  .quiz-opt:hover:not([disabled]){border-color:var(--user-primary); background:var(--primary-tint);}
+  .quiz-opt.correct{background:var(--success-tint); border-color:var(--success); font-weight:700; color:#155c37;}
+  .quiz-opt.incorrect{background:var(--accent-tint); border-color:var(--user-accent); font-weight:700; color:#8f0c22;}
+  .quiz-explain{
+    margin-top:14px; padding:12px 14px; border-radius:10px; background:#f7fafc; font-size:13.5px; display:none;
+  }
+  .quiz-explain.shown{display:block;}
+  .quiz-footer{display:flex; justify-content:flex-end; margin-top:16px;}
+  .quiz-results{text-align:center; padding:30px 10px;}
+  .quiz-score{font-size:46px; font-weight:800; color:var(--user-primary);}
+  .tier-breakdown{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:10px; margin:22px 0;
+  }
+  .tier-chip{
+    border:1px solid var(--border); border-radius:12px; padding:12px; text-align:center;
+  }
+  .tier-chip .tier-score{font-size:20px; font-weight:800; color:var(--user-primary);}
+  .tier-chip .tier-label{font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em;}
+
+  /* ---------- Matching ---------- */
+  .match-toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;}
+  .match-grid{display:grid; grid-template-columns:1fr 1fr; gap:26px;}
+  @media (max-width:680px){.match-grid{grid-template-columns:1fr;}}
+  .match-col-title{font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:8px;}
+  .match-item{
+    display:block; width:100%; text-align:left; border:1.5px solid var(--border); background:#fff;
+    border-radius:10px; padding:11px 14px; margin-bottom:9px; font-size:14px; transition:all .12s ease;
+  }
+  .match-item:hover:not(.matched){border-color:var(--user-primary);}
+  .match-item.selected{border-color:var(--user-primary); background:var(--primary-tint); box-shadow:0 0 0 3px rgba(26,68,128,0.12);}
+  .match-item.matched{background:var(--success-tint); border-color:var(--success); color:#155c37; cursor:default; opacity:.85;}
+  .match-item.shake{animation:shake .4s ease;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-2px);} 20%,80%{transform:translateX(3px);}
+    30%,50%,70%{transform:translateX(-5px);} 40%,60%{transform:translateX(5px);}
+  }
+  .match-status{text-align:center; margin-top:18px; font-size:14px; color:var(--muted);}
+  .match-complete{
+    text-align:center; padding:24px; background:var(--success-tint); border-radius:14px; color:#155c37; font-weight:700;
+    display:none;
+  }
+  .match-complete.shown{display:block;}
+
+  footer.app-footer{
+    text-align:center; padding:24px 20px 40px; color:var(--muted); font-size:12.5px;
+  }
+  @media (max-width:600px){
+    .flashcard{height:300px;}
+    .app-header h1{font-size:18px;}
+  }
+
+  /* ---------- Code snippets (C++ Fundamentals) ---------- */
+  code{font-family:var(--font-mono); background:#eef2f6; padding:1px 5px; border-radius:4px; font-size:.93em;}
+  .code-block{
+    background:#0f2c54; color:#e8f0fb; font-family:var(--font-mono); font-size:13px;
+    border-radius:10px; padding:12px 16px; margin:10px 0; line-height:1.6; white-space:pre-wrap;
+  }
+  .code-block .cmt{color:#8fb3dd;}
+  .output-box{
+    background:#0b0b0b; color:#c9f7c9; font-family:var(--font-mono); font-size:13px;
+    border-radius:8px; padding:8px 14px; display:inline-block; margin:4px 0;
+  }
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-inner">
+    <div class="kicker">CSP31A · C++ Programming I · San Joaquin Delta College</div>
+    <h1>Loops &amp; Repetition</h1>
+    <nav class="tabbar" role="tablist" aria-label="Study activity sections">
+      <button class="tab-btn" role="tab" data-tab="learn" aria-selected="true"><span class="tab-emoji">📘</span>Learn</button>
+      <button class="tab-btn" role="tab" data-tab="flashcards" aria-selected="false"><span class="tab-emoji">🗂️</span>Flashcards</button>
+      <button class="tab-btn" role="tab" data-tab="quiz" aria-selected="false"><span class="tab-emoji">✅</span>Quiz</button>
+      <button class="tab-btn" role="tab" data-tab="matching" aria-selected="false"><span class="tab-emoji">🔗</span>Matching</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ============================================================ LEARN PANEL ============================================================ -->
+  <section class="panel active" id="panel-learn" role="tabpanel" aria-labelledby="tab-learn">
+    <p class="intro-lead">Six sections build from the basic while loop up through nested loops and choosing the right loop for the job. Each section ends with a quick self-check. Then head to <strong>Flashcards</strong>, the <strong>Quiz</strong>, or the <strong>Matching</strong> activity to practice.</p>
+
+    <!-- SECTION 1 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="true" data-target="sec1"><span class="num">1</span> Why We Need Loops &amp; the While Loop <span class="badge badge-remember" style="margin-left:8px;">Remember</span><span class="chev">▾</span></button>
+      <div class="section-body open" id="sec1">
+        <p>Printing <code>"Welcome to C++!"</code> five times by copy-pasting the same <code>cout</code> statement works - but it's tedious, and hopeless if you needed it 1,000 times. A <strong>loop</strong> is any section of a program that repeats itself, letting one block of code run over and over.</p>
+
+        <div class="code-block">int count = 0;
+while (count &lt; 100)
+{
+    cout &lt;&lt; "Welcome to C++!\n";
+    count++;
+}</div>
+
+        <p>The general form is <code>while (loop-continuation-condition) { statements; }</code>. The <strong>while loop</strong> is a <strong>pre-test</strong> loop: it checks the condition <em>before</em> each pass, so if the condition starts out false, the body may never execute at all.</p>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception</div>
+          <p style="margin:0;"><strong>"A while loop always runs at least once, just like a regular block of code."</strong> Not true. Because it's a pre-test loop, C++ checks the condition <em>first</em>. If that condition is false on the very first check, the loop body is skipped entirely - zero times, not once. (Contrast this with the do-while loop later in this module, which is guaranteed to run at least once.)</p>
+        </div>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px;">Watch Out for Infinite Loops</h4>
+        <p>The loop body must contain code that eventually makes the condition false. Forgetting this creates an <strong>infinite loop</strong>:</p>
+        <div class="code-block">int count = 1;
+while (count &lt;= 5)
+{
+    cout &lt;&lt; "Hello\n";
+}  <span class="cmt">// count is never changed - this never stops!</span></div>
+
+        <div class="self-check" data-section="sec1">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. A while loop's condition is false the very first time it's checked. How many times does the loop body run?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Exactly once</button>
+              <button class="sc-opt" data-idx="1">Zero times</button>
+              <button class="sc-opt" data-idx="2">It runs forever</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. What causes an infinite loop?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Using curly braces around the loop body</button>
+              <button class="sc-opt" data-idx="1">Initializing the loop-control variable before the loop</button>
+              <button class="sc-opt" data-idx="2">Never updating the loop-control variable so the condition can never become false</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 2 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec2"><span class="num">2</span> Count-Controlled vs. Event-Controlled Loops <span class="badge badge-understand" style="margin-left:8px;">Understand</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec2">
+        <table class="data-table">
+          <tr><th>Type</th><th>Description</th></tr>
+          <tr><td><strong>Count-controlled</strong></td><td>Repeats a fixed, known number of times</td></tr>
+          <tr><td><strong>Event-controlled</strong></td><td>Repeats an unknown number of times, ending when some condition (often a sentinel value) is met</td></tr>
+        </table>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example - Count-Controlled Summation</div>
+          <div class="code-block">int count=0, sum=0, num, limit;
+cout &lt;&lt; "How many numbers? : ";
+cin &gt;&gt; limit;
+
+while (count &lt; limit) {
+    cout &lt;&lt; "Enter a number : ";
+    cin &gt;&gt; num;
+    sum += num;
+    count++;
+}
+cout &lt;&lt; "Sum is : " &lt;&lt; sum;</div>
+          <div class="reasoning-step"><span class="step-tag">Run 1</span><span>limit=3, entering 10, 9, 21 &rarr; the loop runs exactly 3 times &rarr; <strong>Sum is : 40</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Run 2</span><span>limit=-1 &rarr; count (0) &lt; limit (-1) is false immediately, so the body never runs &rarr; <strong>Sum is : 0</strong>.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Note</span><span>The counter (count) must always be initialized before the loop - here, to 0.</span></div>
+        </div>
+
+        <p>An <strong>event-controlled</strong> loop instead runs until a special <strong>sentinel value</strong> (like -1) tells it to stop - useful when you don't know in advance how many values the user will enter.</p>
+
+        <div class="self-check" data-section="sec2">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">1. Which type of loop is best when you know in advance exactly how many times to repeat?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Count-controlled</button>
+              <button class="sc-opt" data-idx="1">Event-controlled</button>
+              <button class="sc-opt" data-idx="2">Neither type can do this</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">2. In the count-controlled example above, what would the counter's value need to be initialized to for the loop to work correctly?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">The same value as limit</button>
+              <button class="sc-opt" data-idx="1">0</button>
+              <button class="sc-opt" data-idx="2">It doesn't need to be initialized</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 3 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec3"><span class="num">3</span> Getting the Sentinel Pattern Right <span class="badge badge-analyze" style="margin-left:8px;">Analyze</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec3">
+        <p>Summing integers entered from the keyboard until a sentinel (say, a negative number) is entered sounds simple  - but it's easy to get subtly wrong. Three attempts, same goal: sum positive integers entered by the user.</p>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception #1</div>
+          <p style="margin-bottom:8px;"><strong>"As long as the loop stops when it sees the sentinel, the sum must be correct."</strong> Not necessarily  - the sentinel itself can accidentally get added in.</p>
+          <div class="code-block">int sum=0, num=1;  <span class="cmt">// initialize to be true</span>
+while (num &gt; 0) {
+    cout &lt;&lt; "Enter a number : ";
+    cin &gt;&gt; num;
+    sum = sum + num;   <span class="cmt">// adds EVERY value read, including the sentinel!</span>
+}
+cout &lt;&lt; "Sum is : " &lt;&lt; sum;</div>
+          <p style="margin:0;">Entering 1, 2, 3, then -1 as the sentinel gives <strong>Sum is : 5</strong> (1+2+3+(-1)=5) instead of the correct 6  - the sentinel got summed in before the loop ever re-checked the condition. The fix is to guard the addition: <code>if (num &gt; 0) sum = sum + num;</code>  - correct, but it re-checks that condition on every single iteration, which works but is inefficient.</p>
+        </div>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example  - The Priming Read Pattern</div>
+          <p style="margin-bottom:10px;">The efficient, correct fix reads once <em>before</em> the loop (the "priming read"), then again at the very end of the loop body (the "subsequent read"):</p>
+          <div class="code-block">int sum=0, num;
+cout &lt;&lt; "Enter a number : ";
+cin &gt;&gt; num;              <span class="cmt">// Initial (priming) read</span>
+
+while (num &gt; 0) {
+    sum += num;
+    cout &lt;&lt; "Enter a number : ";
+    cin &gt;&gt; num;          <span class="cmt">// Subsequent read</span>
+}
+cout &lt;&lt; "Sum is : " &lt;&lt; sum;</div>
+          <div class="reasoning-step"><span class="step-tag">Trace</span><span>Entering 2, 4, 3, 1, 2, then -1: the sentinel (-1) is read <em>after</em> sum += num already ran for 2, so it's never added. Sum = 2+4+3+1+2 = <strong>12</strong>  - correct, and the condition is only checked once per iteration.</span></div>
+        </div>
+
+        <div class="callout misconception">
+          <div class="callout-title">⚠️ Common Misconception #2</div>
+          <p style="margin-bottom:8px;"><strong>"As long as I do a priming read before the loop, the order of statements inside the loop body doesn't matter."</strong> It does  - badly.</p>
+          <div class="code-block">int sum=0, num;
+cout &lt;&lt; "Enter a number : ";
+cin &gt;&gt; num;             <span class="cmt">// priming read: say the user enters 3</span>
+
+while (num &gt; 0) {
+    cout &lt;&lt; "Enter a number : ";
+    cin &gt;&gt; num;         <span class="cmt">// reads the NEXT value BEFORE using the current one!</span>
+    sum = sum + num;
+}</div>
+          <p style="margin:0;">Entering 3, 4, 5, then -1: the first value (3) is immediately overwritten by 4 before it's ever added to sum  - it's silently lost. The result is <strong>Sum is : 8</strong> (4+5+(-1)) instead of 12. The read and the "use the value" step must be in the right order relative to each other inside the loop body.</p>
+        </div>
+
+        <div class="self-check" data-section="sec3">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. In the correct priming-read pattern, where does the "subsequent read" go?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Before the while loop starts, alongside the priming read</button>
+              <button class="sc-opt" data-idx="1">At the end of the loop body, after the current value has already been used</button>
+              <button class="sc-opt" data-idx="2">It isn't needed if you have a priming read</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">2. What specifically goes wrong in Misconception #2's buggy version?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">The next value is read before the current value gets added to sum, overwriting it</button>
+              <button class="sc-opt" data-idx="1">The loop becomes infinite</button>
+              <button class="sc-opt" data-idx="2">The program fails to compile</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 4 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec4"><span class="num">4</span> The do-while Loop <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec4">
+        <div class="code-block">do
+{
+    statement;
+} while (expression);</div>
+        <p>The <strong>do-while</strong> loop is a <strong>post-test</strong> loop: the body runs first, and the condition is checked <em>after</em>. That guarantees the body executes <strong>at least once</strong>  - exactly what you want for a menu that should always show at least one time.</p>
+
+        <div class="callout real-world">
+          <div class="callout-title">🌍 Real-World Application  - A Menu-Driven Averaging Program</div>
+          <div class="code-block">int score1, score2, score3;
+double average;
+char again;
+
+do {
+    cout &lt;&lt; "Enter 3 scores and I will average them: ";
+    cin &gt;&gt; score1 &gt;&gt; score2 &gt;&gt; score3;
+    average = (score1 + score2 + score3) / 3.0;
+    cout &lt;&lt; "The average is " &lt;&lt; average &lt;&lt; ".\n";
+
+    cout &lt;&lt; "Do you want to average another set? (Y/N) ";
+    cin &gt;&gt; again;
+} while (again == 'Y' || again == 'y');</div>
+          <p>Entering 45, 65, 73 gives an average of 61; the user then types 'y', and entering 89, 87, 71 gives 82.3333, before finally typing 'n' to stop. This "ask, then ask again?" pattern  - common in real menu-driven software  - is exactly what do-while is built for, since the menu must be shown at least once no matter what.</p>
+        </div>
+
+        <div class="self-check" data-section="sec4">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. What guarantees that a do-while loop's body executes at least once?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">The condition is checked before the body runs, just like a while loop</button>
+              <button class="sc-opt" data-idx="1">The condition is checked after the body runs (post-test)</button>
+              <button class="sc-opt" data-idx="2">do-while loops don't have a condition at all</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. Why is do-while a natural fit for a menu-driven program?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Menus never need to repeat</button>
+              <button class="sc-opt" data-idx="1">do-while loops run faster than while loops</button>
+              <button class="sc-opt" data-idx="2">The menu should always be shown at least once, which post-test looping guarantees</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 5 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec5"><span class="num">5</span> The for Loop, break &amp; continue <span class="badge badge-apply" style="margin-left:8px;">Apply</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec5">
+        <div class="code-block">for (initial-action; loop-continuation-condition; action-after-each-iteration)
+{
+    statement(s);
+}</div>
+        <p>Like while, the for loop is a <strong>pre-test</strong> loop  - but it packages initialization, the test, and the update into one compact header.</p>
+
+        <div class="callout worked">
+          <div class="callout-title">🧩 Worked Example  - Printing Squares 1 to 8</div>
+          <div class="code-block">const int MIN = 1, MAX = 8;
+for (int i = MIN; i &lt;= MAX; i++)
+    cout &lt;&lt; i &lt;&lt; "\t\t" &lt;&lt; (i * i) &lt;&lt; endl;</div>
+          <div class="reasoning-step"><span class="step-tag">i=1</span><span>1&nbsp;&nbsp;&nbsp;1</span></div>
+          <div class="reasoning-step"><span class="step-tag">i=4</span><span>4&nbsp;&nbsp;&nbsp;16</span></div>
+          <div class="reasoning-step"><span class="step-tag">i=8</span><span>8&nbsp;&nbsp;&nbsp;64 &mdash; then i becomes 9, the condition i&lt;=8 fails, and the loop ends.</span></div>
+          <div class="reasoning-step"><span class="step-tag">Contrast</span><span>for (count=10; count&lt;5; count++) never runs its body at all  - the condition (10&lt;5) is false on the very first, pre-test check.</span></div>
+        </div>
+
+        <table class="data-table">
+          <tr><th>Keyword</th><th>Effect</th><th>Example Output</th></tr>
+          <tr><td><code>continue</code></td><td>Skips the rest of the current iteration's body and moves on to the next iteration</td><td class="math">for(i=1;i&lt;=5;i++){ if(i==3) continue; cout&lt;&lt;i; } &rarr; prints 1 2 4 5</td></tr>
+          <tr><td><code>break</code></td><td>Exits the loop immediately, skipping all remaining iterations</td><td class="math">for(j=1;j&lt;=5;j++){ if(j==3) break; cout&lt;&lt;j; } &rarr; prints 1 2</td></tr>
+        </table>
+
+        <p>The comma operator can pack more than one expression into a for loop's initialization or update: <code>for (x=1, y=1; x&lt;=5; x++, y++)</code> initializes and updates both x and y together.</p>
+
+        <div class="self-check" data-section="sec5">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="0">
+            <p class="q-text">1. for (count = 10; count &lt; 5; count++) cout &lt;&lt; count; How many times does this loop's body execute?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">Zero times</button>
+              <button class="sc-opt" data-idx="1">Once</button>
+              <button class="sc-opt" data-idx="2">Five times</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. for(int i=1;i&lt;=5;i++){ if(i==3) continue; cout&lt;&lt;i; } What prints?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">1 2</button>
+              <button class="sc-opt" data-idx="1">1 2 3 4 5</button>
+              <button class="sc-opt" data-idx="2">1 2 4 5</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 6 -->
+    <div class="section-card">
+      <button class="section-head" aria-expanded="false" data-target="sec6"><span class="num">6</span> Nested Loops &amp; Choosing the Right Loop <span class="badge badge-evaluate" style="margin-left:8px;">Analyze / Create</span><span class="chev">▾</span></button>
+      <div class="section-body" id="sec6">
+        <p>A <strong>nested loop</strong> is a loop inside the body of another loop. Printing a 3-row by 5-column box of stars by copy-pasting three separate <code>for</code> loops works, but repeats the same code three times  - wasteful, and unworkable for 100 rows. A nested loop fixes that:</p>
+        <div class="code-block">int rows = 3, cols = 5;
+for (int i = 0; i &lt; rows; i++) {
+    for (int j = 0; j &lt; cols; j++) {
+        cout &lt;&lt; "*";
+    }
+    cout &lt;&lt; endl;  <span class="cmt">// needed after each row</span>
+}</div>
+        <p>The <strong>total number of repetitions</strong> of the inner loop's body is the <em>product</em> of the two loops' repetition counts  - here, 3 &times; 5 = 15 total stars printed.</p>
+
+        <div class="callout real-world">
+          <div class="callout-title">🌍 Real-World Application  - Generating a Multiplication Table</div>
+          <div class="code-block">for (int i = 1; i &lt;= 9; i++) {
+    cout &lt;&lt; i &lt;&lt; " | ";
+    for (int j = 1; j &lt;= 9; j++) {
+        cout &lt;&lt; setw(3) &lt;&lt; i * j;   <span class="cmt">// display the product, aligned</span>
+    }
+    cout &lt;&lt; "\n";
+}</div>
+          <p style="margin:0;">The outer loop (i) walks down the rows 1\u20139; for each row, the inner loop (j) walks across all 9 columns, computing <code>i * j</code> each time  - exactly the times-table tool used in classrooms everywhere. The outer loop runs 9 times, the inner loop runs 9 times <em>for every</em> outer pass, for 81 total multiplications.</p>
+        </div>
+
+        <div class="callout apply">
+          <div class="callout-title">✍️ Your Turn  - Design It (Create)</div>
+          <p style="margin-bottom:8px;">Design the nested loop (pseudocode or C++) that would print a box of <strong>4 rows by 6 columns</strong> of the character <code>#</code>. How many total <code>#</code> characters will be printed? Write your answer, then reveal a model solution.</p>
+          <textarea class="answer-box" placeholder="Nested loop sketch, and total character count..."></textarea>
+          <div style="margin-top:10px;"><button class="btn secondary reveal-btn" data-reveal="reveal-nested">Show Model Answer</button></div>
+          <div class="reveal-box" id="reveal-nested">
+            <div class="code-block" style="margin:0 0 8px;">int rows = 4, cols = 6;
+for (int i = 0; i &lt; rows; i++) {
+    for (int j = 0; j &lt; cols; j++) {
+        cout &lt;&lt; "#";
+    }
+    cout &lt;&lt; endl;
+}</div>
+            Total characters printed = rows &times; cols = 4 &times; 6 = <strong>24</strong>.
+          </div>
+        </div>
+
+        <h4 style="color:var(--user-primary); font-size:14.5px; margin-top:16px;">Deciding Which Loop to Use</h4>
+        <table class="data-table">
+          <tr><th>Loop</th><th>Best suited for</th></tr>
+          <tr><td><strong>while</strong> (pre-test)</td><td>Validating input; reading a list terminated by a sentinel</td></tr>
+          <tr><td><strong>do-while</strong> (post-test)</td><td>Repeating a menu  - something that must run at least once</td></tr>
+          <tr><td><strong>for</strong> (pre-test)</td><td>Situations where the exact number of iterations is already known</td></tr>
+        </table>
+
+        <div class="self-check" data-section="sec6">
+          <div class="self-check-title">✔️ Quick Self-Check</div>
+          <div class="sc-question" data-correct="1">
+            <p class="q-text">1. An outer loop runs 4 times and an inner loop inside it runs 6 times on every outer pass. How many total times does the inner loop's body execute?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">10 (4+6)</button>
+              <button class="sc-opt" data-idx="1">24 (4\u00d76)</button>
+              <button class="sc-opt" data-idx="2">6, since only the inner count matters</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+          <div class="sc-question" data-correct="2">
+            <p class="q-text">2. You need to read an unknown number of scores from the keyboard until the user enters -1. Which loop type fits best?</p>
+            <div class="sc-options">
+              <button class="sc-opt" data-idx="0">A for loop, since the count is fixed</button>
+              <button class="sc-opt" data-idx="1">A do-while loop, since menus always use do-while</button>
+              <button class="sc-opt" data-idx="2">A while loop (event-controlled with a sentinel)</button>
+            </div>
+            <div class="sc-feedback"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+<!-- ============================================================ FLASHCARDS PANEL ============================================================ -->
+  <section class="panel" id="panel-flashcards" role="tabpanel" aria-labelledby="tab-flashcards">
+    <p class="intro-lead">26 terms from Loops &amp; Repetition, ordered from foundational recall to applied and analytical thinking. Click a card to flip it, then mark whether you knew it.</p>
+
+    <div class="fc-toolbar">
+      <select id="fc-category-filter" aria-label="Filter flashcards by category">
+        <option value="all">All Categories</option>
+      </select>
+      <button class="btn secondary" id="fc-shuffle">🔀 Shuffle</button>
+      <button class="btn secondary" id="fc-reset">↺ Reset Progress</button>
+      <div class="fc-progress">
+        <span>Known: <b id="fc-known-count">0</b></span>
+        <span>Reviewing: <b id="fc-review-count">0</b></span>
+        <span>Total: <b id="fc-total-count">0</b></span>
+      </div>
+    </div>
+
+    <div class="fc-stage">
+      <div class="fc-counter"><span id="fc-position">1</span> / <span id="fc-total">26</span></div>
+      <div class="flashcard" id="flashcard" tabindex="0" role="button" aria-label="Flashcard, click to flip">
+        <div class="flashcard-inner">
+          <div class="fc-face fc-front">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-front"></span><span class="badge" id="fc-level-front"></span></div>
+            <div class="fc-term" id="fc-term"></div>
+            <div class="fc-hint">Click to reveal the answer</div>
+          </div>
+          <div class="fc-face fc-back">
+            <div class="fc-tag-row"><span class="fc-cat" id="fc-cat-back"></span><span class="badge" id="fc-level-back"></span></div>
+            <p id="fc-definition"></p>
+            <div class="fc-hint">Click to flip back</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fc-controls">
+        <button class="btn secondary" id="fc-mark-review">🔁 Still Learning</button>
+        <button class="btn" id="fc-mark-known">✔️ Got It</button>
+      </div>
+      <div class="fc-nav">
+        <button class="btn secondary" id="fc-prev">← Previous</button>
+        <button class="btn secondary" id="fc-next">Next →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ QUIZ PANEL ============================================================ -->
+  <section class="panel" id="panel-quiz" role="tabpanel" aria-labelledby="tab-quiz">
+    <div class="quiz-wrap">
+      <div class="quiz-intro" id="quiz-intro">
+        <h3 style="color:var(--user-primary);">Loops &amp; Repetition Comprehension Quiz</h3>
+        <p style="color:var(--muted); max-width:460px; margin:0 auto 16px;">14 questions, scaffolded from basic recall up through analysis and evaluation. You'll get feedback and an explanation after every answer.</p>
+        <button class="btn accent" id="quiz-start">Start Quiz</button>
+      </div>
+
+      <div id="quiz-active" style="display:none;">
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill"></div></div>
+        <div class="quiz-card">
+          <div class="quiz-meta">
+            <span class="quiz-qnum" id="quiz-qnum">Question 1 of 14</span>
+            <span class="badge" id="quiz-level-badge"></span>
+          </div>
+          <div class="quiz-qtext" id="quiz-qtext"></div>
+          <div class="quiz-options" id="quiz-options"></div>
+          <div class="quiz-explain" id="quiz-explain"></div>
+          <div class="quiz-footer">
+            <button class="btn" id="quiz-next" disabled>Next Question →</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="quiz-results" style="display:none;">
+        <div class="quiz-results">
+          <div style="font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; font-weight:700;">Your Score</div>
+          <div class="quiz-score" id="quiz-final-score">0 / 12</div>
+          <div class="tier-breakdown" id="tier-breakdown"></div>
+          <button class="btn accent" id="quiz-retry">Retry Quiz</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ MATCHING PANEL ============================================================ -->
+  <section class="panel" id="panel-matching" role="tabpanel" aria-labelledby="tab-matching">
+    <p class="intro-lead">Click a term on the left, then click its matching definition on the right. Matched pairs lock in green.</p>
+
+    <div class="match-toolbar">
+      <select id="match-set-select" aria-label="Choose matching set">
+        <option value="0">Set A — Loop Types &amp; Structure</option>
+        <option value="1">Set B — Loop Mechanics &amp; Control</option>
+      </select>
+      <button class="btn secondary" id="match-reset">↺ Reset</button>
+    </div>
+
+    <div class="match-grid">
+      <div>
+        <div class="match-col-title">Terms</div>
+        <div id="match-terms"></div>
+      </div>
+      <div>
+        <div class="match-col-title">Definitions</div>
+        <div id="match-defs"></div>
+      </div>
+    </div>
+    <div class="match-status" id="match-status">0 of 6 matched</div>
+    <div class="match-complete" id="match-complete">🎉 Great work — all pairs matched correctly!</div>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  CSP31A · C++ Programming I — Loops &amp; Repetition &nbsp;|&nbsp; San Joaquin Delta College, Department of Computer Science
+</footer>
+<script>
+/* ============================================================ DATA ============================================================ */
+
+const flashcardsData = [
+  {cat:"Loop Basics", level:"Remember", term:"Loop", def:"Any section of a program that repeats itself  - C++ offers three kinds: while, do-while, and for."},
+  {cat:"Loop Basics", level:"Remember", term:"while Loop", def:"while (condition) { statements; }  - a pre-test loop: checks the condition before each pass, so it may run zero times."},
+  {cat:"Loop Basics", level:"Remember", term:"do-while Loop", def:"do { statements; } while (condition);  - a post-test loop: the body always runs at least once before the condition is checked."},
+  {cat:"Loop Basics", level:"Remember", term:"for Loop", def:"for (initialization; condition; update) { statements; }  - a pre-test loop that packages init/test/update into one header."},
+  {cat:"Loop Basics", level:"Understand", term:"Infinite Loop", def:"A loop whose continuation condition never becomes false, usually because the loop-control variable is never updated inside the body."},
+  {cat:"Types of Loops", level:"Remember", term:"Count-Controlled Loop", def:"Repeats a fixed, known number of times."},
+  {cat:"Types of Loops", level:"Remember", term:"Event-Controlled Loop", def:"Repeats an unknown number of times, ending when a condition (often a sentinel value) is met."},
+  {cat:"Types of Loops", level:"Remember", term:"Sentinel Value", def:"A special value (like -1) entered by the user to signal that input should stop."},
+  {cat:"Types of Loops", level:"Apply", term:"Count-controlled trace: limit=3, entering 10, 9, 21 into the summing loop  - what is the sum?", def:"40 (10+9+21). The loop runs exactly 3 times because count starts at 0 and limit=3."},
+  {cat:"Types of Loops", level:"Apply", term:"Same summing loop, but limit=-1  - what is the sum?", def:"0  - count(0) < limit(-1) is false immediately, so the loop body never executes."},
+  {cat:"Sentinel Pattern", level:"Understand", term:"Priming Read", def:"Reading the first input value BEFORE the loop starts, then reading again as the last step inside the loop body (the \u201csubsequent read\u201d)."},
+  {cat:"Sentinel Pattern", level:"Analyze", term:"Analyze: a summing loop reads a value, then immediately sums it, even when the value is the sentinel (-1). What goes wrong?", def:"The sentinel itself gets added into the sum, producing a lower (wrong) total  - e.g. entering 1,2,3,-1 gives Sum=5 instead of the correct 6."},
+  {cat:"Sentinel Pattern", level:"Analyze", term:"Analyze: a loop reads the NEXT value before using the CURRENT one inside the body. What goes wrong?", def:"The current value is overwritten and lost before it's ever added to the sum  - e.g. entering 3,4,5,-1 gives Sum=8 (4+5-1) instead of 12, because the first value (3) was silently discarded."},
+  {cat:"do-while", level:"Understand", term:"Why is do-while useful for menu-driven programs?", def:"Because the menu should always display at least once  - and do-while's post-test structure guarantees the body runs before any condition is checked."},
+  {cat:"do-while", level:"Apply", term:"do-while trace: a menu program averages 45, 65, 73  - what average is displayed?", def:"61  - (45+65+73)/3.0 = 61."},
+  {cat:"for Loop", level:"Apply", term:"for loop trace: for(int i=1;i<=8;i++) cout<<i*i;  - what is printed when i=5?", def:"25 (5*5). The loop prints each square from 1 up through 64 (8*8)."},
+  {cat:"for Loop", level:"Apply", term:"for(count=10; count<5; count++) cout<<count;  - how many times does this print?", def:"Zero times  - the pre-test condition (10<5) is false on the very first check."},
+  {cat:"break & continue", level:"Apply", term:"for(i=1;i<=5;i++){ if(i==3) continue; cout<<i; }  - what prints?", def:"1 2 4 5  - continue skips only the rest of that one iteration (i=3), not the whole loop."},
+  {cat:"break & continue", level:"Apply", term:"for(j=1;j<=5;j++){ if(j==3) break; cout<<j; }  - what prints?", def:"1 2  - break exits the loop entirely as soon as j==3, so 3, 4, and 5 never print."},
+  {cat:"for Loop", level:"Understand", term:"Comma Operator in a for Loop", def:"Lets you pack more than one expression into the initialization or update, e.g. for(x=1,y=1; x<=5; x++,y++)."},
+  {cat:"Nested Loops", level:"Remember", term:"Nested Loop", def:"A loop placed inside the body of another loop  - commonly called the outer loop and the inner loop."},
+  {cat:"Nested Loops", level:"Analyze", term:"Analyze: an outer loop runs 3 times, and an inner loop inside it runs 5 times per outer pass. How many total times does the inner body execute?", def:"15  - the total repetitions of a nested loop's inner body is the PRODUCT of the two loops' counts (3\u00d75), not their sum."},
+  {cat:"Nested Loops", level:"Apply", term:"Real-world nested loop: generating a 9\u00d79 multiplication table  - how many total products are computed?", def:"81 (9\u00d79)  - the outer loop (rows 1\u20139) times the inner loop (columns 1\u20139)."},
+  {cat:"Nested Loops", level:"Create", term:"Create: design a nested loop to print a box of 4 rows by 6 columns of '#'. How many total characters print?", def:"24 total characters (4\u00d76)  - an outer loop of 4 iterations, each running an inner loop of 6 iterations printing '#', followed by a newline."},
+  {cat:"Choosing a Loop", level:"Analyze", term:"Analyze: you need to read scores from the keyboard until the user enters -1, an unknown number of values. Which loop fits best, and why?", def:"A while loop (event-controlled with a sentinel)  - the number of iterations isn't known in advance, which rules out a for loop and doesn't require a do-while's guaranteed-first-pass behavior."},
+  {cat:"Choosing a Loop", level:"Evaluate", term:"Evaluate: which loop type best fits a program that must show a menu at least once, then repeat only if the user chooses to continue?", def:"do-while  - its post-test structure guarantees the menu displays at least one time before any exit condition is even checked."}
+];
+
+const quizData = [
+  {level:"Remember", q:"Which loop type checks its condition BEFORE executing the loop body?", opts:["do-while","while","Both while and for are post-test loops","Neither while nor for check a condition"], correct:1, explain:"while is a pre-test loop  - it checks the condition first, so the body may run zero times if the condition starts false. (for is also pre-test, but the option grouped it incorrectly.)"},
+  {level:"Remember", q:"Which loop type is guaranteed to execute its body at least once?", opts:["while","for","do-while","None  - all loops can run zero times"], correct:2, explain:"do-while is a post-test loop: the body runs first, and the condition is only checked afterward, guaranteeing at least one execution."},
+  {level:"Apply", q:"A count-controlled summing loop uses limit=3 and the user enters 10, 9, 21. What is displayed as the sum?", opts:["30","40","21","0"], correct:1, explain:"10 + 9 + 21 = 40. The loop runs exactly 3 times because count starts at 0 and the condition is count < limit (3)."},
+  {level:"Apply", q:"Same summing loop, but the user enters limit = -1 for \u201chow many numbers?\u201d. What is the sum?", opts:["-1","It causes an infinite loop","0","The program crashes"], correct:2, explain:"count (starting at 0) < limit (-1) is false immediately, so the while loop's body never executes, and sum stays at its initialized value, 0."},
+  {level:"Understand", q:"What is a \u201csentinel value\u201d?", opts:["The very first value a loop reads", "A special value used to signal that input should stop", "The total number of loop iterations", "A syntax error caused by a missing semicolon"], correct:1, explain:"A sentinel is a value (often negative, like -1) chosen to signal the end of a sequence of input, letting an event-controlled loop know when to stop."},
+  {level:"Analyze", q:"A loop reads a value and immediately adds it to a running sum  - even when that value turns out to be the sentinel. Entering 1, 2, 3, then -1, what will the displayed sum be?", opts:["6 (the correct sum of 1+2+3)","5 (1+2+3+(-1))","-1","0"], correct:1, explain:"Because the sentinel gets summed in before the loop re-checks the condition, the result is 1+2+3+(-1) = 5, not the intended 6."},
+  {level:"Analyze", q:"A loop does a priming read before the loop, but then reads the NEXT value before using the CURRENT one inside the loop body. Entering 3, 4, 5, then -1, what happens to the value 3?", opts:["It is correctly added to the sum first","It is silently overwritten and lost before ever being used", "It becomes the loop's sentinel value", "It causes a compiler error"], correct:1, explain:"Because the next read happens before the current value is used, the primed value (3) gets overwritten by 4 before it's ever added  - it's silently discarded, producing an incorrect total."},
+  {level:"Apply", q:"A menu-driven program using do-while averages three exam scores: 89, 87, and 71. What average does it display?", opts:["82.3333","81.6667","247","80.0"], correct:0, explain:"(89 + 87 + 71) / 3.0 = 247 / 3.0 \u2248 82.3333."},
+  {level:"Apply", q:"for (count = 10; count < 5; count++) cout << count; How many times does the loop body execute?", opts:["Once","Five times","Zero times","It runs forever"], correct:2, explain:"Because for is a pre-test loop, the condition (10 < 5) is checked before the first iteration. Since it's false immediately, the body never runs."},
+  {level:"Apply", q:"const int MIN=1, MAX=8; for(int i=MIN;i<=MAX;i++) cout<<i*i; What is printed when i = 5?", opts:["10","25","55","5"], correct:1, explain:"i*i when i=5 is 5*5=25. (The loop prints the squares of 1 through 8 in sequence: 1,4,9,16,25,36,49,64.)"},
+  {level:"Apply", q:"for(int i=1;i<=5;i++){ if(i==3) continue; cout<<i; } What does this print?", opts:["1 2 3 4 5","1 2","1 2 4 5","3 4 5"], correct:2, explain:"continue skips only the rest of the current iteration (when i==3), so 3 itself is skipped but the loop continues on to 4 and 5. Result: 1 2 4 5."},
+  {level:"Apply", q:"for(int j=1;j<=5;j++){ if(j==3) break; cout<<j; } What does this print?", opts:["1 2 3 4 5","1 2","1 2 4 5","Nothing  - it's a syntax error"], correct:1, explain:"break exits the loop entirely the moment j==3, so only 1 and 2 ever print before the loop terminates."},
+  {level:"Analyze", q:"An outer loop runs 4 times, and for every outer pass, an inner loop runs 6 times. How many total times does the inner loop's body execute?", opts:["10 (4+6)","24 (4\u00d76)","6 (only the inner count matters)","4 (only the outer count matters)"], correct:1, explain:"The total repetitions in a nested loop is the PRODUCT of the outer and inner counts: 4\u00d76 = 24, not their sum."},
+  {level:"Evaluate", q:"You need to read an unknown number of scores from the keyboard, stopping when the user enters -1. Which loop is the best fit, and why?", opts:["A for loop, because the exact number of iterations is always knowable in advance","A do-while loop, because all input-reading programs should use do-while","A while loop, because the number of iterations is unknown and depends on a sentinel condition","Any loop works equally well here, so it doesn't matter"], correct:2, explain:"Since the number of scores is unknown ahead of time and depends entirely on when the sentinel (-1) appears, an event-controlled while loop is the natural fit  - a for loop needs a known iteration count, and do-while's guaranteed-first-pass behavior isn't the deciding factor here."}
+];
+
+const matchingSets = [
+  {
+    name:"Loop Types & Structure",
+    pairs:[
+      {term:"while Loop", def:"Pre-test loop; may not execute at all if the condition starts false"},
+      {term:"do-while Loop", def:"Post-test loop; always executes at least once"},
+      {term:"for Loop", def:"Pre-test loop with built-in initialization, test, and update"},
+      {term:"Count-Controlled Loop", def:"Repeats a fixed, known number of times"},
+      {term:"Event-Controlled Loop", def:"Repeats an unknown number of times, ending when a condition or sentinel is met"},
+      {term:"Nested Loop", def:"A loop placed inside the body of another loop"}
+    ]
+  },
+  {
+    name:"Loop Mechanics & Control",
+    pairs:[
+      {term:"Sentinel Value", def:"A special value entered by the user to signal that input should stop"},
+      {term:"Infinite Loop", def:"A loop whose continuation condition never becomes false"},
+      {term:"Priming Read", def:"Reading the first value before the loop starts, then reading again inside the loop body"},
+      {term:"break", def:"Immediately exits the loop entirely"},
+      {term:"continue", def:"Skips the rest of the current iteration and moves to the next"},
+      {term:"Total Iterations of a Nested Loop", def:"The product of the outer loop's repetitions and the inner loop's repetitions"}
+    ]
+  }
+];
+
+const levelBadgeClass = {
+  "Remember":"badge-remember", "Understand":"badge-understand", "Apply":"badge-apply",
+  "Analyze":"badge-analyze", "Evaluate":"badge-evaluate", "Create":"badge-create"
+};
+
+
+/* ============================================================ TABS ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.setAttribute('aria-selected','false'));
+    btn.setAttribute('aria-selected','true');
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* ============================================================ ACCORDION ============================================================ */
+document.querySelectorAll('.section-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    const body = document.getElementById(head.dataset.target);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    head.setAttribute('aria-expanded', String(!isOpen));
+  });
+});
+
+/* ============================================================ REVEAL BUTTONS (worked example / case study) ============================================================ */
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const box = document.getElementById(btn.dataset.reveal);
+    box.classList.toggle('shown');
+    btn.textContent = box.classList.contains('shown') ? 'Hide Model Answer' : btn.textContent.replace('Hide','Show');
+  });
+});
+
+/* ============================================================ MINI SELF-CHECKS ============================================================ */
+document.querySelectorAll('.sc-question').forEach(q=>{
+  const correctIdx = parseInt(q.dataset.correct, 10);
+  const feedback = q.querySelector('.sc-feedback');
+  q.querySelectorAll('.sc-opt').forEach(opt=>{
+    opt.addEventListener('click', ()=>{
+      const idx = parseInt(opt.dataset.idx, 10);
+      q.querySelectorAll('.sc-opt').forEach(o=>o.disabled = true);
+      if(idx === correctIdx){
+        opt.classList.add('correct');
+        feedback.textContent = '\u2713 Correct  - nice work.';
+        feedback.className = 'sc-feedback shown right';
+      } else {
+        opt.classList.add('incorrect');
+        q.querySelector('[data-idx="'+correctIdx+'"]').classList.add('correct');
+        feedback.textContent = '\u2717 Not quite  - review the highlighted answer above.';
+        feedback.className = 'sc-feedback shown wrong';
+      }
+    });
+  });
+});
+
+/* ============================================================ FLASHCARDS ============================================================ */
+let fcDeck = flashcardsData.map((c,i)=>({...c, id:i, status:'new'}));
+let fcFiltered = [...fcDeck];
+let fcIndex = 0;
+
+function fcPopulateCategories(){
+  const sel = document.getElementById('fc-category-filter');
+  const cats = [...new Set(flashcardsData.map(c=>c.cat))];
+  cats.forEach(c=>{
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+}
+
+function fcRender(){
+  const card = fcFiltered[fcIndex];
+  const el = document.getElementById('flashcard');
+  el.classList.remove('flipped');
+  if(!card){
+    document.getElementById('fc-term').textContent = 'No cards in this category.';
+    document.getElementById('fc-definition').textContent = '';
+    return;
+  }
+  document.getElementById('fc-term').textContent = card.term;
+  document.getElementById('fc-definition').textContent = card.def;
+  document.getElementById('fc-cat-front').textContent = card.cat;
+  document.getElementById('fc-cat-back').textContent = card.cat;
+  const badgeFront = document.getElementById('fc-level-front');
+  const badgeBack = document.getElementById('fc-level-back');
+  badgeFront.textContent = card.level; badgeFront.className = 'badge ' + levelBadgeClass[card.level];
+  badgeBack.textContent = card.level; badgeBack.className = 'badge ' + levelBadgeClass[card.level];
+  document.getElementById('fc-position').textContent = fcIndex + 1;
+  document.getElementById('fc-total').textContent = fcFiltered.length;
+  fcUpdateProgress();
+}
+
+function fcUpdateProgress(){
+  const known = fcDeck.filter(c=>c.status==='known').length;
+  const review = fcDeck.filter(c=>c.status==='review').length;
+  document.getElementById('fc-known-count').textContent = known;
+  document.getElementById('fc-review-count').textContent = review;
+  document.getElementById('fc-total-count').textContent = fcDeck.length;
+}
+
+document.getElementById('flashcard').addEventListener('click', ()=>{
+  document.getElementById('flashcard').classList.toggle('flipped');
+});
+document.getElementById('flashcard').addEventListener('keypress', (e)=>{
+  if(e.key === 'Enter' || e.key === ' '){ document.getElementById('flashcard').classList.toggle('flipped'); }
+});
+
+document.getElementById('fc-next').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex + 1) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-prev').addEventListener('click', ()=>{
+  if(fcFiltered.length===0) return;
+  fcIndex = (fcIndex - 1 + fcFiltered.length) % fcFiltered.length;
+  fcRender();
+});
+document.getElementById('fc-mark-known').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'known';
+  fcUpdateProgress();
+});
+document.getElementById('fc-mark-review').addEventListener('click', ()=>{
+  if(!fcFiltered[fcIndex]) return;
+  fcDeck.find(c=>c.id===fcFiltered[fcIndex].id).status = 'review';
+  fcUpdateProgress();
+});
+document.getElementById('fc-shuffle').addEventListener('click', ()=>{
+  for(let i = fcFiltered.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i+1));
+    [fcFiltered[i], fcFiltered[j]] = [fcFiltered[j], fcFiltered[i]];
+  }
+  fcIndex = 0;
+  fcRender();
+});
+document.getElementById('fc-reset').addEventListener('click', ()=>{
+  fcDeck.forEach(c=>c.status='new');
+  fcUpdateProgress();
+});
+document.getElementById('fc-category-filter').addEventListener('change', (e)=>{
+  const val = e.target.value;
+  fcFiltered = val==='all' ? [...fcDeck] : fcDeck.filter(c=>c.cat===val);
+  fcIndex = 0;
+  fcRender();
+});
+
+fcPopulateCategories();
+fcRender();
+
+/* ============================================================ QUIZ ============================================================ */
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = false;
+let quizTierResults = {};
+
+function quizStart(){
+  quizIndex = 0; quizScore = 0; quizAnswered = false;
+  quizTierResults = {};
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-active').style.display = 'block';
+  quizRenderQuestion();
+}
+
+function quizRenderQuestion(){
+  quizAnswered = false;
+  const q = quizData[quizIndex];
+  document.getElementById('quiz-qnum').textContent = 'Question ' + (quizIndex+1) + ' of ' + quizData.length;
+  const badge = document.getElementById('quiz-level-badge');
+  badge.textContent = q.level; badge.className = 'badge ' + levelBadgeClass[q.level];
+  document.getElementById('quiz-qtext').textContent = q.q;
+  document.getElementById('quiz-progress-fill').style.width = (quizIndex/quizData.length*100) + '%';
+
+  const optsWrap = document.getElementById('quiz-options');
+  optsWrap.innerHTML = '';
+  q.opts.forEach((optText, idx)=>{
+    const b = document.createElement('button');
+    b.className = 'quiz-opt';
+    b.textContent = optText;
+    b.addEventListener('click', ()=>quizAnswer(idx));
+    optsWrap.appendChild(b);
+  });
+  document.getElementById('quiz-explain').classList.remove('shown');
+  document.getElementById('quiz-next').disabled = true;
+}
+
+function quizAnswer(idx){
+  if(quizAnswered) return;
+  quizAnswered = true;
+  const q = quizData[quizIndex];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,i)=>{
+    o.disabled = true;
+    if(i === q.correct) o.classList.add('correct');
+    else if(i === idx) o.classList.add('incorrect');
+  });
+  quizTierResults[q.level] = quizTierResults[q.level] || {correct:0, total:0};
+  quizTierResults[q.level].total++;
+  if(idx === q.correct){
+    quizScore++;
+    quizTierResults[q.level].correct++;
+  }
+  const explainBox = document.getElementById('quiz-explain');
+  explainBox.innerHTML = (idx===q.correct ? '<strong>\u2713 Correct.</strong> ' : '<strong>\u2717 Not quite.</strong> ') + q.explain;
+  explainBox.classList.add('shown');
+  document.getElementById('quiz-next').disabled = false;
+}
+
+document.getElementById('quiz-next').addEventListener('click', ()=>{
+  quizIndex++;
+  if(quizIndex >= quizData.length){
+    quizShowResults();
+  } else {
+    quizRenderQuestion();
+  }
+});
+
+function quizShowResults(){
+  document.getElementById('quiz-active').style.display = 'none';
+  document.getElementById('quiz-results').style.display = 'block';
+  document.getElementById('quiz-final-score').textContent = quizScore + ' / ' + quizData.length;
+  const tierWrap = document.getElementById('tier-breakdown');
+  tierWrap.innerHTML = '';
+  Object.keys(quizTierResults).forEach(level=>{
+    const r = quizTierResults[level];
+    const chip = document.createElement('div');
+    chip.className = 'tier-chip';
+    chip.innerHTML = '<div class="tier-score">'+r.correct+'/'+r.total+'</div><div class="tier-label">'+level+'</div>';
+    tierWrap.appendChild(chip);
+  });
+}
+
+document.getElementById('quiz-start').addEventListener('click', quizStart);
+document.getElementById('quiz-retry').addEventListener('click', ()=>{
+  document.getElementById('quiz-results').style.display = 'none';
+  document.getElementById('quiz-intro').style.display = 'block';
+});
+
+/* ============================================================ MATCHING ============================================================ */
+let matchCurrentSet = 0;
+let matchSelectedTerm = null;
+let matchSelectedDef = null;
+let matchMatchedCount = 0;
+let matchTermOrder = [];
+let matchDefOrder = [];
+
+function matchInit(setIdx){
+  matchCurrentSet = setIdx;
+  matchSelectedTerm = null; matchSelectedDef = null; matchMatchedCount = 0;
+  document.getElementById('match-complete').classList.remove('shown');
+  const pairs = matchingSets[setIdx].pairs;
+
+  matchTermOrder = pairs.map((p,i)=>i);
+  matchDefOrder = pairs.map((p,i)=>i);
+  shuffleArr(matchTermOrder);
+  shuffleArr(matchDefOrder);
+
+  const termsWrap = document.getElementById('match-terms');
+  const defsWrap = document.getElementById('match-defs');
+  termsWrap.innerHTML = '';
+  defsWrap.innerHTML = '';
+
+  matchTermOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].term;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectTerm(b, i));
+    termsWrap.appendChild(b);
+  });
+  matchDefOrder.forEach(i=>{
+    const b = document.createElement('button');
+    b.className = 'match-item';
+    b.textContent = pairs[i].def;
+    b.dataset.pairIdx = i;
+    b.addEventListener('click', ()=>matchSelectDef(b, i));
+    defsWrap.appendChild(b);
+  });
+  matchUpdateStatus();
+}
+
+function shuffleArr(arr){
+  for(let i=arr.length-1; i>0; i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+}
+
+function matchSelectTerm(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-terms .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedTerm = {el, pairIdx};
+  matchTryPair();
+}
+function matchSelectDef(el, pairIdx){
+  if(el.classList.contains('matched')) return;
+  document.querySelectorAll('#match-defs .match-item').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+  matchSelectedDef = {el, pairIdx};
+  matchTryPair();
+}
+
+function matchTryPair(){
+  if(!matchSelectedTerm || !matchSelectedDef) return;
+  if(matchSelectedTerm.pairIdx === matchSelectedDef.pairIdx){
+    matchSelectedTerm.el.classList.remove('selected');
+    matchSelectedDef.el.classList.remove('selected');
+    matchSelectedTerm.el.classList.add('matched');
+    matchSelectedDef.el.classList.add('matched');
+    matchMatchedCount++;
+    matchUpdateStatus();
+    if(matchMatchedCount === matchingSets[matchCurrentSet].pairs.length){
+      document.getElementById('match-complete').classList.add('shown');
+    }
+  } else {
+    matchSelectedTerm.el.classList.add('shake');
+    matchSelectedDef.el.classList.add('shake');
+    setTimeout(()=>{
+      matchSelectedTerm.el.classList.remove('selected','shake');
+      matchSelectedDef.el.classList.remove('selected','shake');
+    }, 420);
+  }
+  matchSelectedTerm = null; matchSelectedDef = null;
+}
+
+function matchUpdateStatus(){
+  document.getElementById('match-status').textContent = matchMatchedCount + ' of ' + matchingSets[matchCurrentSet].pairs.length + ' matched';
+}
+
+document.getElementById('match-set-select').addEventListener('change', (e)=>{
+  matchInit(parseInt(e.target.value,10));
+});
+document.getElementById('match-reset').addEventListener('click', ()=>{
+  matchInit(matchCurrentSet);
+});
+
+matchInit(0);
+</script>
+</body>
+</html>
