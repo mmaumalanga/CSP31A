@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CSP31A · Functions Study Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --user-primary:#1a4480;
+  --user-accent:#c8102e;
+  --user-background:#ffffff;
+  --ink:#1b2333;
+  --muted:#5a6477;
+  --line:#d8dee9;
+  --soft-blue:#eef3fa;
+  --soft-red:#fdf1f3;
+  --good:#1d7a4c;
+  --soft-good:#ebf7f0;
+  --warn:#8a5a00;
+  --soft-warn:#fff7e6;
+  --code-bg:#0f2547;
+  --radius-lg:14px;
+  --radius-sm:8px;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--user-background);color:var(--ink);line-height:1.6;font-size:16px}
+code,pre,.mono{font-family:'JetBrains Mono',ui-monospace,Consolas,monospace}
+a{color:var(--user-primary)}
+:focus-visible{outline:3px solid var(--user-accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* Header */
+header.hero{background:var(--user-primary);color:#fff;padding:28px 20px 0}
+.hero-inner{max-width:1080px;margin:0 auto}
+.course-line{font-size:.95rem;opacity:.85;margin:0}
+.hero h1{font-size:clamp(1.7rem,3.6vw,2.5rem);line-height:1.15;margin:.3rem 0 .6rem;font-weight:800;letter-spacing:-.01em}
+.hero-eq{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:14px 0 22px;font-family:'JetBrains Mono',monospace;font-size:clamp(1rem,2.4vw,1.35rem)}
+.hero-eq span.box{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);padding:8px 14px;border-radius:var(--radius-sm)}
+.hero-eq span.is{color:#ffd3da;font-family:'Inter',sans-serif;font-weight:600;font-size:.95rem}
+.hero p.lede{max-width:70ch;margin:0 0 20px;opacity:.95}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+nav.tabs button{font:inherit;font-weight:600;font-size:.95rem;background:transparent;color:#fff;border:0;padding:12px 16px;border-radius:10px 10px 0 0;cursor:pointer;white-space:nowrap;opacity:.85}
+nav.tabs button:hover{opacity:1;background:rgba(255,255,255,.1)}
+nav.tabs button[aria-selected="true"]{background:var(--user-background);color:var(--user-primary);opacity:1;box-shadow:inset 0 3px 0 var(--user-accent)}
+
+main{max-width:1080px;margin:0 auto;padding:28px 20px 60px}
+section.panel{display:none}
+section.panel.active{display:block}
+h2{color:var(--user-primary);font-size:1.6rem;margin:0 0 .4rem;line-height:1.25}
+h3{font-size:1.2rem;margin:1.8rem 0 .5rem;color:var(--ink)}
+p{max-width:75ch}
+.intro{color:var(--muted);margin-top:0}
+
+/* Bloom badges */
+.bloom{display:inline-block;font-size:.78rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid currentColor;vertical-align:middle}
+.b-remember{color:#2f5f9e}.b-understand{color:#1a4480}.b-apply{color:#1d7a4c}
+.b-analyze{color:#8a5a00}.b-evaluate{color:#b0452a}.b-create{color:#c8102e}
+
+/* Learn layout */
+.path{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 26px;padding:0;list-style:none}
+.path li button{font:inherit;font-size:.9rem;border:1px solid var(--line);background:#fff;padding:8px 14px;border-radius:999px;cursor:pointer;color:var(--ink)}
+.path li button.on{background:var(--user-primary);color:#fff;border-color:var(--user-primary)}
+.path li button .done{color:var(--good);font-weight:700}
+.path li button.on .done{color:#bfe8d1}
+.lesson{display:none}.lesson.active{display:block}
+.lesson-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.lesson-head h2{margin:0}
+
+pre.code{background:var(--code-bg);color:#e8eefb;padding:16px 18px;border-radius:var(--radius-sm);overflow-x:auto;font-size:.88rem;line-height:1.55;margin:12px 0 18px;border-left:4px solid var(--user-accent)}
+pre.code .k{color:#8fc1ff}pre.code .c{color:#8a9bb8;font-style:italic}pre.code .s{color:#ffc58a}
+code.inl{background:var(--soft-blue);color:var(--user-primary);padding:1px 6px;border-radius:5px;font-size:.9em}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.two{grid-template-columns:1fr}}
+.note{border:1px solid var(--line);border-radius:var(--radius-sm);padding:14px 16px;background:#fff}
+.note h4{margin:0 0 6px;font-size:1rem}
+
+/* Worked example */
+.worked{border:2px solid var(--user-primary);border-radius:var(--radius-lg);overflow:hidden;margin:18px 0}
+.worked > .wtitle{background:var(--user-primary);color:#fff;padding:10px 16px;font-weight:700}
+.worked ol.steps{margin:0;padding:16px 20px 16px 44px}
+.worked ol.steps li{margin-bottom:12px}
+.worked ol.steps li .why{display:block;color:var(--muted);font-size:.93rem;margin-top:2px}
+.trace{font-family:'JetBrains Mono',monospace;background:var(--soft-blue);padding:10px 14px;border-radius:var(--radius-sm);font-size:.9rem;overflow-x:auto}
+
+/* Misconception flag */
+.miscon{border-left:5px solid var(--user-accent);background:var(--soft-red);padding:14px 18px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin:18px 0}
+.miscon .flag{font-weight:800;color:var(--user-accent);margin:0 0 6px}
+.miscon p{margin:.35rem 0}
+.miscon .wrong{font-family:'JetBrains Mono',monospace;font-size:.88rem;background:#fff;padding:2px 6px;border-radius:4px;text-decoration:line-through;text-decoration-color:var(--user-accent)}
+
+/* Real-world */
+.realworld{background:var(--soft-warn);border:1px solid #f0d9a8;border-radius:var(--radius-lg);padding:18px 20px;margin:20px 0}
+.realworld h3{margin-top:0;color:var(--warn)}
+
+/* Try it */
+.tryit{border:2px dashed var(--good);border-radius:var(--radius-lg);padding:16px 18px;margin:18px 0;background:var(--soft-good)}
+.tryit h4{margin:0 0 6px;color:var(--good)}
+textarea{width:100%;min-height:150px;font-family:'JetBrains Mono',monospace;font-size:.88rem;padding:12px;border:1px solid var(--line);border-radius:var(--radius-sm);resize:vertical;background:#fff;color:var(--ink)}
+textarea.prose{font-family:'Inter',sans-serif;font-size:.95rem;min-height:120px}
+.btn{font:inherit;font-weight:600;font-size:.93rem;padding:9px 16px;border-radius:var(--radius-sm);border:1px solid var(--user-primary);background:var(--user-primary);color:#fff;cursor:pointer}
+.btn:hover{filter:brightness(1.12)}
+.btn.ghost{background:#fff;color:var(--user-primary)}
+.btn.red{background:var(--user-accent);border-color:var(--user-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 0}
+.feedback{margin-top:10px;padding:10px 14px;border-radius:var(--radius-sm);display:none}
+.feedback.show{display:block}
+.feedback.ok{background:var(--soft-good);border:1px solid #b6e0c8;color:#145c38}
+.feedback.no{background:var(--soft-red);border:1px solid #f1c0c9;color:#8f0b21}
+.feedback.info{background:var(--soft-blue);border:1px solid #c7d6ec;color:var(--user-primary)}
+ul.checklist{list-style:none;padding:0;margin:8px 0}
+ul.checklist li{padding:4px 0}
+ul.checklist li.pass::before{content:"✓ ";color:var(--good);font-weight:800}
+ul.checklist li.fail::before{content:"✗ ";color:var(--user-accent);font-weight:800}
+
+/* Self-check */
+.selfcheck{margin:30px 0 8px;border-top:3px solid var(--user-primary);padding-top:14px}
+.selfcheck h3{margin-top:0;color:var(--user-primary)}
+.sc-q{margin:14px 0 18px}
+.sc-q .qtext{font-weight:600;margin-bottom:8px}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;padding:10px 14px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--user-primary);background:var(--soft-blue)}
+.opt.correct{border-color:var(--good);background:var(--soft-good);font-weight:600}
+.opt.wrong{border-color:var(--user-accent);background:var(--soft-red)}
+.opt:disabled{cursor:default}
+.opt code{font-size:.88em}
+.sc-summary{font-weight:700;margin-top:8px}
+.next-link{margin-top:14px}
+
+/* Flashcards */
+.fc-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:12px 0 18px}
+.fc-filters{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:.85rem;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}
+.chip.on{background:var(--user-primary);border-color:var(--user-primary);color:#fff}
+.fc-progress{height:6px;background:var(--soft-blue);border-radius:999px;overflow:hidden;margin-bottom:14px}
+.fc-progress > div{height:100%;background:var(--user-accent);width:0;transition:width .3s}
+.card-wrap{perspective:1400px;max-width:720px;margin:0 auto}
+.card{position:relative;width:100%;min-height:320px;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.7,.2,1);cursor:pointer}
+.card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius-lg);padding:26px 28px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--line);overflow:auto;padding-top:48px;padding-bottom:36px}
+.face.front{background:#fff;border-top:6px solid var(--user-primary)}
+.face.back{background:var(--user-primary);color:#fff;transform:rotateY(180deg);border-top:6px solid var(--user-accent)}
+.face .meta{position:absolute;top:14px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;font-size:.82rem;color:var(--muted)}
+.face.back .meta{color:#c9d6ee}
+.face.back .bloom{color:#fff}
+.face .term{font-size:clamp(1.15rem,2.6vw,1.5rem);font-weight:700;line-height:1.35;text-align:center}
+.face .term code{font-size:.95em;background:var(--soft-blue);padding:2px 8px;border-radius:6px;color:var(--user-primary)}
+.face .ans{font-size:1.02rem;line-height:1.55}
+.face.back pre{background:rgba(0,0,0,.25);padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:.84rem;margin:10px 0 0}
+.face.back code{background:rgba(255,255,255,.15);padding:1px 5px;border-radius:4px}
+.face .hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:.8rem;color:var(--muted)}
+.face.back .hint{color:#c9d6ee}
+.fc-nav{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:18px 0 6px}
+.fc-count{text-align:center;color:var(--muted);font-size:.9rem}
+.fc-stats{display:flex;justify-content:center;gap:18px;font-size:.9rem;margin-top:8px}
+.fc-stats b{color:var(--user-primary)}
+
+/* Quiz */
+.quiz-card{border:1px solid var(--line);border-radius:var(--radius-lg);padding:22px 24px;max-width:780px;margin:0 auto}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;color:var(--muted);font-size:.9rem}
+.quiz-q{font-size:1.1rem;font-weight:600;margin-bottom:10px}
+.score-big{font-size:2.6rem;font-weight:800;color:var(--user-primary);margin:0}
+.review-list{margin-top:16px}
+.review-list div{padding:8px 0;border-bottom:1px solid var(--line);font-size:.93rem}
+
+/* Matching */
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:900px;margin:0 auto}
+@media(max-width:700px){.match-grid{grid-template-columns:1fr}}
+.match-col h4{margin:0 0 8px;color:var(--muted);font-size:.9rem;font-weight:600}
+.m-item{font:inherit;display:block;width:100%;text-align:left;padding:11px 14px;margin-bottom:8px;border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;cursor:pointer;color:var(--ink);font-size:.93rem}
+.m-item.code{font-family:'JetBrains Mono',monospace;font-size:.84rem}
+.m-item:hover:not(:disabled){border-color:var(--user-primary)}
+.m-item.sel{border-color:var(--user-primary);background:var(--soft-blue);box-shadow:0 0 0 2px var(--user-primary) inset}
+.m-item.matched{border-color:var(--good);background:var(--soft-good);color:#145c38;cursor:default}
+.m-item.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.match-status{text-align:center;margin:10px 0 16px;color:var(--muted)}
+
+/* Challenges */
+.challenge{border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px 22px;margin:0 0 20px}
+.challenge .chead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.challenge .chead h3{margin:0}
+.challenge details{margin-top:12px}
+.challenge summary{cursor:pointer;font-weight:600;color:var(--user-primary)}
+.rubric label{display:block;padding:4px 0;font-size:.95rem}
+.model{background:var(--soft-blue);border-radius:var(--radius-sm);padding:12px 16px;margin-top:10px}
+
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center;padding:20px}
+/* Memory stepper */
+.mem{border:1px solid var(--line);border-radius:var(--radius-lg);padding:16px 18px;margin:18px 0}
+.mem-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mem-frames{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:640px){.mem-frames{grid-template-columns:1fr}}
+.frame{border:2px solid var(--user-primary);border-radius:var(--radius-sm);overflow:hidden}
+.frame.gone{opacity:.35;border-style:dashed}
+.frame h5{margin:0;background:var(--user-primary);color:#fff;padding:6px 12px;font-size:.9rem}
+.frame table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.86rem}
+.frame td{padding:6px 12px;border-top:1px solid var(--line)}
+.frame td.addr{color:var(--muted);width:30%}
+.frame td.val.changed{background:var(--soft-warn);font-weight:700}
+.frame td.val.ref{color:var(--user-accent)}
+.mem-caption{margin:12px 0 0;padding:10px 14px;background:var(--soft-blue);border-radius:var(--radius-sm);font-size:.95rem}
+.hero-eq span.arrow{font-family:'Inter',sans-serif;color:#ffd3da;font-weight:600;font-size:.95rem}
+table.cmp{border-collapse:collapse;width:100%;margin:12px 0 18px;font-size:.93rem}
+table.cmp th,table.cmp td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top}
+table.cmp th{background:var(--soft-blue);color:var(--user-primary)}
+.tablewrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <p class="course-line">San Joaquin Delta College · CSP31A C++ Programming I · Functions</p>
+    <h1>Functions</h1>
+    <div class="hero-eq" aria-label="sideC equals findSideC of 3 and 4 returns 5">
+      <span class="box">sideC = findSideC(3.0, 4.0);</span><span class="arrow">returns</span><span class="box">5.0</span>
+    </div>
+    <p class="lede">A function packages one specific task behind a name. You hand it arguments, it does the work, and it can hand back one value. Work through the lessons in order, then drill with flashcards, test yourself with the quiz and matching activity, and finish with the challenges.</p>
+    <nav class="tabs" role="tablist" aria-label="Study tool sections">
+      <button role="tab" aria-selected="true" aria-controls="learn" id="t-learn">Learn</button>
+      <button role="tab" aria-selected="false" aria-controls="flash" id="t-flash">Flashcards</button>
+      <button role="tab" aria-selected="false" aria-controls="quiz" id="t-quiz">Quiz</button>
+      <button role="tab" aria-selected="false" aria-controls="match" id="t-match">Matching</button>
+      <button role="tab" aria-selected="false" aria-controls="challenge" id="t-challenge">Challenges</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="panel active" id="learn" role="tabpanel" aria-labelledby="t-learn">
+  <h2>Learn in four steps</h2>
+  <p class="intro">Each lesson ends with a short self-check. Aim for all correct before you move on.</p>
+  <ul class="path" id="path">
+    <li><button data-lesson="L1" class="on">1. Anatomy of a function</button></li>
+    <li><button data-lesson="L2">2. Worked example: decomposition</button></li>
+    <li><button data-lesson="L3">3. Pass by value vs reference</button></li>
+    <li><button data-lesson="L4">4. Scope, overloading, defaults</button></li>
+  </ul>
+
+  <!-- L1 -->
+  <article class="lesson active" id="L1">
+    <div class="lesson-head"><h2>1. Anatomy of a function</h2><span class="bloom b-remember">Remember</span><span class="bloom b-understand">Understand</span></div>
+    <p>A <strong>function</strong> is a group of statements that performs one specific task. Every C++ program has at least one: <code class="inl">main()</code>. You have already called library functions such as <code class="inl">pow()</code> and <code class="inl">sqrt()</code> from <code class="inl">&lt;cmath&gt;</code>. Now you'll write your own.</p>
+    <p>Writing your own function takes three pieces, and they must agree with each other:</p>
+    <pre class="code"><span class="k">#include</span> &lt;iostream&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">double</span> cube(<span class="k">double</span>);                 <span class="c">// 1. PROTOTYPE: declared before main, ends with ;</span>
+
+<span class="k">int</span> main()
+{
+  <span class="k">double</span> num = 3.0;
+  <span class="k">double</span> cubeVal = cube(num);         <span class="c">// 2. CALL: num is the ARGUMENT</span>
+  cout &lt;&lt; cubeVal &lt;&lt; endl;            <span class="c">// prints 27</span>
+  <span class="k">return</span> 0;
+}
+
+<span class="c">// Purpose: returns the cube of a number
+// Pre:  answer holds any double
+// Post: returns answer * answer * answer</span>
+<span class="k">double</span> cube(<span class="k">double</span> answer)            <span class="c">// 3. DEFINITION: header + body, no ;</span>
+{
+  <span class="k">return</span> answer * answer * answer;    <span class="c">// answer is the PARAMETER</span>
+}</pre>
+    <div class="tablewrap"><table class="cmp">
+      <tr><th>Piece</th><th>What it does</th><th>Tip</th></tr>
+      <tr><td>Prototype</td><td>Tells the compiler the return type, name, and parameter types before the function is used.</td><td>Parameter names are optional here. Put prototypes above <code class="inl">main()</code>.</td></tr>
+      <tr><td>Call</td><td>Runs the function. Arguments are matched to parameters <strong>by position</strong>.</td><td>Use or store the returned value: <code class="inl">x = cube(2.0);</code></td></tr>
+      <tr><td>Definition</td><td>The header plus the body that does the work.</td><td>Copy the prototype, remove the <code class="inl">;</code>, add the <code class="inl">{ }</code> body.</td></tr>
+    </table></div>
+    <div class="two">
+      <div class="note"><h4>Arguments vs parameters</h4><p style="margin:0"><strong>Arguments</strong> (actual parameters) are the values in the call: <code class="inl">num</code>. <strong>Parameters</strong> (formal parameters) are the variables in the header that receive them: <code class="inl">answer</code>.</p></div>
+      <div class="note"><h4>Naming a function</h4><p style="margin:0">Use a verb + noun: <code class="inl">calcAverage()</code>, <code class="inl">getInput()</code>, <code class="inl">printReport()</code>. It reads as an action and is clearer than <code class="inl">average()</code>.</p></div>
+    </div>
+    <p>A <code class="inl">void</code> function performs a task but returns nothing, like <code class="inl">void printLine(int width)</code>. A value-returning function uses <code class="inl">return</code> to send exactly one value back to the caller.</p>
+
+    <div class="miscon">
+      <p class="flag">Common misconception: "I can return two values with return num1, num2;"</p>
+      <p>This compiles, which makes it sneaky. The comma here is the <em>comma operator</em>: it evaluates <code class="inl">num1</code>, throws it away, and returns only <code class="inl">num2</code>.</p>
+      <p><strong>Correct reasoning:</strong> a C++ function returns <strong>one</strong> value. To send back more than one result, use reference parameters (lesson 3), for example <code class="inl">void findMinMax(int a, int b, int&amp; lo, int&amp; hi)</code>.</p>
+    </div>
+
+    <div class="selfcheck" data-sc="L1"><h3>Self-check 1</h3><div class="sc-host"></div></div>
+  </article>
+
+  <!-- L2 -->
+  <article class="lesson" id="L2">
+    <div class="lesson-head"><h2>2. Worked example: functional decomposition</h2><span class="bloom b-understand">Understand</span><span class="bloom b-apply">Apply</span></div>
+    <p><strong>Functional decomposition</strong> breaks a program into small functions that each do one job. <strong>Stepwise refinement</strong> means you build and test them one at a time. Here is the full process, with the reasoning at each step, for the problem in the slides.</p>
+
+    <div class="worked">
+      <div class="wtitle">Worked example: find the longest side of a right triangle</div>
+      <ol class="steps">
+        <li><strong>Write the plan in plain steps.</strong> Read sideA, read sideB, compute sideC = √(sideA² + sideB²), print the result.
+          <span class="why">Reason: each step is a candidate function. If a step is a single clear task, it deserves a verb + noun name.</span></li>
+        <li><strong>Name the functions.</strong> <code class="inl">getInput()</code>, <code class="inl">findSideC()</code>, <code class="inl">printResult()</code>. <code class="inl">main()</code> just calls them in order.
+          <span class="why">Reason: <code class="inl">getInput()</code> is called twice, so writing it once avoids redundant code. Its prompt stays generic so it can be reused for any side.</span></li>
+        <li><strong>Decide inputs and outputs for each.</strong> <code class="inl">getInput</code> needs nothing and returns a <code class="inl">double</code>. <code class="inl">findSideC</code> needs two <code class="inl">double</code>s and returns one. <code class="inl">printResult</code> needs three values and returns nothing, so it's <code class="inl">void</code>.
+          <span class="why">Reason: the return type answers "what comes back?"; the parameter list answers "what does it need to do its job?"</span></li>
+        <li><strong>Write all prototypes, then use stubs.</strong> A <em>stub</em> is a placeholder body that returns a fixed test value, so <code class="inl">main()</code> (the <em>driver</em>) compiles and runs right away.
+          <span class="why">Reason: if the call mechanics work with a stub, any later bug is inside the one function you're finishing, not in how functions connect.</span></li>
+        <li><strong>Replace one stub at a time and test.</strong></li>
+      </ol>
+      <pre class="code" style="margin:0 20px 16px"><span class="k">#include</span> &lt;iostream&gt;
+<span class="k">#include</span> &lt;cmath&gt;
+<span class="k">using namespace</span> std;
+
+<span class="k">double</span> getInput();
+<span class="k">double</span> findSideC(<span class="k">double</span>, <span class="k">double</span>);
+<span class="k">void</span>   printResult(<span class="k">double</span>, <span class="k">double</span>, <span class="k">double</span>);
+
+<span class="k">int</span> main()                              <span class="c">// the driver</span>
+{
+  <span class="k">double</span> sideA = getInput();
+  <span class="k">double</span> sideB = getInput();
+  <span class="k">double</span> sideC = findSideC(sideA, sideB);
+  printResult(sideA, sideB, sideC);
+  <span class="k">return</span> 0;
+}
+
+<span class="k">double</span> getInput()
+{
+  <span class="k">double</span> value;
+  cout &lt;&lt; <span class="s">"Enter a side length: "</span>;
+  cin &gt;&gt; value;
+  <span class="k">return</span> value;
+}
+
+<span class="k">double</span> findSideC(<span class="k">double</span> a, <span class="k">double</span> b)
+{
+  <span class="c">// STUB version was:  return 5.0;</span>
+  <span class="k">return</span> sqrt(a * a + b * b);           <span class="c">// or hypot(a, b)</span>
+}
+
+<span class="k">void</span> printResult(<span class="k">double</span> a, <span class="k">double</span> b, <span class="k">double</span> c)
+{
+  cout &lt;&lt; <span class="s">"Sides "</span> &lt;&lt; a &lt;&lt; <span class="s">" and "</span> &lt;&lt; b
+       &lt;&lt; <span class="s">" give hypotenuse "</span> &lt;&lt; c &lt;&lt; endl;
+}</pre>
+      <div style="padding:0 20px 18px">
+        <strong>Trace it</strong> with inputs 3 and 4:
+        <div class="trace">getInput() → 3.0 &nbsp;|&nbsp; getInput() → 4.0 &nbsp;|&nbsp; findSideC(3.0, 4.0): a=3, b=4 → sqrt(9 + 16) = 5.0 &nbsp;|&nbsp; printResult prints 5</div>
+        <p style="margin-bottom:0">Notice the parameter names <code class="inl">a</code> and <code class="inl">b</code> don't need to match the argument names <code class="inl">sideA</code> and <code class="inl">sideB</code>. Only the <strong>position</strong> and <strong>type</strong> matter.</p>
+      </div>
+    </div>
+
+    <div class="tryit">
+      <h4>Your turn: a similar function</h4>
+      <p style="margin-top:0">A program reads three quiz scores and prints their average. Following the same steps, write the <strong>prototype</strong>, the <strong>definition</strong> of <code class="inl">calcAverage</code>, and the <strong>call</strong> that stores the result in <code class="inl">avg</code> using variables <code class="inl">q1</code>, <code class="inl">q2</code>, <code class="inl">q3</code>.</p>
+      <textarea id="tryAvg" spellcheck="false" aria-label="Your calcAverage code">// prototype
+
+// call (inside main)
+
+// definition
+</textarea>
+      <div class="row">
+        <button class="btn" id="checkAvg">Check my code</button>
+        <button class="btn ghost" id="showAvg">Show model answer</button>
+      </div>
+      <ul class="checklist" id="avgChecks"></ul>
+      <div class="feedback info" id="avgModel">
+        <pre class="code" style="margin:6px 0"><span class="k">double</span> calcAverage(<span class="k">double</span>, <span class="k">double</span>, <span class="k">double</span>);   <span class="c">// prototype</span>
+
+avg = calcAverage(q1, q2, q3);                    <span class="c">// call</span>
+
+<span class="k">double</span> calcAverage(<span class="k">double</span> s1, <span class="k">double</span> s2, <span class="k">double</span> s3)   <span class="c">// definition</span>
+{
+  <span class="k">return</span> (s1 + s2 + s3) / 3.0;
+}</pre>
+        Trace: scores 80, 90, 85 → (255) / 3.0 = <strong>85.0</strong>. Dividing by <code class="inl">3.0</code> instead of <code class="inl">3</code> guards against integer division if you later switch to <code class="inl">int</code> scores.
+      </div>
+    </div>
+
+    <div class="selfcheck" data-sc="L2"><h3>Self-check 2</h3><div class="sc-host"></div></div>
+  </article>
+
+  <!-- L3 -->
+  <article class="lesson" id="L3">
+    <div class="lesson-head"><h2>3. Pass by value vs pass by reference</h2><span class="bloom b-understand">Understand</span><span class="bloom b-apply">Apply</span><span class="bloom b-analyze">Analyze</span></div>
+    <p>By default, C++ passes arguments <strong>by value</strong>: the argument's value is <em>copied</em> into the parameter. The parameter is a separate local variable in the function's own <strong>stack frame</strong>, so changing it has no effect on the caller. The classic example is <code class="inl">swap()</code>.</p>
+    <div class="two">
+      <pre class="code"><span class="c">// Pass by value: does NOT work</span>
+<span class="k">void</span> swap(<span class="k">int</span> n1, <span class="k">int</span> n2)
+{
+  <span class="k">int</span> temp = n1;
+  n1 = n2;
+  n2 = temp;
+}</pre>
+      <pre class="code"><span class="c">// Pass by reference: works</span>
+<span class="k">void</span> swap(<span class="k">int</span>&amp; n1, <span class="k">int</span>&amp; n2)
+{
+  <span class="k">int</span> temp = n1;
+  n1 = n2;
+  n2 = temp;
+}</pre>
+    </div>
+    <p>Step through what happens in memory when <code class="inl">main()</code> calls <code class="inl">swap(num1, num2)</code> with <code class="inl">num1 = 23</code> and <code class="inl">num2 = 45</code>. The addresses (100, 104, …) are illustrative.</p>
+
+    <div class="mem" id="mem">
+      <div class="mem-top">
+        <div class="row" style="margin:0" role="group" aria-label="Passing mode">
+          <button class="chip on" data-mode="val">Pass by value</button>
+          <button class="chip" data-mode="ref">Pass by reference</button>
+        </div>
+        <div class="row" style="margin:0">
+          <button class="btn ghost" id="memPrev">Back</button>
+          <span id="memStep" style="color:var(--muted);font-size:.9rem"></span>
+          <button class="btn" id="memNext">Next step</button>
+        </div>
+      </div>
+      <div class="mem-frames" id="memFrames"></div>
+      <p class="mem-caption" id="memCap" aria-live="polite"></p>
+    </div>
+
+    <div class="miscon">
+      <p class="flag">Common misconception: "If the function changes its parameter, the caller's variable changes too."</p>
+      <p>With pass by value, <code class="inl">n1</code> and <code class="inl">n2</code> are <em>copies</em> living in <code class="inl">swap()</code>'s own stack frame. The swap happens correctly inside the function, and then the frame is destroyed when the function returns. <code class="inl">num1</code> and <code class="inl">num2</code> in <code class="inl">main()</code> were never touched.</p>
+      <p><strong>Correct reasoning:</strong> only a <strong>reference parameter</strong> (<code class="inl">int&amp; n1</code>) makes the parameter another name for the caller's variable. Then <code class="inl">n1</code> <em>is</em> <code class="inl">num1</code>, and changes stick.</p>
+    </div>
+
+    <h3>"Returning" more than one value</h3>
+    <p>Since a function returns only one value, reference parameters are how you send back several. The slides' <code class="inl">findSum()</code> keeps running totals of positive and negative numbers:</p>
+    <pre class="code"><span class="k">int</span>  findSum(<span class="k">int</span> num);                                 <span class="c">// NO: can return only one total</span>
+<span class="k">void</span> findSum(<span class="k">int</span> num, <span class="k">int</span> totalPos, <span class="k">int</span> totalNeg);   <span class="c">// NO: copies are destroyed</span>
+<span class="k">void</span> findSum(<span class="k">int</span> num, <span class="k">int</span>&amp; totalPos, <span class="k">int</span>&amp; totalNeg); <span class="c">// YES</span>
+
+<span class="k">void</span> findSum(<span class="k">int</span> num, <span class="k">int</span>&amp; totalPos, <span class="k">int</span>&amp; totalNeg)
+{
+  <span class="k">if</span> (num &gt; 0) totalPos += num;
+  <span class="k">else</span>         totalNeg += num;
+}</pre>
+
+    <h3>Rules for reference parameters</h3>
+    <div class="two">
+      <div class="note"><h4>Syntax</h4><p style="margin:0">Put <code class="inl">&amp;</code> on each reference parameter in <strong>both</strong> the prototype and the header. The spacing (<code class="inl">int&amp; x</code> or <code class="inl">int &amp;x</code>) doesn't matter. The call looks normal: <code class="inl">swap(num1, num2);</code></p></div>
+      <div class="note"><h4>What you can pass</h4><p style="margin:0">The argument must be a <strong>variable</strong>. <code class="inl">swap(5, 7)</code> or <code class="inl">swap(a + 1, b)</code> won't compile, because a literal or expression has no storage to refer to.</p></div>
+    </div>
+    <p>Use a reference only when the function's job is to change the caller's variable. If it only needs to read a value, pass by value (or use a <code class="inl">const</code> reference for large objects like <code class="inl">string</code>) so it can't change the data by accident.</p>
+
+    <div class="selfcheck" data-sc="L3"><h3>Self-check 3</h3><div class="sc-host"></div></div>
+  </article>
+
+  <!-- L4 -->
+  <article class="lesson" id="L4">
+    <div class="lesson-head"><h2>4. Scope, static, overloading, and defaults</h2><span class="bloom b-understand">Understand</span><span class="bloom b-analyze">Analyze</span><span class="bloom b-evaluate">Evaluate</span></div>
+
+    <h3>Scope: where a name can be used</h3>
+    <p><strong>Local</strong> variables and parameters exist only inside their function (or inner block, such as a <code class="inl">for</code> loop). <strong>Global</strong> names are declared outside every function and are visible everywhere after the declaration. Good practice: make constants and prototypes global, but <strong>not</strong> variables.</p>
+    <pre class="code"><span class="k">void</span> printSum(<span class="k">int</span>, <span class="k">int</span>);
+
+<span class="k">int</span> main()
+{
+  <span class="k">int</span> a = 5, b = 7;
+  printSum(a, b);
+  cout &lt;&lt; x;              <span class="c">// ERROR: x is undeclared here</span>
+  <span class="k">return</span> 0;
+}
+
+<span class="k">void</span> printSum(<span class="k">int</span> x, <span class="k">int</span> y)   <span class="c">// x and y are local to printSum</span>
+{
+  cout &lt;&lt; <span class="s">"sum is "</span> &lt;&lt; x + y;
+}</pre>
+
+    <h3>Static local variables: keep a value between calls</h3>
+    <p>An ordinary local variable is created fresh on every call and destroyed on return. A <code class="inl">static</code> local is initialized <strong>once</strong>, on the first call, and keeps its value for the life of the program.</p>
+
+    <div class="realworld">
+      <h3>Real-world application: the campus coffee cart's card reader</h3>
+      <p>The coffee cart's register program charges a student's meal card and counts how many sales it rang up today. Look at how each design choice maps to something you learned:</p>
+      <pre class="code" style="margin-bottom:10px"><span class="k">const double</span> TAX_RATE = 0.0825;             <span class="c">// global CONSTANT: fine</span>
+
+<span class="k">bool</span> chargeCard(<span class="k">double</span>&amp; balance, <span class="k">double</span> price)  <span class="c">// balance must change: reference</span>
+{
+  <span class="k">static int</span> salesToday = 0;                 <span class="c">// survives between calls</span>
+  <span class="k">double</span> total = price * (1 + TAX_RATE);     <span class="c">// price only read: by value</span>
+  <span class="k">if</span> (total &gt; balance) <span class="k">return false</span>;        <span class="c">// declined</span>
+  balance -= total;
+  salesToday++;
+  cout &lt;&lt; <span class="s">"Sale #"</span> &lt;&lt; salesToday &lt;&lt; <span class="s">" approved\n"</span>;
+  <span class="k">return true</span>;
+}</pre>
+      <p style="margin-bottom:0">If <code class="inl">balance</code> were passed by value, every student's card would be charged in the function but never actually go down. That's the slides' "balance is always 1000" bug. If <code class="inl">salesToday</code> weren't <code class="inl">static</code>, every receipt would say "Sale #1".</p>
+    </div>
+
+    <h3>Function overloading</h3>
+    <p>Several functions can share a name if their <strong>signatures</strong> differ: the number, types, or order of parameters. The compiler picks the one that best matches the arguments.</p>
+    <pre class="code"><span class="k">int</span>    findMax(<span class="k">int</span> a, <span class="k">int</span> b);
+<span class="k">double</span> findMax(<span class="k">double</span> a, <span class="k">double</span> b);
+<span class="k">int</span>    findMax(<span class="k">int</span> a, <span class="k">int</span> b, <span class="k">int</span> c);
+
+findMax(3, 8);        <span class="c">// calls the int, int version</span>
+findMax(2.5, 1.5);    <span class="c">// calls the double, double version</span>
+findMax(1, 9, 4);     <span class="c">// calls the three-int version</span></pre>
+    <div class="miscon">
+      <p class="flag">Common misconception: "Two functions can differ only by return type."</p>
+      <p><span class="wrong">int getValue(); double getValue();</span> won't compile. At a call like <code class="inl">getValue();</code>, the compiler looks only at the name and the arguments to choose a function, and both versions look identical.</p>
+      <p><strong>Correct reasoning:</strong> the return type is <em>not</em> part of the signature. Overloads must differ in their parameter lists. Also watch for <strong>ambiguous</strong> calls: with <code class="inl">f(int, double)</code> and <code class="inl">f(double, int)</code>, the call <code class="inl">f(1, 2)</code> matches both equally well, so it's an error.</p>
+    </div>
+
+    <h3>Default arguments</h3>
+    <p>A default argument is used when the caller leaves that argument out. Defaults go in the <strong>prototype</strong>, and they must be the <strong>rightmost</strong> parameters.</p>
+    <pre class="code"><span class="k">void</span> printLine(<span class="k">int</span> width = 20, <span class="k">char</span> symbol = <span class="s">'-'</span>);   <span class="c">// prototype holds defaults</span>
+
+printLine();          <span class="c">// 20 dashes</span>
+printLine(10);        <span class="c">// 10 dashes</span>
+printLine(10, <span class="s">'*'</span>);   <span class="c">// 10 stars</span>
+
+<span class="k">void</span> bad(<span class="k">int</span> a = 1, <span class="k">int</span> b);                             <span class="c">// ERROR: default not rightmost</span></pre>
+
+    <div class="selfcheck" data-sc="L4"><h3>Self-check 4</h3><div class="sc-host"></div></div>
+  </article>
+</section>
+<!-- ================= FLASHCARDS ================= -->
+<section class="panel" id="flash" role="tabpanel" aria-labelledby="t-flash">
+  <h2>Flashcards</h2>
+  <p class="intro">Cards run from recall to application. Click or press Space to flip; use the arrow keys to move. Mark each card so you can review only what you missed.</p>
+  <div class="fc-toolbar">
+    <div class="fc-filters" id="fcFilters" role="group" aria-label="Filter cards by level"></div>
+    <div class="row" style="margin:0">
+      <button class="btn ghost" id="fcShuffle">Shuffle</button>
+      <button class="btn ghost" id="fcReview">Review missed only</button>
+      <button class="btn ghost" id="fcReset">Reset</button>
+    </div>
+  </div>
+  <div class="fc-progress" aria-hidden="true"><div id="fcBar"></div></div>
+  <div class="card-wrap">
+    <div class="card" id="card" tabindex="0" role="button" aria-label="Flashcard, press Space to flip">
+      <div class="face front"><div class="meta"><span id="fcTopicF"></span><span id="fcLevelF"></span></div><div class="term" id="fcFront"></div><div class="hint">Click to reveal</div></div>
+      <div class="face back"><div class="meta"><span id="fcTopicB"></span><span id="fcLevelB"></span></div><div class="ans" id="fcBack"></div><div class="hint">Click to flip back</div></div>
+    </div>
+  </div>
+  <div class="fc-nav">
+    <button class="btn ghost" id="fcPrev">Previous</button>
+    <button class="btn red" id="fcMiss">Still learning</button>
+    <button class="btn" id="fcGot" style="background:var(--good);border-color:var(--good)">Got it</button>
+    <button class="btn ghost" id="fcNext">Next</button>
+  </div>
+  <p class="fc-count" id="fcCount"></p>
+  <div class="fc-stats"><span>Got it: <b id="fcKnown">0</b></span><span>Still learning: <b id="fcMissed">0</b></span></div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="panel" id="quiz" role="tabpanel" aria-labelledby="t-quiz">
+  <h2>Interactive quiz</h2>
+  <p class="intro">Twelve questions that climb from recall to evaluation. You get feedback after every answer.</p>
+  <div class="quiz-card" id="quizBox"></div>
+</section>
+
+<!-- ================= MATCHING ================= -->
+<section class="panel" id="match" role="tabpanel" aria-labelledby="t-match">
+  <h2>Matching activity</h2>
+  <p class="intro">Select a term on the left, then the description that fits it on the right.</p>
+  <p class="match-status" id="matchStatus"></p>
+  <div class="match-grid">
+    <div class="match-col"><h4>Term or code</h4><div id="mLeft"></div></div>
+    <div class="match-col"><h4>What it means</h4><div id="mRight"></div></div>
+  </div>
+  <div class="row" style="justify-content:center"><button class="btn ghost" id="mReset">New round</button></div>
+</section>
+
+<!-- ================= CHALLENGES ================= -->
+<section class="panel" id="challenge" role="tabpanel" aria-labelledby="t-challenge">
+  <h2>Challenges: analyze, evaluate, create</h2>
+  <p class="intro">These tasks have no single right wording. Write your answer, justify it, then compare against the model answer and score yourself with the rubric.</p>
+  <div id="chHost"></div>
+</section>
+</main>
+<footer>San Joaquin Delta College · Computer Science · CSP31A C++ Programming I · Functions</footer>
+<script>
+/* ============ DATA ============ */
+const bcls=l=>"b-"+l.toLowerCase();
+const badge=l=>`<span class="bloom ${bcls(l)}">${l}</span>`;
+
+const SELF={
+L1:[
+ {q:"In <code>double cubeVal = cube(num);</code>, what is <code>num</code>?",o:["A parameter","An argument","A prototype","The return type"],a:1,w:"Values in the call are arguments; the variables in the function header are parameters."},
+ {q:"Which line is a valid prototype for a function that takes two ints and returns a double?",o:["<code>double calc(int, int)</code>","<code>double calc(int, int);</code>","<code>calc(int a, int b) double;</code>","<code>void calc(int, int) return double;</code>"],a:1,w:"A prototype ends with a semicolon; parameter names are optional."},
+ {q:"What does <code>return num1, num2;</code> send back?",o:["Both num1 and num2","Only num1","Only num2","It won't compile"],a:2,w:"The comma operator discards the left value. A function returns one value."}
+],
+L2:[
+ {q:"What is a stub?",o:["A function with no parameters","A placeholder body that returns a fixed test value","The main() function","A function prototype"],a:1,w:"Stubs let the driver compile and run before every function is finished."},
+ {q:"Why does <code>getInput()</code> use a generic prompt instead of \"Enter sideA\"?",o:["Generic prompts run faster","So the same function can be reused for any side","Prompts aren't allowed in functions","To avoid a prototype"],a:1,w:"A function that does one general task is more reusable."},
+ {q:"Apply it: what does <code>findSideC(6.0, 8.0)</code> return?",o:["14.0","10.0","48.0","100.0"],a:1,w:"sqrt(36 + 64) = sqrt(100) = 10."}
+],
+L3:[
+ {q:"<code>void addTen(int n) { n += 10; }</code> is called with <code>x = 5; addTen(x);</code>. What is x afterward?",o:["5","10","15","Undefined"],a:0,w:"n is a copy of x; the change dies with addTen's stack frame."},
+ {q:"Which change makes <code>addTen</code> update the caller's variable?",o:["<code>void addTen(int* n)</code> with no other changes","<code>void addTen(int&amp; n)</code>","<code>int addTen(int n)</code> without using the result","<code>static void addTen(int n)</code>"],a:1,w:"A reference parameter is another name for the caller's variable."},
+ {q:"With <code>void swap(int&amp; a, int&amp; b)</code>, which call will NOT compile?",o:["<code>swap(x, y);</code>","<code>swap(num1, num2);</code>","<code>swap(3, 4);</code>","<code>swap(y, x);</code>"],a:2,w:"A reference must bind to a variable, not a literal."}
+],
+L4:[
+ {q:"Why did the slides' <code>withdraw()</code> always show a balance of 1000?",o:["balance was a local variable re-created each call","1000 was a global constant","withdraw returned void","The prototype was missing"],a:0,w:"A plain local is initialized fresh every call. Use a reference parameter (or static, for a counter)."},
+ {q:"Which pair is a valid overload?",o:["<code>int area(int); double area(int);</code>","<code>int area(int); int area(int, int);</code>","<code>int area(int x); int area(int y);</code>","<code>void area(int); int area(int);</code>"],a:1,w:"Overloads must differ in their parameter lists; return type and parameter names don't count."},
+ {q:"Given <code>void box(int w, int h = 5, char c = '#');</code>, which call is valid?",o:["<code>box();</code>","<code>box(3, , '*');</code>","<code>box(3, '*');</code> meaning h=5, c='*'","<code>box(3);</code>"],a:3,w:"w has no default, so it's required. You can't skip a middle argument; box(3,'*') would pass '*' as h."}
+]};
+
+const CARDS=[
+ {t:"Basics",l:"Remember",f:"What is a function?",b:"A named group of statements that performs one specific task. Every C++ program has at least one: <code>main()</code>."},
+ {t:"Basics",l:"Remember",f:"How many values can a function <code>return</code>?",b:"Exactly one (or none, for a <code>void</code> function)."},
+ {t:"Basics",l:"Remember",f:"Function prototype",b:"A declaration placed before <code>main()</code> that states the return type, name, and parameter types, ending with <code>;</code><pre>double cube(double);</pre>"},
+ {t:"Basics",l:"Remember",f:"Argument vs parameter",b:"<strong>Argument</strong>: the value in the call (actual parameter).<br><strong>Parameter</strong>: the variable in the header that receives it (formal parameter)."},
+ {t:"Basics",l:"Understand",f:"How are arguments matched to parameters?",b:"By <strong>position</strong>: the first argument goes to the first parameter, and so on. Names don't need to match."},
+ {t:"Basics",l:"Understand",f:"What is a <code>void</code> function?",b:"A function that performs a task but returns no value, such as <code>void printResult(double);</code>"},
+ {t:"Design",l:"Remember",f:"Good function naming style",b:"Verb + noun: <code>calcAverage()</code>, <code>getInput()</code>, <code>drawFace()</code>."},
+ {t:"Design",l:"Understand",f:"Functional decomposition",b:"Breaking a program into small functions that each do one specific task (top-down design)."},
+ {t:"Design",l:"Understand",f:"Stepwise refinement",b:"Building and testing a program one function at a time, adding detail step by step."},
+ {t:"Design",l:"Remember",f:"Stub and driver",b:"<strong>Stub</strong>: placeholder function body returning a test value.<br><strong>Driver</strong>: code (usually <code>main()</code>) that calls the functions to test them."},
+ {t:"Design",l:"Remember",f:"Unit testing",b:"Testing one small unit of a program, typically a single function, on its own."},
+ {t:"Design",l:"Understand",f:"Five reasons to use functions",b:"Readability, modular development, no redundant code, easier debugging, and software reuse."},
+ {t:"Passing",l:"Understand",f:"Pass by value",b:"The argument's value is <strong>copied</strong> into the parameter. Changing the parameter doesn't affect the argument."},
+ {t:"Passing",l:"Understand",f:"Pass by reference",b:"The parameter becomes another name for the caller's variable (declared with <code>&amp;</code>). Changes affect the caller."},
+ {t:"Passing",l:"Apply",f:"Write a prototype for <code>swap</code> that actually swaps two ints",b:"<pre>void swap(int&amp;, int&amp;);</pre>"},
+ {t:"Passing",l:"Apply",f:"x is 5. After <code>void f(int n){ n = 9; }</code> and <code>f(x);</code>, what is x?",b:"<strong>5</strong>. n was a copy of x."},
+ {t:"Passing",l:"Understand",f:"Can you pass <code>3</code> to an <code>int&amp;</code> parameter?",b:"No. A reference parameter needs a <strong>variable</strong>, not a literal or expression."},
+ {t:"Memory",l:"Understand",f:"Stack frame",b:"The block of memory a function call creates for its parameters and local variables. It's discarded when the function returns."},
+ {t:"Scope",l:"Remember",f:"Local vs global scope",b:"<strong>Local</strong>: visible only inside its function or block.<br><strong>Global</strong>: declared outside all functions, visible everywhere after it."},
+ {t:"Scope",l:"Understand",f:"What should (and shouldn't) be global?",b:"Constants and prototypes: yes. Variables: no, because any function could change them, which makes bugs hard to trace."},
+ {t:"Scope",l:"Understand",f:"<code>static</code> local variable",b:"Initialized once on the first call and keeps its value between calls for the life of the program."},
+ {t:"Overloading",l:"Understand",f:"Function overloading",b:"Same name, different signatures (number, types, or order of parameters). Return type alone doesn't count."},
+ {t:"Defaults",l:"Apply",f:"Write a prototype for <code>printLine</code> where width defaults to 20",b:"<pre>void printLine(int width = 20);</pre>Defaults go in the prototype and must be rightmost."},
+ {t:"Errors",l:"Apply",f:"What's wrong with <code>total = calcSum(int a, int b);</code>?",b:"You can't declare types in a call. Pass existing variables or literals: <code>total = calcSum(a, b);</code>"}
+];
+
+const QUIZ=[
+ {l:"Remember",q:"Which function does every C++ program have?",o:["start()","main()","init()","run()"],a:1,w:"Execution begins in main()."},
+ {l:"Remember",q:"Where is a function prototype usually placed?",o:["Inside main()","After all function definitions","Before main(), at global scope","Inside the function body"],a:2,w:"The compiler must see the declaration before the call."},
+ {l:"Understand",q:"A program calls <code>getInput()</code> in main, but the definition is below main and there's no prototype. What happens?",o:["It runs normally","Compile error: getInput not declared","It runs but returns 0","Linker warning only"],a:1,w:"Without a prototype, the compiler doesn't know the name at the point of the call."},
+ {l:"Understand",q:"Which best describes a stack frame?",o:["Global memory for constants","Memory created per call for parameters and locals, discarded on return","The heap","The code section"],a:1,w:"Each call gets its own frame; that's why pass-by-value copies disappear."},
+ {c:1,l:"Apply",q:"Which call is correct for <code>double calcArea(double length, double width);</code>?",o:["calcArea(double 4.0, double 2.5);","area = calcArea(4.0, 2.5);","calcArea(4.0);","double calcArea(4.0, 2.5);"],a:1,w:"Pass values or variables, and use the returned value."},
+ {l:"Apply",q:"Given <code>void tally(int n, int&amp; pos, int&amp; neg)</code> adds n to pos if n &gt; 0, else to neg. Starting with pos = 0, neg = 0, you call tally with 5, -3, 8. What are pos and neg?",o:["pos 13, neg -3","pos 0, neg 0","pos 8, neg -3","pos 10, neg 0"],a:0,w:"References accumulate across calls: 5 + 8 = 13, and -3."},
+ {l:"Apply",q:"With <code>void show(int a, int b = 2, int c = 3);</code>, the call <code>show(7, 9);</code> gives which values?",o:["a=7, b=2, c=9","a=7, b=9, c=3","a=9, b=7, c=3","Compile error"],a:1,w:"Arguments fill parameters left to right; c keeps its default."},
+ {l:"Analyze",q:"<code>int count() { int n = 0; n++; return n; }</code> is called three times. What does the third call return, and why?",o:["3, because n remembers","1, because n is re-created and set to 0 each call","0","It won't compile"],a:1,w:"Adding static to n would make it return 3."},
+ {l:"Analyze",q:"With overloads <code>f(int, double)</code> and <code>f(double, int)</code>, what happens with <code>f(4, 5)</code>?",o:["Calls f(int, double)","Calls f(double, int)","Ambiguous call: compile error","Calls both"],a:2,w:"Each needs one conversion, so neither is a better match."},
+ {l:"Analyze",q:"A student's <code>void getScores(int s1, int s2)</code> reads two scores with cin, but main's variables stay 0. What's the most direct fix?",o:["Declare s1 and s2 as globals","Change the parameters to int&amp; s1, int&amp; s2","Return s1, s2","Call the function twice"],a:1,w:"References let the function fill in the caller's variables; globals would work but are poor practice."},
+ {l:"Evaluate",q:"A function only needs to read a customer's name to print a greeting. Which parameter type is best?",o:["string&amp; name","const string&amp; name (or string by value)","A global string","string* name"],a:1,w:"It shouldn't be able to change the name; const reference avoids a copy and prevents accidental edits."},
+ {l:"Evaluate",q:"Which function design is best?",o:["calcAndPrintTax() that computes tax, prints it, and asks for the next price","calcTax(double price) that only returns the tax","doStuff(double) that handles all input and output","tax() with global variables for price and result"],a:1,w:"One specific task, a clear verb+noun name, and data passed through parameters make it reusable and testable."}
+];
+
+const PAIRS=[
+ ["prototype","Declares return type, name, and parameter types before main()"],
+ ["argument","Value supplied in the function call"],
+ ["parameter","Variable in the function header that receives a value"],
+ ["void","Return type of a function that sends nothing back"],
+ ["pass by value","The argument's value is copied into the parameter"],
+ ["pass by reference","The parameter is another name for the caller's variable"],
+ ["stub","Placeholder function body that returns a test value"],
+ ["static local","Keeps its value between calls"],
+ ["overloading","Same name, different parameter lists"],
+ ["default argument","Value used when the caller leaves an argument out"],
+ ["stack frame","Per-call memory for parameters and locals"],
+ ["global scope","Visible to every function after its declaration"]
+];
+
+const CHALLENGES=[
+ {l:"Analyze",title:"Trace the broken swap",
+  p:`This program prints <code>23 45</code> instead of <code>45 23</code>. Using the idea of stack frames, explain step by step why, and identify the exact change that fixes it.<pre class="code">void swap(int n1, int n2)
+{
+  int temp = n1;
+  n1 = n2;
+  n2 = temp;
+}
+int main()
+{
+  int num1 = 23, num2 = 45;
+  swap(num1, num2);
+  cout &lt;&lt; num1 &lt;&lt; " " &lt;&lt; num2;
+}</pre>`,
+  m:`The call creates a new stack frame for <code>swap</code> with <strong>copies</strong>: n1 = 23, n2 = 45. The function swaps the copies (n1 = 45, n2 = 23), then returns and its frame is discarded. <code>num1</code> and <code>num2</code> in main's frame were never changed, so 23 45 prints. Fix: make both parameters references, <code>void swap(int&amp; n1, int&amp; n2)</code>, in the prototype and the header. Now n1 and n2 are other names for num1 and num2.`,
+  r:["Explains that parameters are copies in a separate stack frame","States the copies are destroyed when swap returns","Fixes with int& on both parameters (prototype and header)"]},
+ {l:"Evaluate",title:"Choose the best prototype",
+  p:`You need a function that takes three test scores and gives back both the lowest and the highest. A classmate proposes each of these. Rank them and justify, naming the specific flaw in each rejected option.<pre class="code">(A) int findMinMax(int a, int b, int c);
+(B) void findMinMax(int a, int b, int c, int lo, int hi);
+(C) void findMinMax(int a, int b, int c, int&amp; lo, int&amp; hi);
+(D) void findMinMax(int&amp; a, int&amp; b, int&amp; c, int&amp; lo, int&amp; hi);</pre>`,
+  m:`<strong>C is best.</strong> Scores are only read, so by value is right, and lo/hi are outputs, so they're references. <strong>D</strong> works but is second-best: the scores don't need to be references, which lets the function change them by accident and prevents passing literals like <code>findMinMax(90, 85, 70, lo, hi)</code>. <strong>B</strong> compiles but fails: lo and hi are copies destroyed on return. <strong>A</strong> can return only one value, so it can't give back both.`,
+  r:["Picks C with a reason (inputs by value, outputs by reference)","Rejects A because only one value can be returned","Rejects B because the copies are destroyed","Explains why D is worse even though it works"]},
+ {l:"Evaluate",title:"Will these overloads work?",
+  p:`A team writes these declarations for a shipping calculator. For each call below, say which version runs or why it fails, and propose one change to remove every error.<pre class="code">double shipCost(double weight);
+double shipCost(double weight, int zone = 1);
+int    shipCost(int items);
+
+shipCost(4.5);
+shipCost(4.5, 3);
+shipCost(2);</pre>`,
+  m:`<code>shipCost(4.5)</code> is <strong>ambiguous</strong>: it matches <code>shipCost(double)</code> and also <code>shipCost(double, int)</code> using the default zone. <code>shipCost(4.5, 3)</code> is fine and calls the two-parameter version. <code>shipCost(2)</code> calls the <code>int</code> version (exact match). Fix: delete the one-parameter <code>double</code> version, since the default argument already covers it (or remove the default).`,
+  r:["Identifies shipCost(4.5) as ambiguous and explains why","Correctly resolves shipCost(4.5, 3) and shipCost(2)","Proposes a fix that removes the overlap"]},
+ {l:"Create",title:"Design a tip calculator with functions",
+  p:`Design a program for a restaurant server: read the bill amount and the tip percent (default 18 if the user enters 0), compute the tip and the total, split the total among a number of people, and print a receipt. Write <strong>all prototypes</strong> and the <strong>main()</strong> driver. For each function, justify its return type and whether each parameter is by value or by reference. Then write one stub.`,
+  m:`<pre class="code">double getPositive(string prompt);                 // reads & validates one value
+double calcTip(double bill, double percent = 18);  // one result: return it
+void   splitBill(double total, int people,
+                 double&amp; share, double&amp; leftover); // two outputs: references
+void   printReceipt(double bill, double tip,
+                    double total, int people, double share);
+
+int main()                                         // driver
+{
+  double bill = getPositive("Bill amount: ");
+  double pct  = getPositive("Tip % (0 for default): ");
+  int people  = static_cast&lt;int&gt;(getPositive("People: "));
+  double tip  = (pct == 0) ? calcTip(bill) : calcTip(bill, pct);
+  double total = bill + tip, share, leftover;
+  splitBill(total, people, share, leftover);
+  printReceipt(bill, tip, total, people, share);
+  return 0;
+}
+
+double calcTip(double bill, double percent)        // STUB for testing
+{ return 10.0; }</pre>Each function does one task with a verb + noun name. Inputs are by value because they're only read. <code>splitBill</code> produces two results, so it uses reference parameters instead of trying to return two values. The default is in the prototype only.`,
+  r:["Each function has one clear task and a verb+noun name","Return types fit (value-returning for one result, void for printing)","Reference parameters used only where a function must send back 2+ results","Default argument appears in the prototype, rightmost","main() acts as a driver and at least one stub is written"]}
+];
+/* ============ UTIL ============ */
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+/* ============ TABS ============ */
+const tabs=$$('nav.tabs button');
+function openTab(btn){
+  tabs.forEach(b=>b.setAttribute('aria-selected',b===btn));
+  $$('section.panel').forEach(p=>p.classList.toggle('active',p.id===btn.getAttribute('aria-controls')));
+}
+tabs.forEach((b,i)=>{
+  b.addEventListener('click',()=>openTab(b));
+  b.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='ArrowLeft'){
+      const n=tabs[(i+(e.key==='ArrowRight'?1:tabs.length-1))%tabs.length];n.focus();openTab(n);
+    }
+  });
+});
+
+/* ============ LEARN PATH ============ */
+const pathBtns=$$('#path button');
+function openLesson(id){
+  pathBtns.forEach(b=>b.classList.toggle('on',b.dataset.lesson===id));
+  $$('.lesson').forEach(l=>l.classList.toggle('active',l.id===id));
+  window.scrollTo({top:$('#learn').offsetTop-10,behavior:'smooth'});
+}
+pathBtns.forEach(b=>b.addEventListener('click',()=>openLesson(b.dataset.lesson)));
+
+/* ============ SELF-CHECKS ============ */
+function initSelf(sc){
+  const id=sc.dataset.sc, qs=SELF[id], host=sc.querySelector('.sc-host');
+  let right=0, answered=0;
+  qs.forEach((q,qi)=>{
+    const d=document.createElement('div');d.className='sc-q';
+    d.innerHTML=`<div class="qtext">${qi+1}. ${q.q}</div><div class="opts"></div><div class="feedback"></div>`;
+    const opts=d.querySelector('.opts'), fb=d.querySelector('.feedback');
+    q.o.forEach((o,oi)=>{
+      const b=document.createElement('button');b.className='opt';b.innerHTML=o;
+      b.addEventListener('click',()=>{
+        [...opts.children].forEach((x,xi)=>{x.disabled=true;if(xi===q.a)x.classList.add('correct');});
+        const ok=oi===q.a; if(!ok)b.classList.add('wrong');
+        fb.className='feedback show '+(ok?'ok':'no');
+        fb.innerHTML=(ok?'<strong>Correct.</strong> ':'<strong>Not quite.</strong> ')+q.w;
+        answered++; if(ok)right++;
+        if(answered===qs.length) finish();
+      });
+      opts.appendChild(b);
+    });
+    host.appendChild(d);
+  });
+  const sum=document.createElement('div');host.appendChild(sum);
+  function finish(){
+    const idx=pathBtns.findIndex(b=>b.dataset.lesson===id);
+    const all=right===qs.length;
+    sum.innerHTML=`<p class="sc-summary">${right} of ${qs.length} correct. ${all?'You are ready to move on.':'Review the flagged answers above, then retry.'}</p>
+      <div class="row next-link">${all?'':'<button class="btn ghost" data-act="retry">Retry self-check</button>'}
+      ${idx<pathBtns.length-1?`<button class="btn" data-act="next">Next lesson</button>`:`<button class="btn" data-act="flash">Go to flashcards</button>`}</div>`;
+    if(all && !pathBtns[idx].querySelector('.done')) pathBtns[idx].insertAdjacentHTML('beforeend',' <span class="done" aria-label="completed">✓</span>');
+    sum.querySelector('[data-act="next"]')?.addEventListener('click',()=>openLesson(pathBtns[idx+1].dataset.lesson));
+    sum.querySelector('[data-act="flash"]')?.addEventListener('click',()=>openTab($('#t-flash')));
+    sum.querySelector('[data-act="retry"]')?.addEventListener('click',()=>{
+      rebuild(sc);
+    });
+  }
+}
+$$('.selfcheck').forEach(initSelf);
+function rebuild(sc){
+  // simple re-render by cloning a fresh self-check block
+  const fresh=sc.cloneNode(false);fresh.innerHTML=`<h3>${sc.querySelector('h3')?.textContent||'Self-check'}</h3><div class="sc-host"></div>`;
+  sc.replaceWith(fresh); initSelf(fresh);
+}
+
+/* ============ TRY IT: calcAverage ============ */
+$('#checkAvg').addEventListener('click',()=>{
+  const s=$('#tryAvg').value.replace(/\/\/.*$/gm,'');
+  const checks=[
+    ["Prototype: <code>double calcAverage(double, double, double);</code>",/double\s+calcAverage\s*\(\s*double[^;{)]*,[^;{)]*,[^;{)]*\)\s*;/.test(s)],
+    ["Call stores the result: <code>avg = calcAverage(q1, q2, q3);</code>",/avg\s*=\s*calcAverage\s*\(\s*q1\s*,\s*q2\s*,\s*q3\s*\)\s*;/.test(s)],
+    ["Definition header names three <code>double</code> parameters, no semicolon",/double\s+calcAverage\s*\(\s*double\s+\w+\s*,\s*double\s+\w+\s*,\s*double\s+\w+\s*\)\s*\{/.test(s)],
+    ["Adds all three before dividing (parentheses)",/return\s*\(\s*\w+\s*\+\s*\w+\s*\+\s*\w+\s*\)/.test(s)],
+    ["Divides by 3 and returns the result",/return[^;]*\/\s*3(\.0)?\s*;/.test(s)]
+  ];
+  $('#avgChecks').innerHTML=checks.map(([t,ok])=>`<li class="${ok?'pass':'fail'}">${t}</li>`).join('');
+  if(checks.every(c=>c[1])) $('#avgChecks').insertAdjacentHTML('beforeend','<li class="pass"><strong>All checks pass. Nicely done.</strong></li>');
+});
+$('#showAvg').addEventListener('click',()=>$('#avgModel').classList.toggle('show'));
+
+/* ============ MEMORY STEPPER ============ */
+const MEM={
+ val:[
+  {main:[23,45],cm:[],sw:null,cap:"Before the call: main's stack frame holds num1 = 23 at address 100 and num2 = 45 at address 104."},
+  {main:[23,45],cm:[],sw:{n1:"23",n2:"45",temp:"???"},cs:[],cap:"swap(num1, num2) creates a NEW stack frame. The values 23 and 45 are copied into n1 and n2, which have their own addresses (108, 112)."},
+  {main:[23,45],cm:[],sw:{n1:"45",n2:"23",temp:"23"},cs:["n1","n2","temp"],cap:"Inside swap, the logic works: n1 is now 45 and n2 is 23. But only the copies changed."},
+  {main:[23,45],cm:[],sw:{n1:"45",n2:"23",temp:"23"},gone:true,cs:[],cap:"swap returns and its frame is discarded. num1 and num2 in main are still 23 and 45. The swap was lost."}
+ ],
+ ref:[
+  {main:[23,45],cm:[],sw:null,cap:"Before the call: main's stack frame holds num1 = 23 at address 100 and num2 = 45 at address 104."},
+  {main:[23,45],cm:[],sw:{n1:"→ num1 (100)",n2:"→ num2 (104)",temp:"???"},ref:true,cs:[],cap:"With int& parameters, n1 and n2 don't get copies of the values. They refer to num1 and num2's locations, so they are other names for those variables."},
+  {main:[45,23],cm:[0,1],sw:{n1:"→ num1 (100)",n2:"→ num2 (104)",temp:"23"},ref:true,cs:["temp"],cap:"Assigning through n1 and n2 changes num1 and num2 directly in main's frame."},
+  {main:[45,23],cm:[],sw:{n1:"→ num1 (100)",n2:"→ num2 (104)",temp:"23"},ref:true,gone:true,cs:[],cap:"swap returns and its frame is discarded, but main now holds num1 = 45 and num2 = 23. The swap stuck."}
+ ]};
+let memMode="val", memI=0;
+function renderMem(){
+  const s=MEM[memMode][memI];
+  const row=(name,addr,val,cls)=>`<tr><td>${name}</td><td class="addr">@${addr}</td><td class="val ${cls||''}">${val}</td></tr>`;
+  let html=`<div class="frame"><h5>main() frame</h5><table>${row('num1',100,s.main[0],s.cm.includes(0)?'changed':'')}${row('num2',104,s.main[1],s.cm.includes(1)?'changed':'')}</table></div>`;
+  if(s.sw){
+    const c=k=>(s.cs.includes(k)?'changed ':'')+(s.ref&&k!=='temp'?'ref':'');
+    html+=`<div class="frame${s.gone?' gone':''}"><h5>swap() frame${s.gone?' (discarded)':''}</h5><table>${row('n1',108,s.sw.n1,c('n1'))}${row('n2',112,s.sw.n2,c('n2'))}${row('temp',116,s.sw.temp,c('temp'))}</table></div>`;
+  } else html+=`<div class="frame gone"><h5>swap() frame</h5><table><tr><td>not created yet</td></tr></table></div>`;
+  $('#memFrames').innerHTML=html; $('#memCap').textContent=s.cap;
+  $('#memStep').textContent=`Step ${memI+1} of ${MEM[memMode].length}`;
+  $('#memPrev').disabled=memI===0; $('#memNext').disabled=memI===MEM[memMode].length-1;
+}
+$$('#mem [data-mode]').forEach(b=>b.addEventListener('click',()=>{
+  memMode=b.dataset.mode;memI=0;$$('#mem [data-mode]').forEach(x=>x.classList.toggle('on',x===b));renderMem();
+}));
+$('#memPrev').addEventListener('click',()=>{if(memI>0){memI--;renderMem();}});
+$('#memNext').addEventListener('click',()=>{if(memI<MEM[memMode].length-1){memI++;renderMem();}});
+renderMem();
+
+/* ============ FLASHCARDS ============ */
+let fcFilter="All", fcDeck=[], fcI=0, fcStatus={}, reviewOnly=false;
+const fcLevels=["All","Remember","Understand","Apply"];
+$('#fcFilters').innerHTML=fcLevels.map(l=>`<button class="chip${l==='All'?' on':''}" data-l="${l}">${l}</button>`).join('');
+$$('#fcFilters .chip').forEach(c=>c.addEventListener('click',()=>{
+  fcFilter=c.dataset.l;$$('#fcFilters .chip').forEach(x=>x.classList.toggle('on',x===c));reviewOnly=false;buildDeck(false);
+}));
+function buildDeck(shuf){
+  let d=CARDS.map((c,i)=>({...c,id:i})).filter(c=>fcFilter==="All"||c.l===fcFilter);
+  if(reviewOnly) d=d.filter(c=>fcStatus[c.id]==='miss');
+  fcDeck=shuf?shuffle(d):d; fcI=0; renderCard();
+  $('#fcReview').textContent=reviewOnly?'Show all cards':'Review missed only';
+}
+function renderCard(){
+  const card=$('#card'); card.classList.remove('flipped');
+  if(!fcDeck.length){
+    $('#fcFront').innerHTML=reviewOnly?'No missed cards. Great work!':'No cards match this filter.';
+    $('#fcBack').innerHTML='';['#fcTopicF','#fcTopicB','#fcLevelF','#fcLevelB'].forEach(s=>$(s).innerHTML='');
+    $('#fcCount').textContent='';$('#fcBar').style.width='0';updStats();return;
+  }
+  const c=fcDeck[fcI];
+  $('#fcFront').innerHTML=c.f; $('#fcBack').innerHTML=c.b;
+  $('#fcTopicF').textContent=$('#fcTopicB').textContent=c.t;
+  $('#fcLevelF').innerHTML=$('#fcLevelB').innerHTML=badge(c.l);
+  $('#fcCount').textContent=`Card ${fcI+1} of ${fcDeck.length}`+(fcStatus[c.id]?` · marked "${fcStatus[c.id]==='got'?'Got it':'Still learning'}"`:'');
+  $('#fcBar').style.width=((fcI+1)/fcDeck.length*100)+'%';
+  updStats();
+}
+function updStats(){
+  const v=Object.values(fcStatus);
+  $('#fcKnown').textContent=v.filter(x=>x==='got').length;
+  $('#fcMissed').textContent=v.filter(x=>x==='miss').length;
+}
+const flip=()=>{ if(fcDeck.length) $('#card').classList.toggle('flipped'); };
+const move=d=>{ if(!fcDeck.length)return; fcI=(fcI+d+fcDeck.length)%fcDeck.length; renderCard(); };
+function mark(st){ if(!fcDeck.length)return; fcStatus[fcDeck[fcI].id]=st; if(fcI<fcDeck.length-1) move(1); else renderCard(); }
+$('#card').addEventListener('click',flip);
+$('#card').addEventListener('keydown',e=>{ if(e.key===' '||e.key==='Enter'){e.preventDefault();flip();} });
+document.addEventListener('keydown',e=>{
+  if(!$('#flash').classList.contains('active')||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='ArrowRight')move(1); if(e.key==='ArrowLeft')move(-1);
+});
+$('#fcPrev').addEventListener('click',()=>move(-1));
+$('#fcNext').addEventListener('click',()=>move(1));
+$('#fcGot').addEventListener('click',()=>mark('got'));
+$('#fcMiss').addEventListener('click',()=>mark('miss'));
+$('#fcShuffle').addEventListener('click',()=>buildDeck(true));
+$('#fcReview').addEventListener('click',()=>{reviewOnly=!reviewOnly;buildDeck(false);});
+$('#fcReset').addEventListener('click',()=>{fcStatus={};reviewOnly=false;fcFilter="All";$$('#fcFilters .chip').forEach(x=>x.classList.toggle('on',x.dataset.l==='All'));buildDeck(false);});
+buildDeck(false);
+
+/* ============ QUIZ ============ */
+let qi=0, qScore=0, qLog=[];
+function renderQuiz(){
+  const box=$('#quizBox');
+  if(qi>=QUIZ.length){
+    const pct=Math.round(qScore/QUIZ.length*100);
+    const msg=pct>=90?'Excellent. You are ready for the challenges.':pct>=70?'Solid. Revisit the flashcards for the ones you missed.':'Go back through lessons 3 and 4, then try again.';
+    box.innerHTML=`<p class="score-big">${qScore} / ${QUIZ.length}</p><p><strong>${pct}%</strong>. ${msg}</p>
+      <div class="review-list">${qLog.map((r,i)=>`<div>${r.ok?'✓':'✗'} Q${i+1} ${badge(QUIZ[i].l)} ${r.ok?'':' Correct answer: '+QUIZ[i].o[QUIZ[i].a]}</div>`).join('')}</div>
+      <div class="row"><button class="btn" id="qRestart">Retake quiz</button><button class="btn ghost" id="qCh">Go to challenges</button></div>`;
+    $('#qRestart').onclick=()=>{qi=0;qScore=0;qLog=[];renderQuiz();};
+    $('#qCh').onclick=()=>openTab($('#t-challenge'));
+    return;
+  }
+  const q=QUIZ[qi];
+  box.innerHTML=`<div class="quiz-top"><span>Question ${qi+1} of ${QUIZ.length}</span>${badge(q.l)}<span>Score: ${qScore}</span></div>
+    <div class="fc-progress"><div style="width:${qi/QUIZ.length*100}%"></div></div>
+    <div class="quiz-q">${q.q}</div><div class="opts" id="qOpts"></div><div class="feedback" id="qFb"></div>
+    <div class="row"><button class="btn" id="qNext" disabled>${qi===QUIZ.length-1?'See results':'Next question'}</button></div>`;
+  q.o.forEach((o,oi)=>{
+    const b=document.createElement('button');b.className='opt';b.innerHTML=q.c?`<code>${o}</code>`:o;
+    b.onclick=()=>{
+      $$('#qOpts .opt').forEach((x,xi)=>{x.disabled=true;if(xi===q.a)x.classList.add('correct');});
+      const ok=oi===q.a; if(!ok)b.classList.add('wrong'); else qScore++;
+      qLog.push({ok});
+      const fb=$('#qFb');fb.className='feedback show '+(ok?'ok':'no');
+      fb.innerHTML=(ok?'<strong>Correct.</strong> ':'<strong>Not quite.</strong> ')+q.w;
+      $('#qNext').disabled=false;$('#qNext').focus();
+    };
+    $('#qOpts').appendChild(b);
+  });
+  $('#qNext').onclick=()=>{qi++;renderQuiz();};
+}
+renderQuiz();
+
+/* ============ MATCHING ============ */
+let mSel=null, mDone=0, mTries=0, mRound=[];
+function renderMatch(){
+  mRound=shuffle(PAIRS).slice(0,6).map((p,i)=>({s:p[0],e:p[1],id:i}));
+  mSel=null;mDone=0;mTries=0;
+  $('#mLeft').innerHTML=shuffle(mRound).map(p=>`<button class="m-item code" data-side="L" data-id="${p.id}">${esc(p.s)}</button>`).join('');
+  $('#mRight').innerHTML=shuffle(mRound).map(p=>`<button class="m-item" data-side="R" data-id="${p.id}">${esc(p.e)}</button>`).join('');
+  $$('.m-item').forEach(b=>b.addEventListener('click',()=>pick(b)));
+  mStatus();
+}
+function mStatus(){
+  $('#matchStatus').innerHTML=mDone===mRound.length
+    ?`<strong style="color:var(--good)">All ${mRound.length} matched in ${mTries} attempts.</strong> Start a new round for different pairs.`
+    :`Matched ${mDone} of ${mRound.length} · Attempts: ${mTries}`;
+}
+function pick(b){
+  if(b.classList.contains('matched'))return;
+  if(!mSel||mSel.dataset.side===b.dataset.side){
+    if(mSel)mSel.classList.remove('sel');
+    mSel=b;b.classList.add('sel');return;
+  }
+  mTries++;
+  if(mSel.dataset.id===b.dataset.id){
+    [mSel,b].forEach(x=>{x.classList.remove('sel');x.classList.add('matched');x.disabled=true;});mDone++;
+  } else {
+    [mSel,b].forEach(x=>{x.classList.remove('sel');x.classList.add('shake');setTimeout(()=>x.classList.remove('shake'),400);});
+  }
+  mSel=null;mStatus();
+}
+$('#mReset').addEventListener('click',renderMatch);
+renderMatch();
+
+/* ============ CHALLENGES ============ */
+$('#chHost').innerHTML=CHALLENGES.map((c,i)=>`
+  <div class="challenge">
+    <div class="chead"><h3>${i+1}. ${c.title}</h3>${badge(c.l)}</div>
+    <div>${c.p}</div>
+    <label for="ch${i}" style="font-weight:600;display:block;margin:8px 0 6px">Your answer and justification</label>
+    <textarea id="ch${i}" class="${c.l==='Create'?'':'prose'}" spellcheck="${c.l!=='Create'}"></textarea>
+    <details><summary>Compare with the model answer</summary><div class="model">${c.m}</div>
+      <div class="rubric" style="margin-top:10px"><strong>Score yourself:</strong>
+        ${c.r.map((r,j)=>`<label><input type="checkbox" data-ch="${i}"> ${r}</label>`).join('')}
+        <p class="sc-summary" id="chs${i}">0 of ${c.r.length} criteria met</p>
+      </div></details>
+  </div>`).join('');
+$$('.rubric input').forEach(cb=>cb.addEventListener('change',()=>{
+  const i=cb.dataset.ch, all=$$(`.rubric input[data-ch="${i}"]`), n=all.filter(x=>x.checked).length;
+  $('#chs'+i).textContent=`${n} of ${all.length} criteria met`+(n===all.length?'. Full marks.':'');
+}));
+</script>
+</body>
+</html>
