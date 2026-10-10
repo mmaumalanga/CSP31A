@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP31A — Arrays &amp; Vectors Study Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+  :root{
+    --user-primary:#1a4480;
+    --user-accent:#c8102e;
+    --user-background:#ffffff;
+    --ink:#1c2430;
+    --ink-soft:#4b5563;
+    --line:#e2e6ec;
+    --panel:#f6f8fb;
+    --success:#1a7a4c;
+    --success-bg:#e7f6ee;
+    --danger-bg:#fdecec;
+    --radius:14px;
+    --shadow:0 6px 20px rgba(26,68,128,0.10);
+    --font:'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',"SFMono-Regular",Consolas,Menlo,monospace;
+    font-family:var(--font);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:var(--font);
+    background:linear-gradient(180deg,#f2f5fa 0%, var(--user-background) 340px);
+    color:var(--ink); padding-bottom:60px;
+  }
+  header.top{
+    background:var(--user-primary); color:#fff; padding:26px 20px 22px;
+    position:relative; overflow:hidden;
+  }
+  header.top::after{
+    content:""; position:absolute; right:-60px; top:-60px; width:220px; height:220px;
+    background:var(--user-accent); opacity:.2; border-radius:50%;
+  }
+  header.top .course{
+    font-size:.72rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:#ffd7dc; margin-bottom:6px; position:relative;
+  }
+  header.top h1{ margin:0 0 4px; font-size:1.55rem; position:relative; }
+  header.top p{ margin:0; opacity:.92; font-size:.93rem; max-width:740px; position:relative; line-height:1.5; }
+  .wrap{ max-width:940px; margin:0 auto; padding:0 18px; }
+
+  nav.tabs{
+    display:flex; gap:8px; margin-top:20px; flex-wrap:wrap; position:sticky; top:0;
+    background:var(--user-background); z-index:20; padding:14px 0 10px; border-bottom:1px solid var(--line);
+  }
+  nav.tabs button{
+    border:2px solid var(--user-primary); background:#fff; color:var(--user-primary);
+    font:700 .92rem var(--font); padding:9px 16px; border-radius:999px; cursor:pointer; transition:.15s;
+  }
+  nav.tabs button.active{ background:var(--user-primary); color:#fff; }
+  button:focus-visible, textarea:focus-visible{ outline:3px solid var(--user-accent); outline-offset:2px; }
+
+  .view{ display:none; padding-top:20px; }
+  .view.active{ display:block; }
+  h2.section-title{
+    color:var(--user-primary); font-size:1.2rem; margin:26px 0 10px;
+    border-left:5px solid var(--user-accent); padding-left:10px;
+  }
+  .obj-box{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:16px 18px; margin-bottom:18px; font-size:.88rem; color:var(--ink-soft); line-height:1.55;
+  }
+  .obj-box b{ color:var(--user-primary); }
+
+  .deck-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .deck-btn{
+    flex:1 1 140px; text-align:left; border:1px solid var(--line); background:var(--panel);
+    border-radius:10px; padding:10px 12px; cursor:pointer; font:600 .8rem var(--font); color:var(--ink);
+  }
+  .deck-btn.active{ border-color:var(--user-primary); background:#fff; box-shadow:var(--shadow); }
+  .deck-btn .bloom-tag{
+    display:block; width:fit-content; margin-top:6px; font-size:.62rem; font-weight:700;
+    letter-spacing:.03em; text-transform:uppercase; padding:2px 8px; border-radius:999px;
+    background:var(--user-accent); color:#fff;
+  }
+  .deck-btn.active .bloom-tag{ background:var(--user-primary); }
+
+  .progress-line{ display:flex; justify-content:space-between; font-size:.85rem; color:var(--ink-soft); margin-bottom:8px; }
+  .progress-track{ height:6px; background:var(--line); border-radius:6px; overflow:hidden; margin-bottom:16px; }
+  .progress-fill{ height:100%; background:var(--user-accent); width:0%; transition:width .25s; }
+  .card-stage{ perspective:1400px; height:290px; margin-bottom:14px; }
+  .flip-card{
+    position:relative; width:100%; height:100%; transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.4,.2,.2,1); cursor:pointer;
+  }
+  .flip-card.flipped{ transform:rotateY(180deg); }
+  .face{
+    position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden;
+    border-radius:var(--radius); padding:24px; display:flex; flex-direction:column;
+    box-shadow:var(--shadow); border:1px solid var(--line); overflow-y:auto;
+  }
+  .face::before,.face::after{ content:""; margin:auto; }
+  .face.front{ background:linear-gradient(160deg,#fff,var(--panel)); }
+  .face.back{ background:var(--user-primary); color:#fff; transform:rotateY(180deg); }
+  .face .kicker{
+    font-size:.7rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--user-accent); margin-bottom:10px;
+  }
+  .face.back .kicker{ color:#ffd7dc; }
+  .face .body-text{ font-size:1rem; line-height:1.55; white-space:pre-line; }
+  code{
+    background:rgba(0,0,0,0.07); border-radius:5px; padding:1px 5px;
+    font-family:var(--mono); font-size:.86em;
+  }
+  .face.back code{ background:rgba(255,255,255,0.18); }
+  pre{
+    background:#13233f; color:#e8eefb; border-radius:8px; padding:12px 14px; overflow-x:auto;
+    font-family:var(--mono); font-size:.8rem; line-height:1.55; margin:10px 0;
+  }
+  .hint-flip{ font-size:.75rem; color:var(--ink-soft); text-align:center; margin:0 0 14px; }
+  .card-controls{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
+  .card-controls button{
+    border:1.5px solid var(--user-primary); background:var(--user-primary); color:#fff;
+    padding:9px 16px; border-radius:8px; font:600 .85rem var(--font); cursor:pointer;
+  }
+  .card-controls button.secondary{ background:#fff; color:var(--user-primary); }
+  .card-controls button:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .panel{ border-radius:var(--radius); padding:18px 20px; margin:18px 0; border:1px solid var(--line); }
+  .panel.worked{ background:#eef3fb; border-color:#c9d9f0; }
+  .panel.tryit{ background:#fff; border:2px dashed var(--user-primary); }
+  .panel.real-world{ background:#fff6ea; border-color:#f2e0bb; }
+  .panel.misconception{ background:var(--danger-bg); border-color:#f3c6c6; }
+  .panel h3{ margin:0 0 8px; font-size:1rem; color:var(--user-primary); }
+  .panel.misconception h3{ color:var(--user-accent); }
+  .panel p{ margin:6px 0; font-size:.92rem; line-height:1.55; }
+  .panel .step{
+    background:rgba(255,255,255,.78); border-left:3px solid var(--user-primary);
+    padding:8px 12px; margin:8px 0; border-radius:6px; font-size:.88rem; line-height:1.55;
+  }
+  .panel .step .n{ color:var(--user-accent); font-weight:700; }
+  textarea.answer{
+    width:100%; min-height:100px; border:1.5px solid var(--line); border-radius:8px; padding:10px;
+    font-family:var(--mono); font-size:.82rem; margin-top:8px;
+  }
+  .reveal-btn{
+    margin-top:10px; background:var(--user-primary); color:#fff; border:none; padding:9px 16px;
+    border-radius:8px; cursor:pointer; font:600 .85rem var(--font);
+  }
+  .reveal-box{
+    display:none; margin-top:12px; background:var(--success-bg); border-left:4px solid var(--success);
+    border-radius:8px; padding:10px 14px; font-size:.88rem; line-height:1.55;
+  }
+  .miso{ margin-bottom:14px; padding-bottom:14px; border-bottom:1px dashed #edb9b9; }
+  .miso:last-child{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+  .miso .wrong{ color:var(--user-accent); font-weight:700; font-size:.88rem; }
+  .miso .right{ color:var(--success); font-weight:700; font-size:.85rem; }
+
+  .selfcheck{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; margin-top:18px; }
+  .selfcheck h4{ margin:0 0 10px; font-size:.95rem; color:var(--user-primary); }
+  .sc-q{ margin-bottom:14px; }
+  .sc-q p.qtext{ font-weight:600; font-size:.88rem; margin:0 0 6px; line-height:1.5; }
+  .sc-opts{ display:flex; flex-direction:column; gap:6px; }
+  .sc-opt{
+    text-align:left; background:#fff; border:1px solid var(--line); padding:7px 10px;
+    border-radius:7px; font:.83rem var(--font); cursor:pointer; color:var(--ink);
+  }
+  .sc-opt.correct{ background:var(--success-bg); border-color:var(--success); color:var(--success); font-weight:700; }
+  .sc-opt.incorrect{ background:var(--danger-bg); border-color:var(--user-accent); color:var(--user-accent); font-weight:700; }
+  .sc-opt[disabled]{ cursor:default; }
+  .sc-fb{ font-size:.8rem; margin-top:5px; color:var(--ink-soft); line-height:1.5; }
+  .sc-score{ font-weight:700; color:var(--user-primary); font-size:.88rem; margin-top:4px; }
+
+  .quiz-q{ background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; margin-bottom:14px; }
+  .quiz-q .qhead{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .quiz-q .qhead .num{ font-weight:700; color:var(--user-primary); font-size:.85rem; }
+  .quiz-q .qhead .bloom{
+    font-size:.64rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700;
+    background:var(--user-primary); color:#fff; padding:2px 8px; border-radius:999px;
+  }
+  .quiz-q p.qtext{ font-size:.95rem; font-weight:600; margin:0 0 10px; line-height:1.5; }
+  .quiz-q pre{ margin:0 0 10px; }
+  .quiz-opt{ display:block; background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px 12px; margin-bottom:7px; cursor:pointer; font-size:.87rem; line-height:1.45; }
+  .quiz-opt input{ margin-right:8px; }
+  .quiz-opt.correct{ background:var(--success-bg); border-color:var(--success); }
+  .quiz-opt.incorrect{ background:var(--danger-bg); border-color:var(--user-accent); }
+  .quiz-explain{
+    display:none; font-size:.82rem; margin-top:8px; padding:8px 10px; background:#fff;
+    border-left:3px solid var(--user-primary); border-radius:6px; color:var(--ink-soft); line-height:1.5;
+  }
+  #quizSubmit{
+    background:var(--user-accent); color:#fff; border:none; padding:12px 22px;
+    border-radius:8px; font:700 .95rem var(--font); cursor:pointer; width:100%;
+  }
+  #quizResult{ text-align:center; margin-top:16px; font-weight:700; font-size:1.05rem; color:var(--user-primary); display:none; }
+  #quizResetBtn{
+    display:none; margin:12px auto 0; background:#fff; border:1.5px solid var(--user-primary);
+    color:var(--user-primary); padding:9px 18px; border-radius:8px; cursor:pointer; font:600 .9rem var(--font);
+  }
+
+  .match-wrap{ display:flex; gap:18px; flex-wrap:wrap; }
+  .match-col{ flex:1 1 260px; display:flex; flex-direction:column; gap:8px; }
+  .match-item{
+    background:#fff; border:2px solid var(--line); border-radius:9px; padding:11px 14px;
+    cursor:pointer; font:.87rem var(--font); transition:.15s; text-align:left; color:var(--ink); line-height:1.4;
+  }
+  .match-item.selected{ border-color:var(--user-primary); background:#eef3fb; }
+  .match-item.matched{ border-color:var(--success); background:var(--success-bg); color:var(--success); cursor:default; font-weight:600; }
+  .match-item.shake{ border-color:var(--user-accent); background:var(--danger-bg); animation:shake .35s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+  .match-status{ text-align:center; margin-top:16px; font-weight:700; color:var(--user-primary); display:none; }
+  #matchResetBtn{
+    display:block; margin:14px auto 0; background:#fff; border:1.5px solid var(--user-primary);
+    color:var(--user-primary); padding:9px 18px; border-radius:8px; cursor:pointer; font:600 .9rem var(--font);
+  }
+  footer{ text-align:center; color:var(--ink-soft); font-size:.78rem; margin-top:40px; }
+  @media (prefers-reduced-motion:reduce){ .flip-card{ transition:none; } .match-item.shake{ animation:none; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="course">CSP31A · C++ Programming I · San Joaquin Delta College</div>
+    <h1>Arrays &amp; Vectors</h1>
+    <p>Flashcards, worked examples, a quiz, and a matching game — from your first C-style array to choosing between <code style="background:rgba(255,255,255,.18)">std::array</code> and <code style="background:rgba(255,255,255,.18)">std::vector</code>.</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="tabs" aria-label="Activities">
+    <button class="tab-btn active" data-view="flash">🗂️ Flashcards</button>
+    <button class="tab-btn" data-view="quiz">📝 Quiz</button>
+    <button class="tab-btn" data-view="match">🧩 Matching</button>
+  </nav>
+
+  <section id="flash" class="view active">
+    <div class="obj-box">
+      <b>How to use this deck:</b> Work through the six sections in order; each builds on the last. In every section: flip the cards, study the worked example (the reasoning is shown step by step), attempt the practice task <i>before</i> revealing the answer, then finish with the Quick Check. Keyboard: ← → to move, Space to flip.
+    </div>
+    <h2 class="section-title">Choose a Section</h2>
+    <div class="deck-row" id="deckRow"></div>
+    <div class="progress-line"><span id="progressLabel">Card 1</span><span id="deckBloomLabel"></span></div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="card-stage">
+      <div class="flip-card" id="flipCard">
+        <div class="face front"><div class="kicker">Question</div><div class="body-text" id="cardFront"></div></div>
+        <div class="face back"><div class="kicker">Answer</div><div class="body-text" id="cardBack"></div></div>
+      </div>
+    </div>
+    <p class="hint-flip">Click the card to flip it</p>
+    <div class="card-controls">
+      <button class="secondary" id="prevBtn">◀ Prev</button>
+      <button id="flipBtn">Flip Card</button>
+      <button class="secondary" id="shuffleBtn">🔀 Shuffle</button>
+      <button class="secondary" id="nextBtn">Next ▶</button>
+    </div>
+    <div id="extraPanels"></div>
+    <div class="selfcheck" id="selfCheckBox"></div>
+    <div class="panel misconception" id="misconceptionPanel"></div>
+  </section>
+
+  <section id="quiz" class="view">
+    <div class="obj-box">
+      <b>Comprehensive Quiz:</b> 12 questions that climb Bloom’s Taxonomy — Remember → Understand → Apply → Analyze → Evaluate → Create. Answer everything, then submit to see explanations. Answer order is shuffled each attempt.
+    </div>
+    <div id="quizContainer"></div>
+    <button id="quizSubmit">Submit Quiz</button>
+    <div id="quizResult"></div>
+    <button id="quizResetBtn">Try Again</button>
+  </section>
+
+  <section id="match" class="view">
+    <div class="obj-box">
+      <b>Matching Activity:</b> Click a term on the left, then its definition on the right. Correct pairs turn green; a wrong guess flashes red so you can try again.
+    </div>
+    <div class="match-wrap"><div class="match-col" id="matchTerms"></div><div class="match-col" id="matchDefs"></div></div>
+    <div class="match-status" id="matchStatus">🎉 All matched — great work!</div>
+    <button id="matchResetBtn">Reset Activity</button>
+  </section>
+
+  <footer>CSP31A · C++ Programming I · San Joaquin Delta College — Arrays and Vectors</footer>
+</div>
+
+<script>
+/* ---------- helpers: tiny markup (`code`, **bold**) with HTML escaping ---------- */
+function escHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function fmt(s){
+  return escHtml(s).replace(/`([^`]+)`/g,"<code>$1</code>").replace(/\*\*([^*]+)\*\*/g,"<b>$1</b>");
+}
+
+/* =========================================================
+   DATA — six sections, scaffolded Remember → Create
+   ========================================================= */
+const decks = [
+
+/* ============ 1. ARRAY BASICS ============ */
+{
+  title:"1. Array Basics", tag:"Remember / Understand",
+  cards:[
+    {q:"Name the four defining properties of an array.",
+     a:"• Collection of data; each element reached by an **index**\n• **Homogeneous** — every element has the same type\n• **Fixed size** — cannot grow at run time\n• **Contiguous** in memory (sequential access)"},
+    {q:"Declare an int array named `pointsPerQuarter` with 4 elements holding 22, 19, 12, 29.",
+     a:"`int pointsPerQuarter[4] = {22, 19, 12, 29};`\nPieces: type, array name, size in `[]`, then initial values by position from 0 to size − 1."},
+    {q:"Which index holds the 4th quarter’s points, and what value is there?",
+     a:"Index **3**, so `pointsPerQuarter[3]` is **29**.\nValid indexes run from 0 to size − 1."},
+    {q:"If an int uses 4 bytes, how many bytes does `int tests[5]` occupy?",
+     a:"(number of elements) × (bytes per element) = 5 × 4 = **20 bytes**.\nBecause storage is contiguous, neighboring elements sit 4 bytes apart (A0, A4, A8, AC, B0 in hex on the slide)."},
+    {q:"What does the array name `tests` stand for in an expression like `cout << tests;`?",
+     a:"The **address of the first element**: `tests` is the same as `&tests[0]`.\nSo for a non-character array, `cout << tests` prints a hexadecimal memory address, not the values."},
+    {q:"What is different when you print a **char** array with `cout`?",
+     a:"A character array is a **C-string**, so printing the array name prints the text, not an address."},
+    {q:"After `int a[5] = {1, 2};` what are the five values?",
+     a:"**1, 2, 0, 0, 0** — in partial initialization the remaining elements are set to 0."},
+    {q:"(Understand) Why do array indexes start at 0 instead of 1?",
+     a:"The index is an **offset** from the first element: element i lives at start address + i × (element size). The first element has offset 0, so the last valid index is size − 1."}
+  ],
+  worked:{
+    title:"Worked Example — Tracing Subscripts and Increments",
+    intro:"Predict each line of output. Watch how `++` placement and `char` arithmetic change the subscript.",
+    code:`const int SIZE = 5;
+int tests[SIZE] = {3, 5, 7, 9, 10};
+char ch = 'B';
+int i = 3;
+
+cout << tests[1]++      << endl;   // line A
+cout << tests[1]        << endl;   // line B
+cout << tests[ch - 'A'] << endl;   // line C
+cout << tests[++i]      << endl;   // line D`,
+    steps:[
+      "**Line A:** `tests[1]` is 5. Post-increment prints the **old** value (5) and then stores 6 in tests[1].",
+      "**Line B:** nothing changed the array since line A except that increment, so tests[1] is now **6**.",
+      "**Line C:** a char is stored as a number; `'B' - 'A'` is 66 − 65 = 1, so the subscript is 1 and the output is **6**.",
+      "**Line D:** `++i` is pre-increment: i becomes 4 **before** the subscript is used, so we read tests[4] = **10**.",
+      "**Result:** 5, 6, 6, 10. Reasoning pattern: evaluate the subscript expression first, then read the element."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Apply)",
+    prompt:"Trace this code and give the four outputs (a)–(d). Show how each subscript is computed.",
+    code:`int nums[4] = {2, 4, 6, 8};
+int k = 1;
+cout << nums[k++] << endl;           // (a)
+cout << nums[k]   << endl;           // (b)
+cout << nums[++k] << endl;           // (c)
+nums[0]++;
+cout << nums[0] + nums[3] << endl;   // (d)`,
+    answer:"**(a) 4** — subscript is 1 (post-increment uses old k), then k becomes 2.\n**(b) 6** — k is 2.\n**(c) 8** — `++k` makes k 3 first, so nums[3].\n**(d) 11** — nums[0] becomes 3, and 3 + 8 = 11."
+  }],
+  misc:[{
+    wrong:"“An array declared as `int a[5]` has elements a[1] through a[5].”",
+    right:"Indexes start at **0**, so the valid subscripts are a[0] through a[4]. a[5] is one past the end. C++ will not stop you from using it (see Section 2)."
+  },{
+    wrong:"“`cout << arr;` prints all the values in the array.”",
+    right:"For a non-char array the name is the address of the first element, so you see a hexadecimal address. You need a loop to print the values. (Only char arrays print as text, because they are C-strings.)"
+  }],
+  selfcheck:[
+    {q:"Which is NOT a property of a C-style array?", opts:["Homogeneous elements","Fixed size","It can grow at run time","Contiguous memory"], correct:2, fb:"Size is fixed when the array is declared. Growing data is a job for std::vector (Section 6)."},
+    {q:"For `int arr[8]`, the valid subscripts are:", opts:["1 to 8","0 to 8","0 to 7"], correct:2, fb:"Indexes run 0 to size − 1."},
+    {q:"`tests` is an int array. `cout << tests;` prints:", opts:["The first value","The address of the first element","All values"], correct:1, fb:"The array name yields the address of element 0, the same as `&tests[0]`."}
+  ]
+},
+
+/* ============ 2. TRAVERSING ============ */
+{
+  title:"2. Traversing Arrays", tag:"Apply",
+  cards:[
+    {q:"Write a for loop that prints every element of `int arr[SIZE]`.",
+     a:"`for (int i = 0; i < SIZE; i++)`\n`    cout << arr[i] << \" \";`\ni starts at 0 and the test is `i < SIZE` (not `<=`)."},
+    {q:"What is the weakness of using a hard-coded `SIZE` in the loop test?",
+     a:"`SIZE` may not match the real size of the array if one is edited without the other. Let the program calculate it: `sizeof(arr) / sizeof(arr[0])` or, in C++17, `std::size(arr)`."},
+    {q:"Print the elements in reverse. Give two loop styles.",
+     a:"1) Count down: `for (int i = SIZE - 1; i >= 0; i--)`\n2) Count up but flip the subscript: `arr[SIZE - 1 - i]` — with SIZE 5 and i = 0 that is index 4, the last element."},
+    {q:"What is the syntax of a range-based for loop, and why prefer `auto`?",
+     a:"`for (auto x : container) { ... }`\nThe container can be an array. `auto` lets the loop keep working if the element type of the array changes later. There is no subscript to get wrong."},
+    {q:"Outline the algorithm for finding the **smallest** value in an array.",
+     a:"1. Assume the first element is smallest: `smallest = arr[0];`\n2. Loop from index **1** to the end.\n3. If `arr[i] < smallest`, update `smallest`.\nStarting at 1 avoids comparing arr[0] with itself."},
+    {q:"(Apply) What changes to find the **largest** value instead?",
+     a:"Only the comparison direction: initialize `largest = arr[0]`, loop from 1, and update when `arr[i] > largest`."},
+    {q:"Does C++ check that a subscript is valid for a C-style array?",
+     a:"**No.** C++ does not check the subscript; keeping it in range is your responsibility. An out-of-range read gives garbage and an out-of-range write can corrupt other data — with no error message."},
+    {q:"(Analyze) Find the bug: `for (int count = 1; count <= SIZE; count++) cout << numbers[count];`",
+     a:"An **off-by-one error** in both directions: starting at 1 skips element 0, and `<= SIZE` reads numbers[SIZE], which is past the end.\nFix: `for (int count = 0; count < SIZE; count++)`."}
+  ],
+  worked:{
+    title:"Worked Example — Finding the Largest Value",
+    intro:"Trace the algorithm on a small array and expose why each line is written the way it is.",
+    code:`const int SIZE = 5;
+int list[SIZE] = {7, 12, 3, 19, 8};
+
+int largest = list[0];
+for (int i = 1; i < SIZE; i++)
+    if (list[i] > largest)
+        largest = list[i];
+
+cout << largest << endl;`,
+    steps:[
+      "**Initialize:** `largest = list[0]` = 7. We start from a real element of the array rather than 0, so the answer is correct even when every value is negative.",
+      "**Loop start at i = 1:** list[0] is already in `largest`; comparing it with itself would waste a pass.",
+      "**i = 1:** 12 > 7 is true, so largest becomes 12.",
+      "**i = 2:** 3 > 12 is false; nothing changes.",
+      "**i = 3:** 19 > 12 is true, so largest becomes 19.",
+      "**i = 4:** 8 > 19 is false. The loop ends because i < 5 is now false.",
+      "**Result:** 19. Pattern: seed with the first element, then challenge it with each remaining element."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Apply)",
+    prompt:"Adapt the pattern to find the **smallest** value in the array below. What is the final value, and how many times does the assignment inside the `if` run?",
+    code:`int data[5] = {14, -2, 9, 0, -7};
+int smallest = data[0];
+for (int i = 1; i < 5; i++)
+    if (data[i] < smallest)
+        smallest = data[i];`,
+    answer:"Trace: smallest starts at 14. i=1: −2 < 14 → update (1). i=2: 9 < −2 no. i=3: 0 < −2 no. i=4: −7 < −2 → update (2).\n**Final value: −7; the assignment runs 2 times.**"
+  }],
+  misc:[{
+    wrong:"“To find the smallest value, just start with `smallest = 0`.”",
+    right:"If every element is positive, 0 is smaller than all of them and the loop never replaces it, so you report a value that is not even in the array. Always seed with `arr[0]` (and the same logic applies to `largest` with all-negative data)."
+  },{
+    wrong:"“C++ will tell me when my subscript is out of range.”",
+    right:"With C-style arrays it will not: there is no bounds checking. The program may print garbage, overwrite neighboring variables, or crash later. Range-based loops avoid the problem because they never use a subscript."
+  }],
+  selfcheck:[
+    {q:"For `int arr[4] = {4, 9, 2, 7};` what does `for (int i = 3; i >= 0; i--) cout << arr[i] << \" \";` print?", opts:["4 9 2 7","7 2 9 4","7 2 9"], correct:1, fb:"The loop counts i from 3 down to 0, so it visits the elements back to front."},
+    {q:"Why is `for (int i = 0; i <= SIZE; i++)` a bug?", opts:["It skips element 0","It reads arr[SIZE], one past the end","It runs zero times"], correct:1, fb:"The last valid index is SIZE − 1. Using <= goes one beyond (an off-by-one error)."},
+    {q:"In `for (auto x : arr)`, why is `auto` preferred over writing `int`?", opts:["It runs faster","The loop still works if the array’s element type changes","It checks bounds"], correct:1, fb:"`auto` deduces the element type for you. Neither version uses a subscript."}
+  ]
+},
+
+/* ============ 3. COPY / COMPARE / FUNCTIONS ============ */
+{
+  title:"3. Copy, Compare &amp; Functions", tag:"Apply / Analyze",
+  cards:[
+    {q:"Can you copy one C-style array into another with `b = a;`?",
+     a:"**No** — assignment of C-style arrays is not allowed. Copy with a loop, one element at a time."},
+    {q:"Write the copy loop for two arrays of `SIZE` ints.",
+     a:"`for (int i = 0; i < SIZE; i++)`\n`    b[i] = a[i];`\nAfterwards b holds its own independent copy of the values."},
+    {q:"Why doesn’t `if (a == b)` tell you whether two C-style arrays hold the same values?",
+     a:"Each array name is the **address of its first element**, so `==` compares two addresses. Two different arrays never share an address, so the test is false even when all the values match."},
+    {q:"Outline the correct way to compare two C-style arrays.",
+     a:"Compare **element by element**: assume they match (`bool same = true`), loop through the indexes, and if `a[i] != b[i]` set `same = false` (and stop). If the arrays can differ in length, compare sizes first."},
+    {q:"What does the prototype of a function that receives an array look like?",
+     a:"`void printArray(int arr[], int size);`\nNo dimension goes inside the brackets in the prototype or header. The array name passes the address of the first element, so no copy of the array is made."},
+    {q:"Why do you usually pass the array’s size as a second argument?",
+     a:"The function receives only an address, so it cannot know how many elements follow. Passing the size controls how many values are processed."},
+    {q:"A function that receives an array can change the caller’s data. How do you prevent that?",
+     a:"Add `const`: `void printArray(const int arr[], int size);`\nNow any statement that tries to modify `arr[i]` inside the function is a compile-time error."},
+    {q:"(Evaluate) A function only totals the values in an array. Should its array parameter be `const`? Justify.",
+     a:"**Yes.** The function only reads the data. `const` documents that intent, lets the compiler catch accidental writes, and protects the caller’s array. There is no benefit to leaving it modifiable."}
+  ],
+  worked:{
+    title:"Worked Example — Copy, Modify, Then Compare",
+    intro:"Show that a copy loop produces an independent array and that an element-by-element comparison detects the difference.",
+    code:`const int SIZE = 4;
+int a[SIZE] = {5, 8, 2, 9};
+int b[SIZE];
+
+for (int i = 0; i < SIZE; i++)      // copy
+    b[i] = a[i];
+
+b[2] = 7;                           // change the copy only
+
+bool same = true;
+for (int i = 0; i < SIZE && same; i++)
+    if (a[i] != b[i])
+        same = false;`,
+    steps:[
+      "**Why a loop:** `b = a;` is illegal for C-style arrays, so we copy each element ourselves.",
+      "**After the copy loop:** b is {5, 8, 2, 9}. Each element was copied by value, so b is separate storage from a.",
+      "**b[2] = 7:** only b changes, giving {5, 8, 7, 9}. a is still {5, 8, 2, 9}.",
+      "**Comparison, i = 0 and 1:** 5 = 5 and 8 = 8, so `same` stays true.",
+      "**i = 2:** 2 != 7, so `same` becomes false. The loop condition `&& same` then stops the loop early.",
+      "**Result:** `same` is false. We could not have used `a == b`, which would compare two addresses."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Create)",
+    prompt:"Write a function `sameArrays` that returns true if two int arrays of the same given size hold identical values. Make the parameters const. Type your attempt, then compare.",
+    textarea:true,
+    answerCode:`bool sameArrays(const int x[], const int y[], int size)
+{
+    for (int i = 0; i < size; i++)
+        if (x[i] != y[i])
+            return false;      // first mismatch settles it
+    return true;               // no mismatch found
+}`,
+    answer:"**Check yourself:** (1) both array parameters are `const` because the function only reads; (2) `size` is passed because the function cannot know it; (3) you compare **values** with a loop, never `x == y`; (4) returning `true` happens only **after** the loop, once every pair has matched."
+  }],
+  misc:[{
+    wrong:"“Arrays are passed by value, so a function can’t change my array.”",
+    right:"The array name is the address of the first element, so the function works on the **original** data and can change it. If it should not, declare the parameter `const`."
+  },{
+    wrong:"“`a == b` is true when two arrays contain the same values.”",
+    right:"It compares the addresses of the first elements, which are different for two distinct arrays. Compare element by element (or use std::array, Section 4, where `==` compares contents)."
+  }],
+  selfcheck:[
+    {q:"Which statement copies array `a` into array `b` (both C-style)?", opts:["`b = a;`","A loop assigning `b[i] = a[i]`","`copy(b, a);`"], correct:1, fb:"C-style arrays can’t be assigned; copy element by element."},
+    {q:"Which header protects the caller’s data?", opts:["`void f(int arr[], int n)`","`void f(const int arr[], int n)`","`void f(int arr[5])`"], correct:1, fb:"`const` makes writes to arr[i] a compile-time error."},
+    {q:"Why must the size be passed to a function that receives an array?", opts:["The function receives only an address and can’t know the length","C++ requires it for const arrays","It speeds up the function"], correct:0, fb:"Only the address of the first element is passed."}
+  ]
+},
+
+/* ============ 4. STD::ARRAY ============ */
+{
+  title:"4. std::array (C++11)", tag:"Understand / Analyze / Evaluate",
+  cards:[
+    {q:"List the shortcomings of C-style arrays that `std::array` was designed to fix.",
+     a:"• No bounds checking\n• Can’t be assigned to another array\n• Can’t be compared directly\n• Passing to a function needs the size separately\n• The array name behaves like a pointer, which can be confusing"},
+    {q:"What header and declaration syntax does `std::array` use?",
+     a:"`#include <array>`\n`std::array<int, 5> a = {1, 2, 3, 4, 5};`\nIt is a **templated** type: you supply two parameters — the element type and the number of elements."},
+    {q:"What does `std::array` give you that a C-style array does not?",
+     a:"• Bounds checking through `at()`\n• Assignment: `b = a;`\n• Comparison with `==`, `!=`, `<` …\n• It remembers its size (`size()`)\n• A wrong size is a **compile-time** error\n• It does not decay to a pointer, and it supports iterators"},
+    {q:"Name the main members of the `std::array` interface.",
+     a:"`size()` number of elements · `empty()` is it empty · `operator[]` index access · `at()` index access **with** bounds checking · `front()` first element · `back()` last element · `data()` the built-in array inside"},
+    {q:"Compare `a[i]` and `a.at(i)` when i is out of range.",
+     a:"`a[i]` does **no** checking (same risk as a C array). `a.at(i)` checks and signals an error at run time (it throws `std::out_of_range`), so the bug is reported instead of silently reading garbage."},
+    {q:"How is a `std::array` passed to a function by default? How do you change that?",
+     a:"By **value** — the function gets a copy, so the original is not affected (safe for small arrays).\nTo let the function change the original, pass by reference with `&`. For a large array use `const std::array<...>&` to avoid copying and still protect the data."},
+    {q:"What is `std::size()` and when was it added?",
+     a:"A function (C++17) that returns the number of elements of a C-style array or a `std::array`, so you don’t have to pass the size separately — but only where the true array type is still visible."},
+    {q:"Why create an alias for a `std::array` type?",
+     a:"The full type, e.g. `std::array<int, 5>`, is long and repeated in prototypes and headers. An alias (`using` or `typedef`) gives it one short name and keeps declarations consistent."},
+    {q:"(Evaluate) A teammate says: “Keep C arrays everywhere; they’re faster.” Evaluate the claim.",
+     a:"The underlying storage is the same, so the speed difference is negligible, while `std::array` adds bounds-checked access, assignment, comparison and size information. Prefer `std::array`; keep C-style arrays only when an API requires them."}
+  ],
+  worked:{
+    title:"Worked Example — Bounds: [] vs at()",
+    intro:"Same mistake, two different behaviors. Reason about what each access does.",
+    code:`std::array<int, 5> a = {10, 20, 30, 40, 50};
+
+cout << a[5]    << endl;   // line 1
+cout << a.at(5) << endl;   // line 2`,
+    steps:[
+      "**Valid subscripts:** the array has 5 elements, so the valid indexes are 0–4. Index 5 is one past the end in both lines.",
+      "**Line 1, `a[5]`:** the `[]` operator performs no check. It reads whatever lies in memory after the array — garbage, or a crash. The program gives no explanation.",
+      "**Line 2, `a.at(5)`:** `at()` compares the index with `size()` first. 5 is not less than 5, so it throws `std::out_of_range`.",
+      "**If nothing catches the exception:** the program stops with a run-time error message pointing at the problem.",
+      "**Conclusion:** a loud failure at the moment of the mistake is easier to debug than silent garbage, so use `at()` while developing when the index is not guaranteed valid."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Analyze)",
+    prompt:"Predict the output of each numbered line and explain what happens to the one that does not run.",
+    code:`std::array<int, 3> x = {1, 2, 3};
+std::array<int, 3> y = x;      // (1)
+y[0] = 99;
+cout << x[0] << endl;          // (2)
+cout << (x == y) << endl;      // (3)
+std::array<int, 4> z = x;      // (4)`,
+    answer:"**(1)** legal: `std::array` supports assignment and copies every element.\n**(2) prints 1** — y is an independent copy, so changing y[0] doesn’t touch x.\n**(3) prints 0 (false)** — `==` compares contents, and x[0] = 1 but y[0] = 99.\n**(4) compile error** — size is part of the type, so array<int,3> and array<int,4> are different, incompatible types."
+  }],
+  misc:[{
+    wrong:"“`std::array` always checks the subscript, so `a[10]` is safe.”",
+    right:"Only **`at()`** is bounds-checked. `a[10]` on a std::array behaves like a C array: no check. Use `a.at(10)` when you want the error."
+  },{
+    wrong:"“A function that takes a `std::array` can change my array like a C array can.”",
+    right:"By default the `std::array` is passed **by value**, so the function changes a copy. To change the original you must pass by reference (`&`); to avoid copying a large array without allowing changes, use `const` with `&`."
+  }],
+  selfcheck:[
+    {q:"Which `std::array` member checks the index?", opts:["`operator[]`","`at()`","`data()`"], correct:1, fb:"`at()` is the bounds-checked access."},
+    {q:"`std::array<int,3> y = x;` (x has 3 ints) does what?", opts:["Copies all elements","Makes y refer to x","Is a compile error"], correct:0, fb:"Unlike C-style arrays, std::array supports assignment/copy."},
+    {q:"To let a function modify the caller’s `std::array`, pass it:", opts:["By value","By reference using &","As const"], correct:1, fb:"By-value passing works on a copy."}
+  ]
+},
+
+/* ============ 5. PARALLEL & 2D ============ */
+{
+  title:"5. Parallel &amp; 2-D Arrays", tag:"Apply / Analyze",
+  cards:[
+    {q:"What are parallel arrays?",
+     a:"Two or more arrays (they may have different types) holding **related** data, accessed with a **common subscript**.\nExample: `names[2]` and `scores[2]` describe the same student."},
+    {q:"Declare a 2-D int array with 4 rows and 3 columns.",
+     a:"`const int ROWS = 4, COLS = 3;`\n`int exams[ROWS][COLS];`\nThe first size declarator is the number of **rows**; the second is the number of **columns**."},
+    {q:"Assign 86 to the element in the third row, third column.",
+     a:"`exams[2][2] = 86;`\nTwo subscripts, each starting at 0: [row][column]."},
+    {q:"How do you declare a 2-D `std::array` of the same shape?",
+     a:"`std::array<std::array<int, COLS>, ROWS> exams;`\nNote the **double `< >`**: the outer array holds ROWS elements, each of which is an array of COLS ints."},
+    {q:"What loop structure visits every element of a 2-D array?",
+     a:"**Nested loops:** the outer loop walks the rows, the inner loop walks the columns.\nNew style: `for (const auto& row : exams) for (auto v : row) ...`"},
+    {q:"(Analyze) For **row** sums vs **column** sums, where does the running total get reset?",
+     a:"**Row sums:** outer loop = rows; reset the total at the top of each row (before the inner loop).\n**Column sums:** outer loop = columns, inner loop = rows; reset the total at the top of each column.\nIn both, the total is reset once per group being summed."},
+    {q:"What must appear in the prototype/header when a function receives a 2-D C-style array?",
+     a:"The **second dimension** must be given: `void show(int a[][COLS], int rows);`\nThe compiler needs the column count to work out where a[r][c] lives."},
+    {q:"How many dimensions can an array have? How is a 3-D array passed?",
+     a:"Any number, e.g. `short rectSolid[2][3][5];`\nFor a parameter, give **every dimension except the first**: `void getRectSolid(short [][3][5]);`"},
+    {q:"(Analyze) Why does the second dimension have to be known by the function?",
+     a:"The 2-D array is stored contiguously, row after row. To find a[r][c] the compiler computes r × (columns per row) + c elements from the start, so it must know the row length."}
+  ],
+  worked:{
+    title:"Worked Example — Sum Each Row of a 2-D Array",
+    intro:"Three students, three exams each. Find every student’s total and explain where the accumulator must live.",
+    code:`const int ROWS = 3, COLS = 3;
+int exams[ROWS][COLS] = { {80, 90, 70},
+                          {60, 75, 85},
+                          {95, 85, 100} };
+
+for (int r = 0; r < ROWS; r++) {
+    int rowTotal = 0;                    // reset for each row
+    for (int c = 0; c < COLS; c++)
+        rowTotal += exams[r][c];
+    cout << "Row " << r << ": " << rowTotal << endl;
+}`,
+    steps:[
+      "**Shape:** exams[r][c] means row r, column c. Each row is one student; each column is one exam.",
+      "**Outer loop (r):** picks one student. `rowTotal` is declared **inside** the outer loop, so it restarts at 0 for every student.",
+      "**Inner loop (c):** adds that student’s three scores.",
+      "**Row 0:** 80 + 90 + 70 = 240.   **Row 1:** 60 + 75 + 85 = 220.   **Row 2:** 95 + 85 + 100 = 280.",
+      "**Why placement matters:** if `rowTotal` were declared before the outer loop, it would never reset and would print 240, 460, 740 — running totals, not row totals."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Apply)",
+    prompt:"Using the same `exams` array, write the loops that print the total for each **column** (each exam). Then state the three totals. Type your attempt, then compare.",
+    textarea:true,
+    answerCode:`for (int c = 0; c < COLS; c++) {
+    int colTotal = 0;                    // reset for each column
+    for (int r = 0; r < ROWS; r++)
+        colTotal += exams[r][c];
+    cout << "Column " << c << ": " << colTotal << endl;
+}`,
+    answer:"**Totals:** column 0 = 80 + 60 + 95 = **235**; column 1 = 90 + 75 + 85 = **250**; column 2 = 70 + 85 + 100 = **255**.\n**Check yourself:** the loops swap roles (outer = columns, inner = rows) and the total is reset per column."
+  }],
+  realWorld:{
+    title:"Real-World Application — A Class Gradebook",
+    html:"Your instructor’s gradebook for a section of 4 students records 3 exam scores per student. The program stores names in a <b>parallel</b> `string names[4]` and scores in `int exams[4][3]`. The instructor wants (1) each student’s average and (2) each exam’s class average to see which exam was hardest.<br><b>Task:</b> decide which of the two sums above answers each question. <i>Answer:</i> (1) is a <b>row</b> sum divided by 3 (one row per student, printed with `names[r]`, using the common subscript r); (2) is a <b>column</b> sum divided by 4 (one column per exam)."
+  },
+  misc:[{
+    wrong:"“Parallel arrays stay matched automatically.”",
+    right:"They are only matched because you use the same subscript. If you sort `scores` but leave `names` alone, every name is now paired with the wrong score. Any swap in one array must be made in all the arrays."
+  },{
+    wrong:"“`exams[3][4]` means column 3, row 4” (or: “the second subscript is the row”).",
+    right:"The **first** subscript is the **row** and the **second** is the **column**, matching the declaration `exams[ROWS][COLS]`. Swapping them reads the wrong element, and may go out of range."
+  }],
+  selfcheck:[
+    {q:"In `int g[4][3]`, which statement is true?", opts:["4 columns, 3 rows","4 rows, 3 columns","12 rows"], correct:1, fb:"First size = rows, second = columns."},
+    {q:"When summing each ROW, the accumulator should be reset:", opts:["Once, before all loops","At the start of every row","After the program ends"], correct:1, fb:"Each row needs a fresh total."},
+    {q:"For a function taking a 2-D C-style array, which must be given in the header?", opts:["Neither dimension","Only the first","The second dimension"], correct:2, fb:"The column count is needed to locate a[r][c]."}
+  ]
+},
+
+/* ============ 6. VECTORS ============ */
+{
+  title:"6. std::vector", tag:"Analyze / Evaluate / Create",
+  cards:[
+    {q:"What is a `std::vector` and why use one instead of an array?",
+     a:"A type from the Standard Template Library for data that **grows and shrinks**. It adds space automatically (no need to know the size at compile time), knows its own length, and still supports `[]`. Requires `#include <vector>`."},
+    {q:"Show four ways to declare a vector of ints.",
+     a:"`vector<int> scores;` — empty\n`vector<int> scores(30);` — 30 elements\n`vector<int> scores(30, 0);` — 30 elements, all 0\n`vector<int> finals(scores);` — a copy of another vector"},
+    {q:"What do `push_back()`, `pop_back()`, `clear()` and `empty()` do?",
+     a:"`push_back(x)` adds x at the end (no subscript needed)\n`pop_back()` removes the last element\n`clear()` removes all elements\n`empty()` is true when there are no elements, e.g. `while (!scores.empty())`"},
+    {q:"What is the difference between `size()` and `capacity()`?",
+     a:"`size()` is how many elements are stored now. `capacity()` is how many it can hold before it must allocate more memory."},
+    {q:"What does `resize(5, 0)` do?",
+     a:"Changes the vector’s size to 5. If it grows, the new elements are initialized with the optional second argument (0)."},
+    {q:"What does `vec1.swap(vec2)` do?",
+     a:"Exchanges the contents of the two vectors."},
+    {q:"Compare `scores[i]` and `scores.at(i)`.",
+     a:"Both read an existing element. `at(i)` checks the index and throws `std::out_of_range` if it is invalid; `[]` does not check."},
+    {q:"(Analyze) `vector<int> v;` then `v[0] = 10;` is a bug but `v.push_back(10);` works. Why?",
+     a:"`[]` and `at()` access elements that **already exist**; an empty vector has none, so `v[0]` is out of range. `push_back` **creates** a new element at the end and grows the vector."},
+    {q:"(Evaluate) Which is the better choice: temperatures for the 7 days of a week, or the number of students who sign in at an event? Justify.",
+     a:"**7 temperatures:** the count is fixed and known at compile time, so a `std::array<double, 7>` is simple and safe.\n**Sign-ins:** the count is unknown and grows as people arrive, so a `std::vector` fits; `push_back` handles each new arrival."},
+    {q:"(Create) Sketch code that reads ints until the user enters -1 and stores them in a vector, then prints how many were read.",
+     a:"`vector<int> nums; int x;`\n`cin >> x;`\n`while (x != -1) { nums.push_back(x); cin >> x; }`\n`cout << nums.size();`\nThe sentinel -1 is never stored, because it ends the loop before `push_back`."}
+  ],
+  worked:{
+    title:"Worked Example — Growing and Shrinking a Vector",
+    intro:"Track the contents and the size after every statement.",
+    code:`vector<int> scores;
+scores.push_back(88);
+scores.push_back(92);
+scores.push_back(75);
+scores.pop_back();
+scores.resize(4, 0);`,
+    steps:[
+      "**Declaration:** an empty vector: contents { }, size 0. No size was needed up front.",
+      "**push_back(88):** a new element is added at the end: {88}, size 1.",
+      "**push_back(92):** {88, 92}, size 2.   **push_back(75):** {88, 92, 75}, size 3.",
+      "**pop_back():** removes the **last** element (75): {88, 92}, size 2.",
+      "**resize(4, 0):** grows the vector to 4 and fills the two new slots with 0: {88, 92, 0, 0}, size 4.",
+      "**Takeaway:** size changes with each operation; with an array this would need a new, bigger array."
+    ]
+  },
+  tries:[{
+    label:"Your turn (Apply)",
+    prompt:"Trace the code and state exactly what is printed. Show the vector’s contents after each statement.",
+    code:`vector<int> v(3, 5);
+v.push_back(9);
+v.pop_back();
+v.pop_back();
+v.resize(1);
+cout << v.size() << " " << v[0];`,
+    answer:"`v(3, 5)` → {5, 5, 5}. `push_back(9)` → {5, 5, 5, 9}. `pop_back()` → {5, 5, 5}. `pop_back()` → {5, 5}. `resize(1)` → {5}.\n**Output: `1 5`**"
+  }],
+  realWorld:{
+    title:"Real-World Application — Campus Event Sign-In",
+    html:"A student club writes a sign-in app for a campus event. Student IDs are entered as people arrive, nobody knows how many will come, and the volunteer sometimes needs to <b>undo the last entry</b> after a typo.<br><b>Task:</b> choose a data structure and write the three operations (add, undo, count). <i>Answer:</i> a <code>vector&lt;int&gt; ids;</code> — add: <code>ids.push_back(id);</code>; undo: <code>if (!ids.empty()) ids.pop_back();</code> (check first so you never remove from an empty vector); count: <code>ids.size()</code>. An array would force you to guess a maximum size up front."
+  },
+  misc:[{
+    wrong:"“A vector is just a fancier array: I can fill an empty vector with `v[0] = 1; v[1] = 2;`.”",
+    right:"`[]` only reaches elements that already exist. Add elements with `push_back`, or create them first with a size (`vector<int> v(10);`) or `resize`."
+  },{
+    wrong:"“`size()` and `capacity()` mean the same thing.”",
+    right:"`size()` is the number of elements actually stored; `capacity()` is the room available before the vector must allocate more memory. Capacity is always at least the size."
+  },{
+    wrong:"“A vector has a `reverse()` member function.” (Heads-up: the slide 87 table lists it that way.)",
+    right:"Reversing is done with the standard algorithm `reverse(v.begin(), v.end());` from `<algorithm>`, not a member of vector. Compile it yourself if in doubt."
+  }],
+  selfcheck:[
+    {q:"After `vector<int> v;` which adds the first element?", opts:["`v[0] = 7;`","`v.push_back(7);`","`v.at(0) = 7;`"], correct:1, fb:"push_back creates the element; [] and at() need it to exist."},
+    {q:"`vector<int> v(30, 0);` creates:", opts:["30 elements, all 0","One element with value 30","An empty vector with capacity 0"], correct:0, fb:"The first argument is the size and the second is the initial value."},
+    {q:"Which is the safest way to remove the last element?", opts:["`v.pop_back();`","`if (!v.empty()) v.pop_back();`","`v.clear(0);`"], correct:1, fb:"Check `empty()` first so you never remove from an empty vector."}
+  ]
+}
+];
+
+/* =========================================================
+   QUIZ — 12 questions, Remember → Create
+   (options listed with the correct answer FIRST; shuffled at build time)
+   ========================================================= */
+const quizData = [
+  {bloom:"Remember", q:"Which of these is NOT a property of a C-style array?",
+   opts:["Its size can grow at run time","All elements have the same type","Elements are contiguous in memory","Each element is reached by an index"],
+   exp:"C-style arrays have a fixed size. Data that grows and shrinks calls for std::vector."},
+  {bloom:"Remember", q:"For `int scores[6]`, which are the valid subscripts?",
+   opts:["0 through 5","1 through 6","0 through 6","1 through 5"],
+   exp:"Subscripts run from 0 to size − 1."},
+  {bloom:"Understand", q:"`int tests[5] = {3, 5, 7, 9, 10};` What does `cout << tests;` print?",
+   opts:["The memory address of the first element","3 5 7 9 10","The number 5","The address of the last element"],
+   exp:"The array name stands for the address of the first element: `tests` is `&tests[0]`."},
+  {bloom:"Understand", q:"After `int a[5] = {1, 2};` what is the value of `a[4]`?",
+   opts:["0","1","2","Garbage"],
+   exp:"Partial initialization sets all remaining elements to 0."},
+  {bloom:"Apply", q:"What does this code print?", code:`int arr[4] = {4, 9, 2, 7};
+for (int i = 3; i >= 0; i--)
+    cout << arr[i] << " ";`,
+   opts:["7 2 9 4","4 9 2 7","7 2 9","2 9 4 7"],
+   exp:"The loop counts i from 3 down to 0, visiting the elements back to front."},
+  {bloom:"Apply", q:"Which function header lets `printAll` read an int array but guarantees it cannot modify it?",
+   opts:["void printAll(const int arr[], int size)","void printAll(int arr[], int size)","void printAll(int const size, int arr)","void printAll(int arr[5])"],
+   exp:"`const` on the array parameter makes any write to arr[i] a compile-time error. The size is passed separately because the function only gets an address."},
+  {bloom:"Apply", q:"What is printed?", code:`std::array<int, 3> x = {1, 2, 3};
+std::array<int, 3> y = x;
+y[0] = 9;
+cout << x[0];`,
+   opts:["1","9","3","It does not compile"],
+   exp:"std::array supports assignment and makes an independent copy, so changing y leaves x unchanged."},
+  {bloom:"Analyze", q:"Identify the defect in this loop (SIZE is 6):", code:`for (int count = 1; count <= SIZE; count++)
+    cout << numbers[count] << " ";`,
+   opts:["Off-by-one: skips numbers[0] and reads numbers[6], past the end","It prints the numbers in reverse","It never executes","Nothing is wrong"],
+   exp:"Starting at 1 skips the first element and `<= SIZE` goes one beyond the last valid index (SIZE − 1)."},
+  {bloom:"Analyze", q:"`a` and `b` are two different C-style int arrays with identical contents. What does `if (a == b)` evaluate to?",
+   opts:["false — it compares the addresses of the first elements","true — the contents are equal","A compile error","true only if they are sorted"],
+   exp:"Array names are addresses; two separate arrays have different addresses. Compare element by element."},
+  {bloom:"Analyze", q:"`std::array<int,5> a;` Compare `a[7]` with `a.at(7)`.",
+   opts:["[] does no check (undefined behavior); at() throws std::out_of_range","Both throw std::out_of_range","Both are silently ignored","[] throws; at() does not check"],
+   exp:"Only at() is bounds-checked. [] behaves like a C array and does not verify the index."},
+  {bloom:"Evaluate", q:"A sign-in app records student IDs as people arrive; the total is unknown and the volunteer must be able to undo the last entry. Which design is best?",
+   opts:["A vector<int>: push_back to add, pop_back to undo","A C-style array of 10000 ints, hoping nobody exceeds it","A std::array<int, 100>, since it is safer","A 2-D array with one row per student"],
+   exp:"The count is unknown and changes, which is exactly what a vector handles. A fixed array wastes space or overflows."},
+  {bloom:"Create", q:"You keep `string names[5]` and `int scores[5]` as parallel arrays and must display the class ranked by score. Which plan keeps each name matched to its score?",
+   opts:["Whenever two scores are swapped, swap the names at the same two positions","Sort scores only; names stay as they are","Sort names alphabetically and leave scores alone","Copy scores into a new array and sort the copy"],
+   exp:"Parallel arrays are matched only by a shared subscript. Any reordering must be applied to every array in the same way."}
+];
+
+/* =========================================================
+   MATCHING
+   ========================================================= */
+const matchData = [
+  {term:"Subscript (index)", def:"The number inside [ ] that selects an element; starts at 0"},
+  {term:"Off-by-one error", def:"Starting at 1 or looping to <= SIZE so the subscript is one too far"},
+  {term:"Partial initialization", def:"Fewer initial values than elements; the rest are set to 0"},
+  {term:"Range-based for loop", def:"for (auto x : container) — visits every element with no subscript"},
+  {term:"const array parameter", def:"Prevents a function from modifying the caller’s array"},
+  {term:"std::array", def:"C++11 fixed-size array type that knows its size and supports = and =="},
+  {term:"at()", def:"Element access that checks the index and throws out_of_range"},
+  {term:"std::size()", def:"C++17 function returning the number of elements of an array"},
+  {term:"Parallel arrays", def:"Related data in separate arrays, matched by a common subscript"},
+  {term:"Two-dimensional array", def:"Array with rows and columns, accessed as name[row][col]"},
+  {term:"push_back()", def:"Adds a new element at the end of a vector, growing it"},
+  {term:"capacity()", def:"How many elements a vector can hold before it must allocate more memory"}
+];
+
+/* =========================================================
+   TABS
+   ========================================================= */
+document.querySelectorAll(".tab-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    document.querySelectorAll(".tab-btn").forEach(b=>b.classList.remove("active"));
+    document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById(btn.dataset.view).classList.add("active");
+  });
+});
+
+/* =========================================================
+   FLASHCARDS
+   ========================================================= */
+let currentDeck = 0, currentCard = 0, isFlipped = false;
+const deckOrder = decks.map(d => d.cards.map((_,i)=>i));
+
+function renderDeckTabs(){
+  const row = document.getElementById("deckRow");
+  row.innerHTML = "";
+  decks.forEach((d, idx)=>{
+    const b = document.createElement("button");
+    b.className = "deck-btn" + (idx===currentDeck ? " active" : "");
+    b.innerHTML = `${d.title}<span class="bloom-tag">${d.tag}</span>`;
+    b.addEventListener("click", ()=> loadDeck(idx));
+    row.appendChild(b);
+  });
+}
+function loadDeck(idx){
+  currentDeck = idx; currentCard = 0;
+  renderDeckTabs(); renderCard(); renderExtras(); renderSelfCheck(); renderMisc();
+}
+function setFlip(v){
+  isFlipped = v;
+  document.getElementById("flipCard").classList.toggle("flipped", v);
+}
+function renderCard(){
+  const deck = decks[currentDeck];
+  const card = deck.cards[deckOrder[currentDeck][currentCard]];
+  document.getElementById("cardFront").innerHTML = fmt(card.q);
+  document.getElementById("cardBack").innerHTML = fmt(card.a);
+  setFlip(false);
+  document.getElementById("progressLabel").textContent = `Card ${currentCard+1} of ${deck.cards.length}`;
+  document.getElementById("deckBloomLabel").textContent = deck.tag;
+  document.getElementById("progressFill").style.width = ((currentCard+1)/deck.cards.length*100)+"%";
+  document.getElementById("prevBtn").disabled = currentCard===0;
+  document.getElementById("nextBtn").disabled = currentCard===deck.cards.length-1;
+}
+function renderExtras(){
+  const d = decks[currentDeck];
+  const box = document.getElementById("extraPanels");
+  let html = "";
+  if(d.worked){
+    html += `<div class="panel worked"><h3>🔍 ${d.worked.title}</h3><p>${fmt(d.worked.intro)}</p>
+      <pre>${escHtml(d.worked.code)}</pre>
+      ${d.worked.steps.map(s=>`<div class="step">${fmt(s)}</div>`).join("")}</div>`;
+  }
+  (d.tries||[]).forEach((t,i)=>{
+    html += `<div class="panel tryit"><h3>✏️ ${t.label}</h3><p>${fmt(t.prompt)}</p>
+      ${t.code ? `<pre>${escHtml(t.code)}</pre>` : ""}
+      ${t.textarea ? `<textarea class="answer" placeholder="Type your attempt here…" aria-label="Your answer"></textarea>` : ""}
+      <button class="reveal-btn" data-i="${i}">Reveal answer</button>
+      <div class="reveal-box" id="reveal${i}">${t.answerCode ? `<pre>${escHtml(t.answerCode)}</pre>` : ""}<div style="white-space:pre-line">${fmt(t.answer)}</div></div></div>`;
+  });
+  if(d.realWorld){
+    const rw = d.realWorld.html.replace(/`([^`]+)`/g,"<code>$1</code>");
+    html += `<div class="panel real-world"><h3>🌍 ${d.realWorld.title}</h3><p>${rw}</p></div>`;
+  }
+  box.innerHTML = html;
+  box.querySelectorAll(".reveal-btn").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const r = document.getElementById("reveal"+b.dataset.i);
+      const show = r.style.display !== "block";
+      r.style.display = show ? "block" : "none";
+      b.textContent = show ? "Hide answer" : "Reveal answer";
+    });
+  });
+}
+function renderSelfCheck(){
+  const d = decks[currentDeck];
+  const box = document.getElementById("selfCheckBox");
+  box.innerHTML = `<h4>✅ Quick Check — ${d.title}</h4>`;
+  let answered = 0, right = 0;
+  const scoreEl = document.createElement("div");
+  scoreEl.className = "sc-score";
+  d.selfcheck.forEach((sc, qi)=>{
+    const qDiv = document.createElement("div");
+    qDiv.className = "sc-q";
+    qDiv.innerHTML = `<p class="qtext">${qi+1}. ${fmt(sc.q)}</p>`;
+    const optsDiv = document.createElement("div");
+    optsDiv.className = "sc-opts";
+    sc.opts.forEach((opt, oi)=>{
+      const b = document.createElement("button");
+      b.className = "sc-opt";
+      b.innerHTML = fmt(opt);
+      b.addEventListener("click", ()=>{
+        const all = optsDiv.querySelectorAll(".sc-opt");
+        all.forEach(x=>x.disabled = true);
+        answered++;
+        if(oi === sc.correct){ b.classList.add("correct"); right++; }
+        else { b.classList.add("incorrect"); all[sc.correct].classList.add("correct"); }
+        const fb = document.createElement("div");
+        fb.className = "sc-fb"; fb.innerHTML = fmt(sc.fb);
+        qDiv.appendChild(fb);
+        if(answered === d.selfcheck.length){
+          scoreEl.textContent = right === answered
+            ? `You got ${right}/${answered} — ready for the next section.`
+            : `You got ${right}/${answered} — flip back through this section’s cards and worked example before moving on.`;
+        }
+      });
+      optsDiv.appendChild(b);
+    });
+    qDiv.appendChild(optsDiv);
+    box.appendChild(qDiv);
+  });
+  box.appendChild(scoreEl);
+}
+function renderMisc(){
+  const d = decks[currentDeck];
+  document.getElementById("misconceptionPanel").innerHTML =
+    `<h3>⚠️ Common misconceptions in this section</h3>` + d.misc.map(m=>`
+      <div class="miso">
+        <p class="wrong">✗ Misconception: ${fmt(m.wrong)}</p>
+        <p class="right">✓ Why it’s wrong and the correct reasoning:</p>
+        <p>${fmt(m.right)}</p>
+      </div>`).join("");
+}
+
+document.getElementById("flipCard").addEventListener("click", ()=> setFlip(!isFlipped));
+document.getElementById("flipBtn").addEventListener("click", e=>{ e.stopPropagation(); setFlip(!isFlipped); });
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(currentCard < decks[currentDeck].cards.length-1){ currentCard++; renderCard(); }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(currentCard > 0){ currentCard--; renderCard(); }
+});
+document.getElementById("shuffleBtn").addEventListener("click", ()=>{
+  const order = deckOrder[currentDeck];
+  for(let i=order.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [order[i],order[j]] = [order[j],order[i]];
+  }
+  currentCard = 0; renderCard();
+});
+document.addEventListener("keydown", e=>{
+  if(!document.getElementById("flash").classList.contains("active")) return;
+  if(e.target.tagName === "TEXTAREA") return;
+  if(e.key === "ArrowRight") document.getElementById("nextBtn").click();
+  if(e.key === "ArrowLeft") document.getElementById("prevBtn").click();
+  if(e.key === " " && e.target.tagName !== "BUTTON"){ e.preventDefault(); setFlip(!isFlipped); }
+});
+renderDeckTabs(); renderCard(); renderExtras(); renderSelfCheck(); renderMisc();
+
+/* =========================================================
+   QUIZ ENGINE
+   ========================================================= */
+function shuffleArr(a){
+  a = a.slice();
+  for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; }
+  return a;
+}
+let quizBuilt = [];
+function buildQuiz(){
+  const c = document.getElementById("quizContainer");
+  c.innerHTML = "";
+  quizBuilt = quizData.map(q => ({ q, opts: shuffleArr(q.opts.map((t,i)=>({t, ok:i===0}))) }));
+  quizBuilt.forEach((item, qi)=>{
+    const q = item.q;
+    const d = document.createElement("div");
+    d.className = "quiz-q";
+    d.innerHTML = `<div class="qhead"><span class="num">Question ${qi+1} of ${quizData.length}</span><span class="bloom">${q.bloom}</span></div>
+      <p class="qtext">${fmt(q.q)}</p>${q.code ? `<pre>${escHtml(q.code)}</pre>` : ""}`;
+    item.opts.forEach((o, oi)=>{
+      const l = document.createElement("label");
+      l.className = "quiz-opt";
+      l.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> ${fmt(o.t)}`;
+      d.appendChild(l);
+    });
+    const ex = document.createElement("div");
+    ex.className = "quiz-explain"; ex.id = "exp"+qi;
+    ex.innerHTML = "💡 " + fmt(q.exp);
+    d.appendChild(ex);
+    c.appendChild(d);
+  });
+}
+buildQuiz();
+
+document.getElementById("quizSubmit").addEventListener("click", ()=>{
+  let score = 0;
+  const blocks = document.querySelectorAll("#quizContainer .quiz-q");
+  quizBuilt.forEach((item, qi)=>{
+    const labels = blocks[qi].querySelectorAll(".quiz-opt");
+    const sel = blocks[qi].querySelector("input:checked");
+    labels.forEach((l, oi)=>{
+      l.querySelector("input").disabled = true;
+      if(item.opts[oi].ok) l.classList.add("correct");
+    });
+    if(sel){
+      const ci = parseInt(sel.value, 10);
+      if(item.opts[ci].ok) score++; else labels[ci].classList.add("incorrect");
+    }
+    document.getElementById("exp"+qi).style.display = "block";
+  });
+  const r = document.getElementById("quizResult");
+  r.style.display = "block";
+  r.textContent = `You scored ${score} / ${quizData.length}. ` +
+    (score === quizData.length ? "Outstanding — full marks!" :
+     score >= 9 ? "Strong work — read the explanations for the ones you missed." :
+     score >= 6 ? "Good start — revisit the sections for the question types you missed." :
+     "Go back through the worked examples and flashcards, then try again.");
+  document.getElementById("quizSubmit").style.display = "none";
+  document.getElementById("quizResetBtn").style.display = "block";
+  r.scrollIntoView({behavior:"smooth", block:"center"});
+});
+document.getElementById("quizResetBtn").addEventListener("click", ()=>{
+  document.getElementById("quizResult").style.display = "none";
+  document.getElementById("quizResetBtn").style.display = "none";
+  document.getElementById("quizSubmit").style.display = "block";
+  buildQuiz();
+  window.scrollTo({top:0, behavior:"smooth"});
+});
+
+/* =========================================================
+   MATCHING ENGINE
+   ========================================================= */
+let selectedTerm = null, matchedCount = 0;
+function buildMatching(){
+  matchedCount = 0; selectedTerm = null;
+  document.getElementById("matchStatus").style.display = "none";
+  const tc = document.getElementById("matchTerms"), dc = document.getElementById("matchDefs");
+  tc.innerHTML = ""; dc.innerHTML = "";
+  shuffleArr(matchData).forEach(item=>{
+    const b = document.createElement("button");
+    b.className = "match-item"; b.dataset.term = item.term; b.textContent = item.term;
+    b.addEventListener("click", ()=> onTermClick(b, item.term));
+    tc.appendChild(b);
+  });
+  shuffleArr(matchData).forEach(item=>{
+    const b = document.createElement("button");
+    b.className = "match-item"; b.dataset.term = item.term; b.textContent = item.def;
+    b.addEventListener("click", ()=> onDefClick(b, item.term));
+    dc.appendChild(b);
+  });
+}
+function termEl(t){
+  return [...document.querySelectorAll("#matchTerms .match-item")].find(x=>x.dataset.term === t);
+}
+function onTermClick(el, term){
+  if(el.classList.contains("matched")) return;
+  document.querySelectorAll("#matchTerms .match-item").forEach(x=>x.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedTerm = term;
+}
+function onDefClick(el, term){
+  if(el.classList.contains("matched") || !selectedTerm) return;
+  const te = termEl(selectedTerm);
+  if(term === selectedTerm){
+    el.classList.add("matched");
+    te.classList.remove("selected"); te.classList.add("matched");
+    selectedTerm = null; matchedCount++;
+    if(matchedCount === matchData.length) document.getElementById("matchStatus").style.display = "block";
+  } else {
+    el.classList.add("shake"); te.classList.add("shake");
+    setTimeout(()=>{
+      el.classList.remove("shake"); te.classList.remove("shake","selected");
+      selectedTerm = null;
+    }, 400);
+  }
+}
+document.getElementById("matchResetBtn").addEventListener("click", buildMatching);
+buildMatching();
+</script>
+</body>
+</html>
