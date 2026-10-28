@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Searching &amp; Sorting Lab · CSP31A</title>
+<!--
+  Note for the instructor: the binary search pseudocode on the "Binary Search" slide uses
+  while (!found and first < last). With "<", a one-element range is never checked
+  (for example, searching for the last remaining candidate). This activity teaches the
+  correct condition, first <= last, and flags it as Misconception 2 in the Searching tab.
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --user-primary:#1a4480;
+  --user-accent:#c8102e;
+  --user-background:#ffffff;
+  --ink:#1b1f24;
+  --muted:#5b6470;
+  --line:#d9dee5;
+  --soft:#f2f5fa;
+  --ok:#1e7a3c;
+  --ok-bg:#e7f5ec;
+  --bad:#b3261e;
+  --bad-bg:#fdecea;
+  --warn-bg:#fff6e0;
+  --cmp:#f4b400;
+  --radius:10px;
+  --mono:'JetBrains Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--user-background);color:var(--ink);font:16px/1.6 Inter,system-ui,sans-serif}
+header{background:var(--user-primary);color:#fff;padding:22px 16px 0}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+header .kicker{font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
+header h1{margin:4px 0 6px;font-size:28px}
+header p{margin:0 0 14px;opacity:.9;font-size:15px}
+nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:thin}
+nav button{flex:none;border:0;background:transparent;color:#fff;opacity:.8;padding:10px 14px;font:600 14px Inter,sans-serif;cursor:pointer;border-radius:8px 8px 0 0}
+nav button[aria-selected=true]{background:var(--user-background);color:var(--user-primary);opacity:1}
+nav button:focus-visible{outline:3px solid #fff;outline-offset:-3px}
+main{padding:24px 0 48px}
+section.tab{display:none}
+section.tab.active{display:block}
+h2{color:var(--user-primary);font-size:22px;margin:28px 0 8px}
+h2:first-child{margin-top:0}
+h3{font-size:17px;margin:20px 0 6px}
+.lead{color:var(--muted);margin-top:0}
+.card{border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin:14px 0;background:#fff}
+.soft{background:var(--soft);border-color:transparent}
+.tag{display:inline-block;font:600 11px Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:var(--soft);color:var(--user-primary);margin-right:6px;vertical-align:middle}
+.tag.hi{background:var(--user-accent);color:#fff}
+pre{background:#0f1b2d;color:#e6edf6;font:13.5px/1.55 var(--mono);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:10px 0}
+code{font-family:var(--mono);font-size:.92em;background:var(--soft);padding:1px 5px;border-radius:4px}
+pre code{background:none;padding:0;font-size:inherit}
+.mis{background:var(--warn-bg);border-color:#f0d9a8}
+.mis b.wrong{color:var(--bad)}
+.mis b.right{color:var(--ok)}
+.rw{background:#eef3fb;border-color:#c9d6ea}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{color:var(--user-primary)}
+.tablewrap{overflow-x:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--user-primary);background:var(--user-primary);color:#fff;font:600 14px Inter,sans-serif;padding:8px 14px;border-radius:8px;cursor:pointer;margin:4px 6px 4px 0}
+.btn.ghost{background:#fff;color:var(--user-primary)}
+.btn.accent{background:var(--user-accent);border-color:var(--user-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--user-accent);outline-offset:2px}
+input[type=text],input[type=number],textarea,select{font:15px Inter,sans-serif;padding:7px 10px;border:1px solid var(--line);border-radius:8px;max-width:100%}
+textarea{width:100%;min-height:110px;font-family:var(--mono);font-size:13.5px}
+.fb{margin-top:8px;padding:8px 12px;border-radius:8px;font-size:14.5px;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--ok-bg);color:var(--ok)}
+.fb.bad{background:var(--bad-bg);color:var(--bad)}
+.fb.info{background:var(--soft);color:var(--ink)}
+.opts{display:grid;gap:8px;margin-top:10px}
+.opt{text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px;font:15px Inter,sans-serif;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--user-primary)}
+.opt.correct{background:var(--ok-bg);border-color:var(--ok)}
+.opt.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.selfcheck{border:2px solid var(--user-primary);border-radius:var(--radius);padding:16px 18px;margin-top:28px}
+.selfcheck h3{margin-top:0;color:var(--user-primary)}
+.sc-item{margin:14px 0}
+.score{font-weight:700;color:var(--user-primary)}
+.kv{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* array visualizer */
+.arr{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px;align-items:flex-end}
+.cell{width:52px;text-align:center}
+.cell .v{height:48px;border:2px solid var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;font:600 16px var(--mono);background:#fff;transition:background .2s,border-color .2s}
+.cell .i{font:12px var(--mono);color:var(--muted)}
+.cell.cmp .v{border-color:var(--cmp);background:#fff4d1}
+.cell.swap .v{border-color:var(--user-accent);background:#fde7ea}
+.cell.done .v{border-color:var(--ok);background:var(--ok-bg)}
+.cell.out .v{opacity:.35}
+.cell.found .v{border-color:var(--ok);background:var(--ok);color:#fff}
+.cell .ptr{font:600 11px/1.25 var(--mono);color:var(--user-accent);min-height:16px}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px;border:2px solid var(--line)}
+.legend .l1::before{border-color:var(--cmp);background:#fff4d1}
+.legend .l2::before{border-color:var(--user-accent);background:#fde7ea}
+.legend .l3::before{border-color:var(--ok);background:var(--ok-bg)}
+.narr{min-height:48px;font-size:14.5px}
+.stat{display:flex;gap:18px;flex-wrap:wrap;font-weight:600;color:var(--user-primary)}
+/* flashcards */
+.fc-wrap{perspective:1200px;max-width:620px;margin:14px auto}
+.fc{position:relative;height:270px;cursor:pointer;transition:transform .5s;transform-style:preserve-3d}
+.fc.flip{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;border-radius:14px;padding:22px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);overflow:auto}
+.fc-front{background:var(--user-primary);color:#fff;font-size:21px;font-weight:600}
+.fc-back{background:#fff;transform:rotateY(180deg);font-size:15.5px}
+.fc-back pre{text-align:left;width:100%}
+.fc-meta{display:flex;justify-content:space-between;align-items:center;max-width:620px;margin:0 auto;flex-wrap:wrap;gap:6px}
+.center{text-align:center}
+.bar{height:8px;background:var(--soft);border-radius:99px;overflow:hidden;margin:6px 0}
+.bar>i{display:block;height:100%;background:var(--user-accent);width:0;transition:width .3s}
+/* matching */
+.match{display:grid;grid-template-columns:1fr 1.6fr;gap:10px}
+.mcol{display:grid;gap:8px;align-content:start}
+.mi{border:1px solid var(--line);border-radius:8px;padding:9px 12px;background:#fff;cursor:pointer;font:14.5px Inter,sans-serif;text-align:left;color:var(--ink)}
+.mi.sel{border-color:var(--user-accent);box-shadow:0 0 0 2px var(--user-accent) inset}
+.mi.done{background:var(--ok-bg);border-color:var(--ok);color:var(--ok);cursor:default}
+.mi.shake{animation:sh .35s}
+@keyframes sh{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.rubric label{display:block;margin:4px 0;font-size:14.5px}
+.model{display:none}
+.model.show{display:block}
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:13px;padding:16px 0 30px}
+@media (max-width:640px){
+  header h1{font-size:23px}
+  .match{grid-template-columns:1fr}
+  .fc{height:300px}
+  .cell{width:44px}
+  .cell .v{height:42px;font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){.fc{transition:none}.mi.shake{animation:none}.cell .v{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">CSP31A · C++ Programming I · San Joaquin Delta College</div>
+    <h1>Searching &amp; Sorting Study Lab</h1>
+    <p>Find it fast, put it in order, then prove which algorithm is best. Work through the tabs in order: each one builds on the last.</p>
+    <nav role="tablist" aria-label="Sections" id="tabs"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ===================== SEARCHING ===================== -->
+<section class="tab" id="search" role="tabpanel">
+  <h2>1. What are searching and sorting?</h2>
+  <p class="lead"><span class="tag">Remember</span><span class="tag">Understand</span></p>
+  <div class="grid2">
+    <div class="card soft"><h3>Searching</h3>Locating an item in a list, such as an array or a vector. The result is the item's <b>position</b> (index), or <code>-1</code> if it isn't there.</div>
+    <div class="card soft"><h3>Sorting</h3>Arranging values into an order: <b>ascending</b> (smallest to largest, like 2, 5, 9) or <b>descending</b> (largest to smallest, like 9, 5, 2).</div>
+  </div>
+
+  <div class="card rw">
+    <span class="tag hi">Real world</span><b>Finding one student among 20,000</b>
+    <p>Delta's registration system has to find your student ID among about 20,000 records. With a <b>linear search</b>, it checks records one at a time: about 10,000 checks on average, and all 20,000 if your ID isn't there. If the records are <b>sorted by ID</b>, a <b>binary search</b> finds you in at most <b>15</b> checks, because each check cuts the remaining records in half (2<sup>15</sup> = 32,768 &gt; 20,000). That's why your phone's contact list, a dictionary, and a database index all keep their data sorted.</p>
+  </div>
+
+  <h2>2. Linear (sequential) search</h2>
+  <p class="lead"><span class="tag">Understand</span><span class="tag">Apply</span> Start at index 0 and step through the array until you find the value or run out of elements.</p>
+<pre><code>// Returns the index of value, or -1 if it is not in the array
+int linearSearch(const int list[], int size, int value) {
+    bool found = false;
+    int position = -1;
+    int index = 0;
+    while (index &lt; size &amp;&amp; !found) {
+        if (list[index] == value) {
+            found = true;
+            position = index;
+        }
+        index++;
+    }
+    return position;
+}</code></pre>
+  <div class="card">
+    <p><b>Try it.</b> Array (any order): <code id="lsArr"></code></p>
+    <div class="kv"><label for="lsKey">Search for</label><input type="number" id="lsKey" value="62" style="width:90px"><button class="btn" id="lsGo">Start</button><button class="btn ghost" id="lsStep" disabled>Next check ▶</button></div>
+    <div class="arr" id="lsView"></div>
+    <div class="narr" id="lsMsg" aria-live="polite"></div>
+  </div>
+  <p><b>Tradeoffs:</b> Linear search is easy to understand and works on an array in <b>any order</b>. But it's slow on large arrays: for <i>N</i> elements it makes about <i>N</i>/2 comparisons on average when the value is there, and all <i>N</i> when it isn't.</p>
+
+  <h2>3. Binary search: worked example</h2>
+  <p class="lead"><span class="tag">Understand</span><span class="tag">Apply</span> Follow the reasoning. You'll trace one on your own right after.</p>
+  <p>Binary search <b>requires a sorted array</b>. It looks at the <b>middle</b> element. If that's the value, it's done. Otherwise, it throws away the half that can't contain the value and repeats on the half that can.</p>
+<pre><code>int binarySearch(const int array[], int size, int value) {
+    int first = 0, last = size - 1, position = -1;
+    bool found = false;
+    while (!found &amp;&amp; first &lt;= last) {          // &lt;= so a 1-element range is still checked
+        int middle = (first + last) / 2;
+        if (array[middle] == value) {
+            found = true;
+            position = middle;
+        }
+        else if (array[middle] &gt; value)
+            last = middle - 1;                   // value can only be in the LEFT half
+        else
+            first = middle + 1;                  // value can only be in the RIGHT half
+    }
+    return position;
+}</code></pre>
+  <div class="card">
+    <p><b>Worked example:</b> search for <b>45</b> in the sorted array <code>{2, 4, 7, 10, 11, 45, 50, 59, 60, 66, 69, 70, 79}</code> (indexes 0–12).</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Check</th><th>first</th><th>last</th><th>middle</th><th>array[middle]</th><th>Reasoning</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>0</td><td>12</td><td>6</td><td>50</td><td>50 &gt; 45, so 45 must be to the left. Set <code>last = 5</code>.</td></tr>
+        <tr><td>2</td><td>0</td><td>5</td><td>2</td><td>7</td><td>7 &lt; 45, so 45 must be to the right. Set <code>first = 3</code>.</td></tr>
+        <tr><td>3</td><td>3</td><td>5</td><td>4</td><td>11</td><td>11 &lt; 45, go right. Set <code>first = 5</code>.</td></tr>
+        <tr><td>4</td><td>5</td><td>5</td><td>5</td><td>45</td><td>Match! Return position <b>5</b>. Note that first == last here, which is why the loop needs <code>&lt;=</code>.</td></tr>
+      </tbody>
+    </table></div>
+    <p>4 checks instead of the 6 a linear search would need. With 13 elements, binary search never needs more than 4 checks (2<sup>4</sup> = 16 ≥ 13).</p>
+  </div>
+  <div class="card">
+    <p><b>Watch it run.</b> Pick any value and step through.</p>
+    <div class="kv"><label for="bsKey">Search for</label><input type="number" id="bsKey" value="45" style="width:90px"><button class="btn" id="bsGo">Start</button><button class="btn ghost" id="bsStep" disabled>Next check ▶</button></div>
+    <div class="arr" id="bsView"></div>
+    <div class="narr" id="bsMsg" aria-live="polite"></div>
+  </div>
+
+  <h2>4. Your turn: trace a binary search</h2>
+  <p class="lead"><span class="tag">Apply</span> Same array, new value: search for <b>69</b>. Work it out on paper first, the same way as the table above.</p>
+  <div class="card">
+    <p><b>a)</b> List the <code>middle</code> indexes checked, in order, separated by commas: <input type="text" id="y1" aria-label="Middle indexes" style="width:160px" placeholder="e.g. 6, 2, 4"></p>
+    <p><b>b)</b> How many checks does it take? <input type="number" id="y2" aria-label="Number of checks" style="width:80px"></p>
+    <p><b>c)</b> Now search for <b>12</b>, which isn't in the array. What does the function return? <input type="number" id="y3" aria-label="Return value for 12" style="width:80px"></p>
+    <button class="btn" id="yCheck">Check my work</button>
+    <div class="fb" id="yFb"></div>
+  </div>
+
+  <h2>5. Linear vs. binary search</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Linear search</th><th>Binary search</th></tr></thead>
+    <tbody>
+      <tr><td><b>Array must be sorted?</b></td><td>No</td><td><b>Yes</b></td></tr>
+      <tr><td><b>Comparisons (N elements)</b></td><td>About N/2 on average; N if not found</td><td>At most about log<sub>2</sub>N</td></tr>
+      <tr><td><b>N = 1,000</b></td><td>Up to 1,000</td><td>At most 10</td></tr>
+      <tr><td><b>N = 1,000,000</b></td><td>Up to 1,000,000</td><td>At most 20</td></tr>
+      <tr><td><b>Best when</b></td><td>Small or unsorted data, or you only search once</td><td>Large sorted data that you search many times</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>6. Common misconceptions</h2>
+  <div class="card mis">
+    <span class="tag hi">Misconception 1</span>
+    <p><b class="wrong">"Binary search works on any array, and it's always faster."</b></p>
+    <p><b class="right">Why it's wrong:</b> Binary search decides which half to throw away by assuming everything left of the middle is smaller and everything right of it is larger. On an unsorted array that assumption is false, so it can discard the half that holds the value and wrongly report "not found." If the data isn't sorted, you have to sort it first, and sorting costs far more than one linear search. For a single search of unsorted data, linear search is the right choice.</p>
+  </div>
+  <div class="card mis">
+    <span class="tag hi">Misconception 2</span>
+    <p><b class="wrong">"The loop condition can be <code>while (first &lt; last)</code>."</b></p>
+    <p><b class="right">Why it's wrong:</b> When the range shrinks to one element, <code>first == last</code>. With <code>&lt;</code>, the loop stops <i>before</i> checking that last element. In the worked example above, 45 would be reported as not found even though it's at index 5. The correct condition is <code>first &lt;= last</code>: keep going while at least one element is left.</p>
+  </div>
+
+  <div class="selfcheck" data-check="search"></div>
+</section>
+
+<!-- ===================== FLASHCARDS ===================== -->
+<section class="tab" id="cards" role="tabpanel">
+  <h2>Flashcards</h2>
+  <p class="lead">Click the card (or press Space) to flip it. Mark each card "Got it" or "Review again". Cards go from basic terms to analysis.</p>
+  <div class="fc-meta">
+    <span id="fcPos"></span>
+    <span><button class="btn ghost" id="fcShuffle">Shuffle</button><button class="btn ghost" id="fcReviewOnly">Review missed only</button></span>
+  </div>
+  <div class="fc-wrap">
+    <div class="fc" id="fc" tabindex="0" role="button" aria-label="Flashcard. Press space to flip.">
+      <div class="fc-face fc-front" id="fcFront"></div>
+      <div class="fc-face fc-back" id="fcBack"></div>
+    </div>
+  </div>
+  <div class="fc-meta">
+    <button class="btn ghost" id="fcPrev">◀ Prev</button>
+    <span><button class="btn accent" id="fcAgain">Review again</button><button class="btn" id="fcGot">Got it ✓</button></span>
+    <button class="btn ghost" id="fcNext">Next ▶</button>
+  </div>
+  <div style="max-width:620px;margin:10px auto">
+    <div class="bar"><i id="fcBar"></i></div>
+    <p class="center lead" id="fcStats"></p>
+  </div>
+  <div class="selfcheck" data-check="cards"></div>
+</section>
+
+<!-- ===================== SORTING ===================== -->
+<section class="tab" id="sorting" role="tabpanel">
+  <h2>1. Bubble sort</h2>
+  <p class="lead"><span class="tag">Understand</span><span class="tag">Apply</span> Compare each pair of neighbors and swap them if they're out of order. After each pass, the largest remaining value has "bubbled" to the end.</p>
+  <div class="card">
+    <h3>Worked example: the first pass on {23, 78, 45, 8, 32, 56}</h3>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Compare</th><th>Out of order?</th><th>Array after this step</th></tr></thead>
+      <tbody>
+        <tr><td>23 and 78</td><td>No, leave them</td><td><code>23 78 45 8 32 56</code></td></tr>
+        <tr><td>78 and 45</td><td>Yes, swap</td><td><code>23 45 78 8 32 56</code></td></tr>
+        <tr><td>78 and 8</td><td>Yes, swap</td><td><code>23 45 8 78 32 56</code></td></tr>
+        <tr><td>78 and 32</td><td>Yes, swap</td><td><code>23 45 8 32 78 56</code></td></tr>
+        <tr><td>78 and 56</td><td>Yes, swap</td><td><code>23 45 8 32 56 <b>78</b></code></td></tr>
+      </tbody>
+    </table></div>
+    <p>Pass 1 made 5 comparisons and 4 swaps. Now 78, the largest value, is in its final place, so <b>pass 2 only needs to go up to index 4</b>. That's the first improvement from the slides: shrink the inner loop by one each pass.</p>
+  </div>
+<pre><code>void swap(int&amp; a, int&amp; b) {        // pass by reference so the caller's values change
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+void bubbleSort(int array[], int size) {
+    bool moreToSwap;
+    int last = size - 1;              // improvement 1: last unsorted index shrinks each pass
+    do {
+        moreToSwap = false;
+        for (int i = 0; i &lt; last; i++) {
+            if (array[i] &gt; array[i + 1]) {
+                swap(array[i], array[i + 1]);
+                moreToSwap = true;    // improvement 2: remember that a swap happened
+            }
+        }
+        last--;
+    } while (moreToSwap);             // no swaps in a pass means the array is sorted: stop early
+}</code></pre>
+  <p><b>Why the flag matters:</b> On an array that's already sorted, the first pass makes no swaps, so <code>moreToSwap</code> stays <code>false</code> and the sort stops after just <i>n</i> − 1 comparisons. Without the flag, it would keep making every comparison anyway.</p>
+
+  <h2>2. Selection sort</h2>
+  <p class="lead"><span class="tag">Understand</span> Find the smallest remaining element and swap it into the next position.</p>
+<pre><code>void selectionSort(int array[], int size) {
+    for (int start = 0; start &lt; size - 1; start++) {
+        int minIndex = start;
+        for (int i = start + 1; i &lt; size; i++)      // careful: start + 1, not start + start
+            if (array[i] &lt; array[minIndex])
+                minIndex = i;
+        swap(array[start], array[minIndex]);        // at most ONE swap per pass
+    }
+}</code></pre>
+  <p>On <code>{23, 78, 45, 8, 32, 56}</code>, pass 1 finds the smallest value, 8, at index 3 and swaps it with 23: <code>8 78 45 23 32 56</code>. Selection sort always makes the same number of comparisons, but it makes <b>very few swaps</b>: at most <i>n</i> − 1.</p>
+
+  <h2>3. Insertion sort</h2>
+  <p class="lead"><span class="tag">Understand</span> Build a sorted part one element at a time, like sorting a hand of playing cards.</p>
+<pre><code>void insertionSort(int array[], int size) {
+    for (int i = 1; i &lt; size; i++) {
+        int key = array[i];                 // the value to insert
+        int j = i - 1;
+        while (j &gt;= 0 &amp;&amp; array[j] &gt; key) {
+            array[j + 1] = array[j];        // shift larger values one spot right
+            j--;
+        }
+        array[j + 1] = key;                 // drop the key into the gap
+    }
+}</code></pre>
+  <p>On already sorted (or nearly sorted) data, the inner loop stops right away, so insertion sort does very little work.</p>
+
+  <h2>4. Watch all three sorts</h2>
+  <p class="lead"><span class="tag">Apply</span><span class="tag">Analyze</span> Step through each algorithm and compare the counters.</p>
+  <div class="card">
+    <div class="kv">
+      <label for="sAlg">Algorithm</label>
+      <select id="sAlg"><option value="bubble">Bubble sort (with improvements)</option><option value="selection">Selection sort</option><option value="insertion">Insertion sort</option></select>
+      <label for="sData">Data</label>
+      <select id="sData"><option value="u">Unsorted: 23 78 45 8 32 56</option><option value="a">Already sorted: 8 23 32 45 56 78</option><option value="d">Reverse order: 78 56 45 32 23 8</option></select>
+    </div>
+    <div class="kv">
+      <button class="btn ghost" id="sReset">Reset</button>
+      <button class="btn" id="sStep">Step ▶</button>
+      <button class="btn ghost" id="sPlay">Play</button>
+      <button class="btn ghost" id="sEnd">Skip to end</button>
+    </div>
+    <div class="arr" id="sView"></div>
+    <div class="legend"><span class="l1">being compared</span><span class="l2">just moved</span><span class="l3">in final place</span></div>
+    <div class="narr" id="sMsg" aria-live="polite"></div>
+    <div class="stat"><span id="sComp">Comparisons: 0</span><span id="sMove">Swaps: 0</span></div>
+  </div>
+  <p>Try all nine combinations and record the counts. Which algorithm wins on already-sorted data? Which one makes the fewest swaps on reverse-order data? You'll need these results in the Challenge tab.</p>
+
+  <h2>5. Comparing the three sorts</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Bubble (improved)</th><th>Selection</th><th>Insertion</th></tr></thead>
+    <tbody>
+      <tr><td><b>Worst case</b></td><td>Order of n²</td><td>Order of n²</td><td>Order of n²</td></tr>
+      <tr><td><b>Already sorted</b></td><td>n − 1 comparisons, then stops</td><td>Still n(n − 1)/2 comparisons</td><td>n − 1 comparisons</td></tr>
+      <tr><td><b>How values move</b></td><td>Many swaps of neighbors</td><td>At most n − 1 swaps</td><td>Shifts, then one insert</td></tr>
+      <tr><td><b>Strength</b></td><td>Easiest to understand</td><td>Fewest swaps</td><td>Fast on nearly sorted data</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>6. More misconceptions</h2>
+  <div class="card mis">
+    <span class="tag hi">Misconception 3</span>
+    <p><b class="wrong">"All three sorts are O(n²), so they always take the same amount of work."</b></p>
+    <p><b class="right">Why it's wrong:</b> O(n²) describes how the <i>worst case</i> grows as <i>n</i> gets large. It doesn't mean equal work on every input. On already-sorted data, improved bubble sort and insertion sort each make only <i>n</i> − 1 comparisons, while selection sort still makes all <i>n</i>(<i>n</i> − 1)/2. Use the visualizer above to see it: for 6 sorted values that's 5 comparisons vs. 15.</p>
+  </div>
+  <div class="card mis">
+    <span class="tag hi">Misconception 4</span>
+    <p><b class="wrong">"swap(a, b) works fine with pass by value."</b></p>
+    <p><b class="right">Why it's wrong:</b> With <code>void swap(int a, int b)</code>, the function swaps its own <i>copies</i>, and the array in the caller never changes. The parameters must be references, <code>void swap(int&amp; a, int&amp; b)</code>, so the function works on the original array elements.</p>
+  </div>
+
+  <div class="selfcheck" data-check="sorting"></div>
+</section>
+
+<!-- ===================== PRACTICE ===================== -->
+<section class="tab" id="practice" role="tabpanel">
+  <h2>Practice lab: write the code</h2>
+  <p class="lead"><span class="tag">Apply</span> Ordered from easiest to hardest. Write each function in your IDE or in the box, try the hint, then compare with the worked solution.</p>
+  <div id="labList"></div>
+  <div class="selfcheck" data-check="practice"></div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="tab" id="quiz" role="tabpanel">
+  <h2>Interactive quiz</h2>
+  <p class="lead">15 questions that go from recall up to evaluation. Each answer is explained right away.</p>
+  <div class="bar"><i id="qBar"></i></div>
+  <div class="card" id="qCard"></div>
+  <div class="kv"><button class="btn" id="qNext" disabled>Next question ▶</button><span id="qScore" class="score"></span></div>
+</section>
+
+<!-- ===================== MATCHING ===================== -->
+<section class="tab" id="match" role="tabpanel">
+  <h2>Matching activity</h2>
+  <p class="lead"><span class="tag">Remember</span><span class="tag">Understand</span> Select a term, then select its description. A correct match locks in place.</p>
+  <div class="kv"><span id="mStat" class="score"></span><button class="btn ghost" id="mReset">New round</button></div>
+  <div class="match"><div class="mcol" id="mTerms"></div><div class="mcol" id="mDefs"></div></div>
+  <div class="fb" id="mFb"></div>
+</section>
+
+<!-- ===================== CHALLENGE ===================== -->
+<section class="tab" id="challenge" role="tabpanel">
+  <h2>Challenge: analyze, evaluate, create</h2>
+  <p class="lead"><span class="tag hi">Higher-order</span> Each task asks you to <b>justify</b>, <b>compare</b> or <b>produce</b> something original. Write your answer first, then open the model answer and score yourself with the checklist.</p>
+  <div id="chList"></div>
+  <div class="selfcheck" data-check="challenge"></div>
+</section>
+
+</main>
+<footer><div class="wrap">CSP31A · C++ Programming I · San Joaquin Delta College · Searching and Sorting.</div></footer>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+/* ---------- Tabs ---------- */
+const TABS = [["search","1 · Searching"],["cards","2 · Flashcards"],["sorting","3 · Sorting"],["practice","4 · Practice"],["quiz","5 · Quiz"],["match","6 · Matching"],["challenge","7 · Challenge"]];
+const nav = $("#tabs");
+TABS.forEach(([id, label], i) => {
+  const b = el("button", "", label);
+  b.setAttribute("role","tab"); b.id = "tab-" + id; b.setAttribute("aria-controls", id);
+  b.onclick = () => show(id);
+  b.onkeydown = e => {
+    if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+      const n = (i + (e.key === "ArrowRight" ? 1 : -1) + TABS.length) % TABS.length;
+      show(TABS[n][0]); $("#tab-" + TABS[n][0]).focus();
+    }
+  };
+  nav.appendChild(b);
+});
+function show(id){
+  TABS.forEach(([t]) => {
+    const on = t === id;
+    $("#" + t).classList.toggle("active", on);
+    const b = $("#tab-" + t); b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1;
+  });
+  try { localStorage.setItem("ss-tab", id); } catch(e) {}
+  window.scrollTo({top:0});
+}
+let startTab = "search";
+try { const s = localStorage.getItem("ss-tab"); if (s && TABS.some(t => t[0] === s)) startTab = s; } catch(e) {}
+show(startTab);
+
+/* ---------- Generic MCQ renderer (answer order is shuffled each time) ---------- */
+function mcq(container, q, onAnswer){
+  container.appendChild(el("div", "", `<span class="tag">${q.level}</span> ${q.q}`));
+  if (q.code) container.appendChild(el("pre", "", "<code>" + esc(q.code) + "</code>"));
+  const box = el("div", "opts"), fb = el("div", "fb");
+  shuffle(q.opts.map((o, i) => i)).forEach((i, pos) => {
+    const b = el("button", "opt", `<b>(${"abcd"[pos]})</b> ${q.opts[i]}`);
+    b.dataset.i = i;
+    b.onclick = () => {
+      [...box.children].forEach(c => { c.disabled = true; if (+c.dataset.i === q.a) c.classList.add("correct"); });
+      const ok = i === q.a;
+      if (!ok) b.classList.add("wrong");
+      fb.className = "fb show " + (ok ? "ok" : "bad");
+      fb.innerHTML = (ok ? "<b>Correct.</b> " : "<b>Not quite.</b> ") + q.why;
+      onAnswer && onAnswer(ok);
+    };
+    box.appendChild(b);
+  });
+  container.appendChild(box); container.appendChild(fb);
+}
+
+/* ---------- Self-checks (end of each major section) ---------- */
+const CHECKS = {
+  search: [
+    {level:"Remember", q:"What must be true about an array before you can use binary search on it?", opts:["It must be sorted","It must have an even number of elements","It must contain no duplicates","It must be smaller than 100 elements"], a:0, why:"Binary search relies on order to decide which half to throw away."},
+    {level:"Understand", q:"Linear search on an array of 400 elements is looking for a value that is NOT there. How many comparisons does it make?", opts:["200","9","400","1"], a:2, why:"To be sure the value is missing, it has to check every element: all 400."},
+    {level:"Apply", q:"Binary search on 13 sorted elements: <code>first = 7</code>, <code>last = 12</code>. What is <code>middle</code>?", opts:["9","10","9.5","6"], a:0, why:"(7 + 12) / 2 = 19 / 2 = 9 in integer division."}
+  ],
+  cards: [
+    {level:"Remember", q:"Which order is 9, 7, 4, 1?", opts:["Ascending","Descending","Random","Binary"], a:1, why:"Largest to smallest is descending order."},
+    {level:"Understand", q:"Why must <code>swap()</code> use reference parameters?", opts:["So it runs faster","So it changes the caller's actual array elements, not copies","So it can return two values","Because arrays can't be passed by value"], a:1, why:"With pass by value, only the function's copies are swapped."}
+  ],
+  sorting: [
+    {level:"Apply", q:"After the first pass of <b>selection sort</b> on <code>{23, 78, 45, 8, 32, 56}</code>, what is the array?", opts:["<code>8 78 45 23 32 56</code>","<code>23 45 8 32 56 78</code>","<code>8 23 32 45 56 78</code>","<code>23 78 45 8 32 56</code>"], a:0, why:"The smallest value, 8, is swapped with the element at index 0, which is 23."},
+    {level:"Understand", q:"In improved bubble sort, what does <code>moreToSwap == false</code> after a pass mean?", opts:["The array has an error","No swaps happened, so the array is already sorted","The next pass must swap","The largest value is at index 0"], a:1, why:"If a whole pass found no out-of-order neighbors, the array is sorted and the sort can stop."},
+    {level:"Analyze", q:"On already-sorted data, which sort still makes all n(n − 1)/2 comparisons?", opts:["Improved bubble sort","Insertion sort","Selection sort","None of them"], a:2, why:"Selection sort always scans the whole unsorted part to find the minimum, even when it's already in place."}
+  ],
+  practice: [
+    {level:"Apply", q:"In linear search, why is <code>position</code> set to <code>-1</code> at the start?", opts:["Arrays start at -1","It is returned if the value is never found","It makes the loop run backward","It counts comparisons"], a:1, why:"-1 can never be a valid index, so it clearly signals 'not found'."},
+    {level:"Analyze", q:"Which change sorts an array in <b>descending</b> order with bubble sort?", opts:["Change <code>array[i] &gt; array[i + 1]</code> to <code>array[i] &lt; array[i + 1]</code>","Start the loop at the last index","Remove the <code>moreToSwap</code> flag","Swap <code>i</code> and <code>i + 1</code> in the function call"], a:0, why:"Flipping the comparison swaps neighbors when the left one is smaller, moving small values to the end."}
+  ],
+  challenge: [
+    {level:"Evaluate", q:"A program sorts 10,000 records once, then searches them 5,000 times. Best plan?", opts:["Linear search each time; sorting is a waste","Sort once, then use binary search","Sort before every search","Use bubble sort as the search"], a:1, why:"The one-time cost of sorting is repaid by thousands of fast binary searches."},
+    {level:"Create", q:"You need the <b>highest</b> score in an unsorted array, just once. Which design is best?", opts:["Sort the array, then take the last element","One linear pass that tracks the largest value seen","Binary search for the largest value","Selection sort the whole array twice"], a:1, why:"One pass of n − 1 comparisons beats sorting, and binary search can't work on unsorted data."}
+  ]
+};
+document.querySelectorAll(".selfcheck").forEach(box => {
+  const qs = CHECKS[box.dataset.check];
+  let right = 0, done = 0;
+  box.appendChild(el("h3", "", "✔ Self-check: are you ready to move on?"));
+  const sc = el("p", "score", "");
+  qs.forEach(q => {
+    const item = el("div", "sc-item");
+    mcq(item, q, ok => { done++; if (ok) right++; sc.textContent = `Score: ${right} / ${qs.length}` + (done === qs.length ? (right === qs.length ? " · Ready for the next section!" : " · Review the section above and try the related flashcards.") : ""); });
+    box.appendChild(item);
+  });
+  box.appendChild(sc);
+});
+
+/* ---------- Array drawing helper ---------- */
+function drawArr(box, arr, cls, ptrs){
+  box.innerHTML = "";
+  arr.forEach((v, i) => {
+    const c = el("div", "cell " + (cls[i] || ""));
+    c.innerHTML = `<div class="ptr">${(ptrs && ptrs[i]) || ""}</div><div class="v">${v}</div><div class="i">[${i}]</div>`;
+    box.appendChild(c);
+  });
+}
+
+/* ---------- Linear search stepper ---------- */
+const LS = [4, 21, 36, 14, 62, 91, 8, 22, 7, 81, 77, 10];
+$("#lsArr").textContent = "{" + LS.join(", ") + "}";
+let ls = null;
+drawArr($("#lsView"), LS, []);
+$("#lsGo").onclick = () => {
+  const key = parseInt($("#lsKey").value, 10);
+  if (isNaN(key)) { $("#lsMsg").textContent = "Enter a whole number."; return; }
+  ls = {key, idx: 0, done: false};
+  drawArr($("#lsView"), LS, []);
+  $("#lsMsg").innerHTML = `Searching for <b>${key}</b>. Press <b>Next check</b>.`;
+  $("#lsStep").disabled = false;
+};
+$("#lsStep").onclick = () => {
+  if (!ls || ls.done) return;
+  const i = ls.idx, cls = [];
+  for (let k = 0; k < i; k++) cls[k] = "out";
+  if (LS[i] === ls.key) {
+    cls[i] = "found"; ls.done = true;
+    $("#lsMsg").innerHTML = `Check ${i + 1}: list[${i}] = ${LS[i]} equals ${ls.key}. <b>Found at position ${i}</b> after ${i + 1} comparison(s).`;
+  } else {
+    cls[i] = "cmp"; ls.idx++;
+    $("#lsMsg").innerHTML = `Check ${i + 1}: list[${i}] = ${LS[i]} is not ${ls.key}. Move on.`;
+    if (ls.idx >= LS.length) { ls.done = true; $("#lsMsg").innerHTML += ` <b>End of array: not found, return -1</b> after ${LS.length} comparisons.`; }
+  }
+  drawArr($("#lsView"), LS, cls);
+  $("#lsStep").disabled = ls.done;
+};
+
+/* ---------- Binary search stepper ---------- */
+const BS = [2, 4, 7, 10, 11, 45, 50, 59, 60, 66, 69, 70, 79];
+let bs = null;
+drawArr($("#bsView"), BS, []);
+function bsDraw(mid, found){
+  const cls = [], ptr = [];
+  BS.forEach((v, i) => { if (i < bs.first || i > bs.last) cls[i] = "out"; });
+  if (mid != null) cls[mid] = found ? "found" : "cmp";
+  if (bs.first <= bs.last || mid != null) {
+    const add = (i, t) => { if (i >= 0 && i < BS.length) ptr[i] = ptr[i] ? ptr[i] + "<br>" + t : t; };
+    add(bs.first, "first"); add(bs.last, "last"); if (mid != null) add(mid, "mid");
+  }
+  drawArr($("#bsView"), BS, cls, ptr);
+}
+$("#bsGo").onclick = () => {
+  const key = parseInt($("#bsKey").value, 10);
+  if (isNaN(key)) { $("#bsMsg").textContent = "Enter a whole number."; return; }
+  bs = {key, first: 0, last: BS.length - 1, n: 0, done: false};
+  bsDraw(null, false);
+  $("#bsMsg").innerHTML = `Searching for <b>${key}</b>. first = 0, last = 12. Press <b>Next check</b>.`;
+  $("#bsStep").disabled = false;
+};
+$("#bsStep").onclick = () => {
+  if (!bs || bs.done) return;
+  if (bs.first > bs.last) { bs.done = true; $("#bsStep").disabled = true; return; }
+  const mid = Math.floor((bs.first + bs.last) / 2), v = BS[mid]; bs.n++;
+  let msg = `Check ${bs.n}: middle = (${bs.first} + ${bs.last}) / 2 = ${mid}, array[${mid}] = ${v}. `;
+  if (v === bs.key) { bsDraw(mid, true); bs.done = true; msg += `<b>Match! Return ${mid}.</b>`; }
+  else {
+    bsDraw(mid, false);
+    if (v > bs.key) { msg += `${v} &gt; ${bs.key}, so set last = ${mid - 1}.`; bs.last = mid - 1; }
+    else { msg += `${v} &lt; ${bs.key}, so set first = ${mid + 1}.`; bs.first = mid + 1; }
+    if (bs.first > bs.last) { bs.done = true; msg += ` Now first (${bs.first}) &gt; last (${bs.last}): nothing left to check. <b>Not found, return -1</b> after ${bs.n} checks.`; }
+  }
+  $("#bsMsg").innerHTML = msg;
+  $("#bsStep").disabled = bs.done;
+};
+
+/* ---------- Your turn ---------- */
+$("#yCheck").onclick = () => {
+  const mids = $("#y1").value.split(/[^0-9-]+/).filter(Boolean).map(Number);
+  const a = mids.join(",") === "6,9,11,10", b = +$("#y2").value === 4, c = $("#y3").value.trim() !== "" && +$("#y3").value === -1;
+  const msgs = [
+    a ? "✓ a) middle = 6 (50), 9 (66), 11 (70), 10 (69)." : "✗ a) Start with first = 0, last = 12. After each check, move first or last past middle and recompute (first + last) / 2.",
+    b ? "✓ b) 4 checks: 69 is found when first = last = 10." : "✗ b) Count every middle you computed, including the one that matched.",
+    c ? "✓ c) After 4 checks first = 5 and last = 4, so the loop ends and returns -1." : "✗ c) When the value isn't there, the function returns the 'not found' value it started with."
+  ];
+  const fb = $("#yFb");
+  fb.className = "fb show " + (a && b && c ? "ok" : "bad");
+  fb.innerHTML = msgs.join("<br>");
+};
+
+/* ---------- Sorting visualizer ---------- */
+const DATA = {u: [23, 78, 45, 8, 32, 56], a: [8, 23, 32, 45, 56, 78], d: [78, 56, 45, 32, 23, 8]};
+function genSteps(alg, src){
+  const a = src.slice(), n = a.length, S = [];
+  let comps = 0, moves = 0;
+  const done = new Set();
+  const push = (cls, msg) => S.push({arr: a.slice(), cls, msg, comps, moves});
+  const base = () => { const c = []; done.forEach(i => c[i] = "done"); return c; };
+  if (alg === "bubble") {
+    let last = n - 1, more, pass = 0;
+    do {
+      more = false; pass++;
+      for (let i = 0; i < last; i++) {
+        comps++;
+        let c = base(); c[i] = c[i + 1] = "cmp";
+        if (a[i] > a[i + 1]) {
+          push(c, `Pass ${pass}: ${a[i]} &gt; ${a[i + 1]}, out of order.`);
+          [a[i], a[i + 1]] = [a[i + 1], a[i]]; moves++; more = true;
+          c = base(); c[i] = c[i + 1] = "swap"; push(c, `Swapped them.`);
+        } else push(c, `Pass ${pass}: ${a[i]} ≤ ${a[i + 1]}, already in order.`);
+      }
+      done.add(last); last--;
+      if (!more) { for (let k = 0; k <= last; k++) done.add(k); push(base(), `Pass ${pass} made no swaps, so <b>moreToSwap</b> is false: the array is sorted. Stop early.`); break; }
+      push(base(), `End of pass ${pass}: ${a[last + 1]} is in its final place.`);
+    } while (last > 0);
+    done.add(0);
+  } else if (alg === "selection") {
+    for (let s = 0; s < n - 1; s++) {
+      let m = s;
+      for (let i = s + 1; i < n; i++) {
+        comps++;
+        const c = base(); c[i] = "cmp"; c[m] = "cmp";
+        const smaller = a[i] < a[m];
+        push(c, `Pass ${s + 1}: is ${a[i]} smaller than the current minimum ${a[m]}? ${smaller ? "Yes, new minimum." : "No."}`);
+        if (smaller) m = i;
+      }
+      if (m !== s) { [a[s], a[m]] = [a[m], a[s]]; moves++; done.add(s); const c = base(); c[s] = c[m] = "swap"; push(c, `Swap the minimum (${a[s]}) into position ${s}.`); }
+      else { done.add(s); push(base(), `${a[s]} is already the minimum, so no swap needed.`); }
+    }
+    done.add(n - 1);
+  } else {
+    for (let i = 1; i < n; i++) {
+      const key = a[i]; let j = i - 1;
+      while (j >= 0) {
+        comps++;
+        const c = []; for (let k = 0; k < i; k++) c[k] = "done"; c[j] = "cmp"; c[j + 1] = "cmp";
+        if (a[j] > key) {
+          push(c, `Key ${key}: ${a[j]} &gt; ${key}, shift ${a[j]} right.`);
+          a[j + 1] = a[j]; moves++; j--;
+          a[j + 1] = key;
+        } else { push(c, `Key ${key}: ${a[j]} ≤ ${key}, stop shifting.`); break; }
+      }
+      a[j + 1] = key;
+      const c = []; for (let k = 0; k <= i; k++) c[k] = "done"; c[j + 1] = "swap";
+      push(c, `Insert ${key} at index ${j + 1}. Indexes 0–${i} are now sorted among themselves.`);
+    }
+    for (let k = 0; k < n; k++) done.add(k);
+  }
+  for (let k = 0; k < n; k++) done.add(k);
+  push(base(), `<b>Sorted!</b> ${comps} comparisons and ${moves} ${alg === "insertion" ? "shifts" : "swaps"}.`);
+  return S;
+}
+let SV = {steps: [], k: 0, timer: null};
+function sReset(){
+  clearInterval(SV.timer); SV.timer = null; $("#sPlay").textContent = "Play";
+  const alg = $("#sAlg").value, src = DATA[$("#sData").value];
+  SV.steps = genSteps(alg, src); SV.k = -1;
+  drawArr($("#sView"), src, []);
+  $("#sMsg").innerHTML = "Press <b>Step</b> to begin.";
+  $("#sComp").textContent = "Comparisons: 0";
+  $("#sMove").textContent = (alg === "insertion" ? "Shifts" : "Swaps") + ": 0";
+  $("#sStep").disabled = false;
+}
+function sStep(){
+  if (SV.k >= SV.steps.length - 1) return false;
+  const st = SV.steps[++SV.k], alg = $("#sAlg").value;
+  drawArr($("#sView"), st.arr, st.cls);
+  $("#sMsg").innerHTML = st.msg;
+  $("#sComp").textContent = "Comparisons: " + st.comps;
+  $("#sMove").textContent = (alg === "insertion" ? "Shifts" : "Swaps") + ": " + st.moves;
+  $("#sStep").disabled = SV.k >= SV.steps.length - 1;
+  return SV.k < SV.steps.length - 1;
+}
+$("#sAlg").onchange = sReset; $("#sData").onchange = sReset; $("#sReset").onclick = sReset; $("#sStep").onclick = sStep;
+$("#sEnd").onclick = () => { clearInterval(SV.timer); SV.timer = null; $("#sPlay").textContent = "Play"; while (sStep()); };
+$("#sPlay").onclick = () => {
+  if (SV.timer) { clearInterval(SV.timer); SV.timer = null; $("#sPlay").textContent = "Play"; return; }
+  $("#sPlay").textContent = "Pause";
+  SV.timer = setInterval(() => { if (!sStep()) { clearInterval(SV.timer); SV.timer = null; $("#sPlay").textContent = "Play"; } }, 700);
+};
+sReset();
+
+/* ---------- Flashcards ---------- */
+const CARDS = [
+  ["Searching", "Locating an item in a list, such as an array or a vector. It returns the item's index, or -1 if it isn't found.", "Remember"],
+  ["Sorting", "Arranging values into an order: ascending (smallest to largest) or descending (largest to smallest).", "Remember"],
+  ["Linear (sequential) search", "Start at index 0 and check each element in turn until the value is found or the array ends.", "Remember"],
+  ["Binary search", "On a sorted array, check the middle element and keep only the half that can hold the value. Repeat until found or the range is empty.", "Remember"],
+  ["Bubble sort", "Repeatedly compare neighboring elements and swap them if they're out of order. The largest value bubbles to the end each pass.", "Remember"],
+  ["Selection sort", "Find the smallest remaining element and swap it into the next position (0, then 1, then 2…).", "Remember"],
+  ["Insertion sort", "Take the next element (the key), shift larger sorted elements right, and insert the key into the gap.", "Remember"],
+  ["Why return -1 for “not found”?", "-1 can never be a valid array index, so the caller can't mistake it for a real position.", "Understand"],
+  ["Why must binary search have sorted data?", "It discards half the array based on whether the middle is bigger or smaller. That only works if the elements are in order.", "Understand"],
+  ["Binary search loop condition", "<code>while (!found &amp;&amp; first &lt;= last)</code>. With <code>&lt;</code>, a one-element range would never be checked.", "Understand"],
+  ["Why swap() uses int&amp;", "Reference parameters let the function change the caller's array elements. Pass by value would only swap copies.", "Understand"],
+  ["Bubble sort improvement 1", "Shrink the inner loop by one each pass, because the largest values are already in their final places at the end.", "Understand"],
+  ["Bubble sort improvement 2", "A <code>moreToSwap</code> flag. If a pass makes no swaps, the array is sorted, so stop early.", "Understand"],
+  ["middle = (first + last) / 2 with first = 3, last = 8", "<b>5</b>. 11 / 2 = 5 in integer division.", "Apply"],
+  ["Max binary search checks for 1,000,000 elements", "About <b>20</b>, because 2<sup>20</sup> ≈ 1,048,576.", "Apply"],
+  ["Linear search comparisons, N elements", "About N/2 on average if the value is there, and N if it isn't.", "Apply"],
+  ["Which sort makes the fewest swaps?", "Selection sort: at most n − 1 swaps, one per pass.", "Analyze"],
+  ["Which sorts are fast on already-sorted data?", "Improved bubble sort and insertion sort: n − 1 comparisons. Selection sort still makes n(n − 1)/2.", "Analyze"],
+  ["What does O(n²) mean for these sorts?", "In the worst case, the work grows with the square of n: double the data, roughly 4 times the work.", "Analyze"],
+  ["When is linear search the better choice?", "For small or unsorted data, or when you search only once, so sorting first isn't worth the cost.", "Evaluate"]
+];
+let deck = CARDS.map((c, i) => i), fcI = 0;
+const known = new Set(), again = new Set();
+function renderCard(){
+  const c = CARDS[deck[fcI]];
+  $("#fc").classList.remove("flip");
+  $("#fcFront").innerHTML = `<div><span class="tag" style="background:#fff">${c[2]}</span></div><div style="margin-top:10px">${c[0]}</div><div class="lead" style="color:#dfe6f2;font-size:13px;margin-top:14px">click to flip</div>`;
+  $("#fcBack").innerHTML = `<div>${c[1]}</div>`;
+  $("#fcPos").textContent = `Card ${fcI + 1} of ${deck.length}`;
+  $("#fcPrev").disabled = fcI === 0; $("#fcNext").disabled = fcI === deck.length - 1;
+  const pct = Math.round(known.size / CARDS.length * 100);
+  $("#fcBar").style.width = pct + "%";
+  $("#fcStats").textContent = `Got it: ${known.size} · Review again: ${again.size} · ${pct}% of the deck mastered`;
+}
+const flip = () => $("#fc").classList.toggle("flip");
+$("#fc").onclick = flip;
+$("#fc").onkeydown = e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); } };
+$("#fcNext").onclick = () => { if (fcI < deck.length - 1) { fcI++; renderCard(); } };
+$("#fcPrev").onclick = () => { if (fcI > 0) { fcI--; renderCard(); } };
+function mark(isKnown){
+  const id = deck[fcI];
+  if (isKnown) { known.add(id); again.delete(id); } else { again.add(id); known.delete(id); }
+  if (fcI < deck.length - 1) fcI++;
+  renderCard();
+}
+$("#fcGot").onclick = () => mark(true);
+$("#fcAgain").onclick = () => mark(false);
+$("#fcShuffle").onclick = () => { deck = shuffle(CARDS.map((c, i) => i)); fcI = 0; renderCard(); };
+$("#fcReviewOnly").onclick = () => {
+  if (!again.size) { $("#fcStats").textContent = "No cards are marked “Review again” yet. Nice work!"; return; }
+  deck = [...again]; fcI = 0; renderCard();
+};
+renderCard();
+
+/* ---------- Practice lab ---------- */
+const LAB = [
+  {title:"Linear search", lvl:"Apply · easier", prompt:"Write <code>int linearSearch(const int list[], int size, int value)</code> that returns the index of <code>value</code>, or -1 if it isn't in the array. Test it with <code>{4, 21, 36, 14, 62}</code>: searching for 62 returns 4, and searching for 5 returns -1.",
+   hint:"Use the pseudocode from the slides: a <code>found</code> flag, a <code>position</code> that starts at -1, and a <code>while</code> loop that stops when you reach the end <i>or</i> find the value.",
+   sol:"int linearSearch(const int list[], int size, int value) {\n    bool found = false;\n    int position = -1;\n    int index = 0;\n    while (index < size && !found) {\n        if (list[index] == value) {\n            found = true;\n            position = index;\n        }\n        index++;\n    }\n    return position;\n}",
+   why:"The loop stops as soon as <code>found</code> is true, so it doesn't waste comparisons after a match. <code>const</code> promises the function won't change the array."},
+  {title:"Binary search", lvl:"Apply", prompt:"Write <code>int binarySearch(const int array[], int size, int value)</code> for a sorted array. Trace it by hand on the 13-element array from the Searching tab for 45 (returns 5) and 12 (returns -1).",
+   hint:"Track <code>first</code>, <code>last</code> and <code>middle</code>. Keep looping while <code>first &lt;= last</code> and the value hasn't been found.",
+   sol:"int binarySearch(const int array[], int size, int value) {\n    int first = 0, last = size - 1, position = -1;\n    bool found = false;\n    while (!found && first <= last) {\n        int middle = (first + last) / 2;\n        if (array[middle] == value) {\n            found = true;\n            position = middle;\n        }\n        else if (array[middle] > value)\n            last = middle - 1;\n        else\n            first = middle + 1;\n    }\n    return position;\n}",
+   why:"Each check removes the middle element plus one half, so the range shrinks quickly. Using <code>&lt;=</code> makes sure the last remaining element is checked."},
+  {title:"Improved bubble sort", lvl:"Apply", prompt:"Write <code>void swap(int&amp; a, int&amp; b)</code> and <code>void bubbleSort(int array[], int size)</code> with both improvements: shrink the inner loop each pass, and stop early with a <code>moreToSwap</code> flag. Add a counter and print the number of comparisons for sorted and unsorted input.",
+   hint:"Use a <code>do…while (moreToSwap)</code> loop. Set <code>moreToSwap = false</code> at the start of each pass and <code>true</code> whenever you swap. Decrease the upper limit after each pass.",
+   sol:"void swap(int& a, int& b) {\n    int temp = a;\n    a = b;\n    b = temp;\n}\n\nvoid bubbleSort(int array[], int size) {\n    bool moreToSwap;\n    int last = size - 1;\n    do {\n        moreToSwap = false;\n        for (int i = 0; i < last; i++) {\n            if (array[i] > array[i + 1]) {\n                swap(array[i], array[i + 1]);\n                moreToSwap = true;\n            }\n        }\n        last--;\n    } while (moreToSwap);\n}",
+   why:"On {8, 23, 32, 45, 56, 78} this makes only 5 comparisons, because the first pass finds no swaps. On {23, 78, 45, 8, 32, 56} it makes 14 comparisons and 7 swaps."},
+  {title:"Selection sort", lvl:"Apply", prompt:"Write <code>void selectionSort(int array[], int size)</code> that sorts in ascending order by repeatedly finding the smallest remaining element. Reuse your <code>swap()</code> function.",
+   hint:"The outer loop picks the position to fill (<code>start</code>). The inner loop starts at <code>start + 1</code> and remembers the index of the smallest value. Watch out for the <code>i + i</code> typo the slides debugged!",
+   sol:"void selectionSort(int array[], int size) {\n    for (int start = 0; start < size - 1; start++) {\n        int minIndex = start;\n        for (int i = start + 1; i < size; i++)\n            if (array[i] < array[minIndex])\n                minIndex = i;\n        swap(array[start], array[minIndex]);\n    }\n}",
+   why:"Each pass makes exactly one swap, so selection sort moves data very little. But it always makes n(n − 1)/2 comparisons, even on sorted input."},
+  {title:"Insertion sort", lvl:"Apply", prompt:"Write <code>void insertionSort(int array[], int size)</code>. Count the shifts and check that {23, 78, 45, 8, 32, 56} needs 7 shifts and 11 comparisons.",
+   hint:"Save <code>array[i]</code> as the key. Move left with <code>j</code>, shifting each larger element one spot right, then put the key in the gap at <code>j + 1</code>.",
+   sol:"void insertionSort(int array[], int size) {\n    for (int i = 1; i < size; i++) {\n        int key = array[i];\n        int j = i - 1;\n        while (j >= 0 && array[j] > key) {\n            array[j + 1] = array[j];\n            j--;\n        }\n        array[j + 1] = key;\n    }\n}",
+   why:"The condition <code>j &gt;= 0</code> must come first so the program never reads <code>array[-1]</code>. Thanks to short-circuit evaluation, <code>&amp;&amp;</code> stops before the bad access."},
+  {title:"Sort a class roster by score", lvl:"Apply → Create · harder", prompt:"You have two parallel arrays: <code>string names[]</code> and <code>int scores[]</code>. Modify selection sort so it sorts students by score from <b>highest to lowest</b>, keeping each name with its score.",
+   hint:"Flip the comparison to find the <i>largest</i> remaining score. Whenever you swap two scores, swap the matching names too.",
+   sol:"void sortRoster(string names[], int scores[], int size) {\n    for (int start = 0; start < size - 1; start++) {\n        int maxIndex = start;\n        for (int i = start + 1; i < size; i++)\n            if (scores[i] > scores[maxIndex])   // > for descending order\n                maxIndex = i;\n        swap(scores[start], scores[maxIndex]);\n        swap(names[start], names[maxIndex]);    // keep the pair together\n    }\n}\n// std::swap from <utility> works for both int and string",
+   why:"Parallel arrays are linked only by index, so every move in one array must be repeated in the other. Otherwise the names end up next to the wrong scores."}
+];
+const lab = $("#labList");
+LAB.forEach((x, i) => {
+  const c = el("div", "card");
+  c.innerHTML = `<h3>${i + 1}. ${x.title} <span class="tag">${x.lvl}</span></h3><p>${x.prompt}</p>` +
+    `<label class="lead" for="lab${i}">Your attempt (optional):</label><textarea id="lab${i}" spellcheck="false" placeholder="// write your function here"></textarea>`;
+  const hb = el("button", "btn ghost", "💡 Hint"), sb = el("button", "btn", "Show worked solution");
+  const hint = el("div", "fb info", x.hint), sol = el("div", "model", `<pre><code>${esc(x.sol)}</code></pre><p><b>Reasoning:</b> ${x.why}</p>`);
+  hb.onclick = () => hint.classList.toggle("show");
+  sb.onclick = () => { sol.classList.toggle("show"); sb.textContent = sol.classList.contains("show") ? "Hide solution" : "Show worked solution"; };
+  c.append(hb, sb, hint, sol);
+  lab.appendChild(c);
+});
+
+/* ---------- Quiz (scaffolded) ---------- */
+const QUIZ = [
+  {level:"Remember", q:"Which search algorithm starts at index 0 and checks each element in turn?", opts:["Linear search","Binary search","Selection search","Bubble search"], a:0, why:"Linear (sequential) search steps through the array one element at a time."},
+  {level:"Remember", q:"Values arranged from largest to smallest are in…", opts:["ascending order","descending order","binary order","random order"], a:1, why:"Descending means going down: largest first."},
+  {level:"Remember", q:"Which sort repeatedly finds the smallest remaining element and swaps it into place?", opts:["Bubble sort","Insertion sort","Selection sort","Binary sort"], a:2, why:"That is selection sort: select the minimum, then swap."},
+  {level:"Understand", q:"Why does linear search return -1 when the value isn't found?", opts:["-1 means the array is empty","-1 can never be a valid index","-1 is the last index","It's required by C++"], a:1, why:"Valid indexes start at 0, so -1 clearly means 'not found'."},
+  {level:"Understand", q:"Why does binary search require sorted data?", opts:["Sorted arrays use less memory","It discards half the array based on order, which only works if the data is ordered","The compiler checks for it","Only sorted arrays can be passed to functions"], a:1, why:"Deciding 'the value must be to the left' only makes sense if smaller values are on the left."},
+  {level:"Understand", q:"What is the purpose of the <code>moreToSwap</code> flag in bubble sort?", opts:["To count swaps","To stop early when a pass makes no swaps","To swap in reverse order","To find the middle element"], a:1, why:"No swaps in a full pass means the array is sorted, so further passes would waste time."},
+  {level:"Apply", q:"What does the array look like after the <b>first pass</b> of bubble sort?", code:"int a[] = {23, 78, 45, 8, 32, 56};", opts:["<code>23 45 8 32 56 78</code>","<code>8 23 45 78 32 56</code>","<code>8 78 45 23 32 56</code>","<code>23 8 45 32 56 78</code>"], a:0, why:"78 is swapped past 45, 8, 32 and 56, ending at index 5. The rest keep their relative order."},
+  {level:"Apply", q:"Binary search on a sorted array with <code>first = 0</code>, <code>last = 9</code>. The value is greater than <code>array[middle]</code>. What happens next?", opts:["<code>last = 3</code>","<code>first = 5</code>","<code>first = 4</code>","<code>last = 5</code>"], a:1, why:"middle = (0 + 9) / 2 = 4. The value is to the right, so first = middle + 1 = 5."},
+  {level:"Apply", q:"About how many checks does binary search need, at most, to search 1,000 sorted elements?", opts:["500","1,000","100","10"], a:3, why:"2<sup>10</sup> = 1,024 ≥ 1,000, so at most about 10 checks."},
+  {level:"Apply", q:"What is the array after the <b>second pass</b> of insertion sort (two keys inserted)?", code:"int a[] = {23, 78, 45, 8, 32, 56};", opts:["<code>23 45 78 8 32 56</code>","<code>8 23 45 78 32 56</code>","<code>23 78 45 8 32 56</code>","<code>8 78 45 23 32 56</code>"], a:0, why:"Pass 1: 78 stays after 23. Pass 2: 45 is inserted between 23 and 78."},
+  {level:"Analyze", q:"What is wrong with this swap function?", code:"void swap(int a, int b) {\n    int temp = a;\n    a = b;\n    b = temp;\n}", opts:["temp should be a double","It swaps copies, so the caller's array never changes","It needs a return statement","Nothing is wrong"], a:1, why:"The parameters are passed by value. They must be <code>int&amp;</code> so the swap affects the original elements."},
+  {level:"Analyze", q:"On an array that is <b>already sorted</b>, which sort makes the most comparisons?", opts:["Improved bubble sort","Insertion sort","Selection sort","They all make the same number"], a:2, why:"Selection sort still makes n(n − 1)/2 comparisons. The other two stop after n − 1."},
+  {level:"Analyze", q:"A binary search uses <code>while (first &lt; last)</code>. Searching for 45 in <code>{2, 4, 7, 10, 11, 45, 50, 59, 60, 66, 69, 70, 79}</code>, what happens?", opts:["It returns 5","It loops forever","It stops when first = last = 5 without checking 45, and returns -1","It returns 6"], a:2, why:"The last candidate is never checked because the loop exits when first == last. The fix is <code>first &lt;= last</code>."},
+  {level:"Evaluate", q:"An online store keeps 2 million product IDs and runs thousands of lookups per minute. Which approach is best?", opts:["Linear search on unsorted IDs","Keep the IDs sorted and use binary search","Bubble sort the IDs before every lookup","Selection sort, then linear search"], a:1, why:"Sorting once and then using binary search (about 21 checks per lookup) is far faster than up to 2 million checks each time."},
+  {level:"Evaluate", q:"A game leaderboard is already sorted. One player's score goes up a little, so the list is now <i>nearly</i> sorted. Which sort is the best choice to re-sort it?", opts:["Selection sort, because it makes the fewest swaps","Insertion sort, because nearly sorted data needs very few shifts","Binary search","Any of them: all are O(n²), so they're the same"], a:1, why:"Insertion sort only moves the one out-of-place player a few spots. Selection sort would still scan everything."}
+];
+let qi = 0, qRight = 0, qAnswered = false;
+function renderQ(){
+  const card = $("#qCard"); card.innerHTML = "";
+  if (qi >= QUIZ.length) {
+    const pct = Math.round(qRight / QUIZ.length * 100);
+    card.innerHTML = `<h3>Quiz complete</h3><p class="score">You scored ${qRight} / ${QUIZ.length} (${pct}%).</p><p>${pct >= 80 ? "Strong work. Try the Challenge tab next." : "Review the Searching and Sorting tabs, then retake the quiz."}</p>`;
+    const r = el("button", "btn", "Retake quiz"); r.onclick = () => { qi = 0; qRight = 0; renderQ(); }; card.appendChild(r);
+    $("#qNext").disabled = true; $("#qBar").style.width = "100%"; $("#qScore").textContent = ""; return;
+  }
+  card.appendChild(el("p", "lead", `Question ${qi + 1} of ${QUIZ.length}`));
+  qAnswered = false; $("#qNext").disabled = true;
+  mcq(card, QUIZ[qi], ok => { if (ok) qRight++; qAnswered = true; $("#qNext").disabled = false; $("#qScore").textContent = `Score: ${qRight} / ${qi + 1}`; });
+  $("#qBar").style.width = (qi / QUIZ.length * 100) + "%";
+}
+$("#qNext").onclick = () => { if (qAnswered) { qi++; renderQ(); } };
+renderQ();
+
+/* ---------- Matching ---------- */
+const PAIRS = [
+  ["Linear search", "Checks each element in turn; works on unsorted data"],
+  ["Binary search", "Repeatedly halves a sorted array around the middle element"],
+  ["Bubble sort", "Swaps neighboring elements that are out of order"],
+  ["Selection sort", "Swaps the smallest remaining element into the next position"],
+  ["Insertion sort", "Shifts larger values right and inserts the key into the gap"],
+  ["moreToSwap flag", "Stops bubble sort early when a pass makes no swaps"],
+  ["Pass by reference", "Lets swap() change the caller's array elements"],
+  ["Descending order", "Arranged from largest to smallest"]
+];
+let mSel = null, mDone = 0, mTries = 0;
+function mBuild(){
+  mSel = null; mDone = 0; mTries = 0;
+  const T = $("#mTerms"), D = $("#mDefs"); T.innerHTML = D.innerHTML = "";
+  $("#mFb").className = "fb";
+  shuffle(PAIRS.map((p, i) => i)).forEach(i => { const b = el("button", "mi", "<b>" + PAIRS[i][0] + "</b>"); b.dataset.k = i; b.dataset.side = "t"; T.appendChild(b); });
+  shuffle(PAIRS.map((p, i) => i)).forEach(i => { const b = el("button", "mi", PAIRS[i][1]); b.dataset.k = i; b.dataset.side = "d"; D.appendChild(b); });
+  [...T.children, ...D.children].forEach(b => b.onclick = () => mClick(b));
+  mStat();
+}
+function mStat(){ $("#mStat").textContent = `Matched ${mDone} / ${PAIRS.length} · Attempts: ${mTries}`; }
+function mClick(b){
+  if (b.classList.contains("done")) return;
+  if (!mSel || mSel.dataset.side === b.dataset.side) {
+    if (mSel) mSel.classList.remove("sel");
+    mSel = b; b.classList.add("sel"); return;
+  }
+  mTries++;
+  if (mSel.dataset.k === b.dataset.k) {
+    [mSel, b].forEach(x => { x.classList.remove("sel"); x.classList.add("done"); x.disabled = true; });
+    mDone++;
+  } else {
+    [mSel, b].forEach(x => { x.classList.remove("sel"); x.classList.add("shake"); setTimeout(() => x.classList.remove("shake"), 400); });
+  }
+  mSel = null; mStat();
+  if (mDone === PAIRS.length) {
+    const fb = $("#mFb");
+    fb.className = "fb show ok";
+    fb.innerHTML = `<b>All matched in ${mTries} attempts.</b> ` + (mTries <= PAIRS.length + 2 ? "Excellent recall!" : "Try another round and aim for fewer attempts.");
+  }
+}
+$("#mReset").onclick = mBuild;
+mBuild();
+
+/* ---------- Challenge (Analyze / Evaluate / Create) ---------- */
+const CH = [
+  {lvl:"Analyze", title:"Collect and explain the data", task:"Use the visualizer on the Sorting tab to fill in a table of comparisons and swaps/shifts for all three sorts on all three data sets (unsorted, already sorted, reverse order). Then explain <b>two patterns</b> you see, and <b>why</b> each algorithm behaves that way.",
+   model:"<div class='tablewrap'><table><thead><tr><th></th><th>Unsorted</th><th>Already sorted</th><th>Reverse order</th></tr></thead><tbody><tr><td>Bubble (improved)</td><td>14 comp / 7 swaps</td><td>5 / 0</td><td>15 / 15</td></tr><tr><td>Selection</td><td>15 / 5</td><td>15 / 0</td><td>15 / 3</td></tr><tr><td>Insertion</td><td>11 / 7 shifts</td><td>5 / 0</td><td>15 / 15</td></tr></tbody></table></div><p><b>Pattern 1:</b> Selection sort always makes 15 comparisons, because it scans the whole unsorted part every pass no matter what the data looks like. Bubble and insertion sort adapt: on sorted data they make only 5 comparisons, because the flag (bubble) or the early-stopping inner loop (insertion) notices that nothing is out of place.</p><p><b>Pattern 2:</b> Selection sort makes the fewest swaps (only 3 on reverse-order data, where the others make 15), because it does at most one swap per pass. Bubble and insertion sort move a value one position at a time, so reverse-order data is their worst case.</p>",
+   rubric:["My counts match the visualizer","I described a pattern in comparisons","I described a pattern in swaps or shifts","I explained WHY each pattern happens, not just WHAT happens"]},
+  {lvl:"Evaluate", title:"Search once or search often?", task:"The Delta bookstore has 8,000 unsorted textbook ISBNs. <b>(a)</b> A student looks up one ISBN, one time. <b>(b)</b> The checkout system looks up ISBNs 3,000 times a day. For each case, recommend linear search or sort-then-binary-search, and <b>justify</b> it with numbers.",
+   model:"<b>(a) Linear search.</b> One lookup costs at most 8,000 comparisons. Sorting the list first would cost far more (an O(n²) sort is on the order of 32 million comparisons for 8,000 items), so sorting just to search once is a bad trade.<br><b>(b) Sort once, then binary search.</b> 3,000 linear searches could cost up to 24 million comparisons <i>every day</i>. After a one-time sort, each binary search takes at most 13 comparisons (2<sup>13</sup> = 8,192), or about 39,000 a day. The sorting cost is paid back almost immediately, and every day after that is nearly free.",
+   rubric:["I gave a recommendation for both cases","I used numbers for the search costs","I considered the cost of sorting","I explained when the one-time sort pays off"]},
+  {lvl:"Evaluate", title:"Code review: find the bugs", task:"A classmate wrote this binary search. It compiles, but it gives wrong answers. Find <b>two</b> bugs, explain how each one causes a wrong result, and fix them.",
+   code:"int binarySearch(const int array[], int size, int value) {\n    int first = 0, last = size, position = -1;\n    bool found = false;\n    while (!found && first < last) {\n        int middle = (first + last) / 2;\n        if (array[middle] == value) {\n            found = true;\n            position = middle;\n        }\n        else if (array[middle] > value)\n            last = middle - 1;\n        else\n            first = middle + 1;\n    }\n    return position;\n}",
+   model:"<b>Bug 1: <code>last = size</code></b> should be <code>last = size - 1</code>. The last valid index is size − 1, so <code>array[size]</code> reads past the end of the array. That's undefined behavior, which could return garbage or crash.<br><b>Bug 2: <code>first &lt; last</code></b> should be <code>first &lt;= last</code>. When one candidate is left (first == last), the loop exits without checking it, so a value that's there can be reported as not found (−1).<br><b>Fixed lines:</b> <code>int first = 0, last = size - 1, position = -1;</code> and <code>while (!found &amp;&amp; first &lt;= last)</code>.",
+   rubric:["I found the off-by-one in last","I found the < vs <= loop condition","I explained the wrong result each bug causes","I wrote the corrected lines"]},
+  {lvl:"Create", title:"Design your own: count every match", task:"Linear search stops at the first match. Write an original function <code>int countOccurrences(const int list[], int size, int value)</code> that returns <b>how many times</b> <code>value</code> appears. Then explain why binary search can't easily do this on unsorted data, and describe how you could do it faster if the array were sorted.",
+   model:"<pre><code>int countOccurrences(const int list[], int size, int value) {\n    int count = 0;\n    for (int i = 0; i &lt; size; i++)   // no early exit: we must see every element\n        if (list[i] == value)\n            count++;\n    return count;\n}</code></pre>On unsorted data, matches can be anywhere, so every element must be checked: exactly <i>n</i> comparisons, with no early stop. If the array is <b>sorted</b>, equal values sit next to each other. Use binary search to find one match, then step left and right from it while the neighbors are equal. That skips most of the array.",
+   rubric:["My function returns the count, not a position","My loop checks every element (no early exit)","I explained why unsorted data needs a full scan","I described the sorted-data approach (find one match, then expand)"]}
+];
+const ch = $("#chList");
+CH.forEach((x, i) => {
+  const c = el("div", "card");
+  c.innerHTML = `<h3>${i + 1}. ${x.title} <span class="tag hi">${x.lvl}</span></h3><p>${x.task}</p>` + (x.code ? `<pre><code>${esc(x.code)}</code></pre>` : "") +
+    `<label class="lead" for="ch${i}">Your answer and justification:</label><textarea id="ch${i}" spellcheck="true"></textarea>`;
+  const ta = c.querySelector("textarea");
+  try { ta.value = localStorage.getItem("ss-ch" + i) || ""; } catch(e) {}
+  ta.oninput = () => { try { localStorage.setItem("ss-ch" + i, ta.value); } catch(e) {} };
+  const b = el("button", "btn", "Show model answer and checklist");
+  const m = el("div", "model card soft", `<div>${x.model}</div><div class="rubric" style="margin-top:10px"><b>Score yourself:</b>${x.rubric.map((r, j) => `<label><input type="checkbox" data-r="${j}"> ${esc(r)}</label>`).join("")}</div><p class="score"></p>`);
+  b.onclick = () => {
+    if (!ta.value.trim() && !m.classList.contains("show") && !b.dataset.warned) {
+      b.dataset.warned = "1"; b.textContent = "Try writing an answer first (click again to reveal anyway)"; return;
+    }
+    m.classList.toggle("show");
+    b.textContent = m.classList.contains("show") ? "Hide model answer" : "Show model answer and checklist";
+  };
+  m.addEventListener("change", () => { const n = m.querySelectorAll("input:checked").length; m.querySelector(".score").textContent = `Checklist: ${n} / ${x.rubric.length}` + (n === x.rubric.length ? " · Fully met!" : ""); });
+  c.append(b, m);
+  ch.appendChild(c);
+});
+})();
+</script>
+</body>
+</html>
