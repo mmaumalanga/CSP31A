@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSP31A – Structs &amp; Enums Study Tool | San Joaquin Delta College</title>
+<style>
+  :root {
+    --user-primary: #1a4480;
+    --user-accent: #c8102e;
+    --user-background: #ffffff;
+    --ink: #1b1f24;
+    --muted: #5b6573;
+    --line: #d6dce4;
+    --tint: #eef3fa;
+    --ok: #1e7b3a;
+    --ok-bg: #e7f5ec;
+    --bad: #b3261e;
+    --bad-bg: #fdecea;
+    --warn-bg: #fff6e0;
+    --code-bg: #14213d;
+    --code-ink: #e8eef8;
+    --radius: 12px;
+    --shadow: 0 2px 10px rgba(26, 68, 128, 0.12);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+    background: var(--user-background);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  code, pre, .mono { font-family: Consolas, "Courier New", monospace; }
+  :not(pre) > code {
+    background: var(--tint);
+    color: var(--user-primary);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.92em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 14px 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    margin: 10px 0;
+  }
+  pre .cm { color: #8fd18f; }
+  a { color: var(--user-primary); }
+  button { font: inherit; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--user-accent); outline-offset: 2px; }
+
+  header {
+    background: var(--user-primary);
+    color: #fff;
+    padding: 22px 20px 0;
+  }
+  .wrap { max-width: 1020px; margin: 0 auto; }
+  header .kicker { font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.85; }
+  header h1 { margin: 4px 0 6px; font-size: 1.75rem; }
+  header p { margin: 0 0 14px; opacity: 0.92; }
+  .progress-row { display: flex; align-items: center; gap: 12px; padding-bottom: 14px; font-size: 0.9rem; }
+  .progress { flex: 1; height: 10px; background: rgba(255,255,255,0.25); border-radius: 99px; overflow: hidden; }
+  .progress > span { display: block; height: 100%; width: 0; background: #fff; transition: width 0.4s; }
+
+  nav.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.tabs button {
+    background: transparent;
+    color: #fff;
+    border: 0;
+    padding: 10px 14px;
+    border-radius: 10px 10px 0 0;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+  nav.tabs button[aria-selected="true"] { background: var(--user-background); color: var(--user-primary); opacity: 1; }
+  nav.tabs .num {
+    display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center;
+    border-radius: 50%; background: rgba(255,255,255,0.2); margin-right: 6px; font-size: 0.8rem;
+  }
+  nav.tabs button[aria-selected="true"] .num { background: var(--user-primary); color: #fff; }
+  nav.tabs .done::after { content: " ✓"; }
+
+  main { padding: 24px 20px 60px; }
+  section.panel { display: none; }
+  section.panel.active { display: block; }
+  h2 { color: var(--user-primary); margin: 0 0 6px; font-size: 1.5rem; }
+  h3 { color: var(--user-primary); margin: 26px 0 8px; font-size: 1.15rem; }
+  .lead { color: var(--muted); margin: 0 0 18px; }
+  .bloom {
+    display: inline-block; font-size: 0.75rem; font-weight: 700; padding: 2px 9px; border-radius: 99px;
+    background: var(--tint); color: var(--user-primary); margin-right: 6px; vertical-align: middle;
+  }
+  .bloom.high { background: #fbe7ea; color: var(--user-accent); }
+  .card-box {
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px;
+    box-shadow: var(--shadow); background: #fff; margin: 14px 0;
+  }
+  .btn {
+    background: var(--user-primary); color: #fff; border: 2px solid var(--user-primary);
+    padding: 8px 16px; border-radius: 8px; font-weight: 600;
+  }
+  .btn:hover { filter: brightness(1.1); }
+  .btn.ghost { background: #fff; color: var(--user-primary); }
+  .btn.accent { background: var(--user-accent); border-color: var(--user-accent); }
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+  /* Flashcards */
+  .fc-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .chip {
+    border: 2px solid var(--user-primary); background: #fff; color: var(--user-primary);
+    border-radius: 99px; padding: 5px 13px; font-weight: 600; font-size: 0.88rem;
+  }
+  .chip[aria-pressed="true"] { background: var(--user-primary); color: #fff; }
+  .flash-stage { perspective: 1400px; margin: 10px auto; max-width: 720px; }
+  .flash {
+    position: relative; width: 100%; min-height: 300px; border: 0; padding: 0; background: none;
+    transform-style: preserve-3d; transition: transform 0.55s; text-align: left;
+  }
+  .flash.flipped { transform: rotateY(180deg); }
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    border-radius: 16px; padding: 24px 26px; display: flex; flex-direction: column; justify-content: center;
+    box-shadow: var(--shadow); overflow: auto;
+  }
+  .face.front { background: #fff; border: 2px solid var(--user-primary); }
+  .face.back { background: var(--user-primary); color: #fff; transform: rotateY(180deg); }
+  .face.back :not(pre) > code { background: rgba(255,255,255,0.18); color: #fff; }
+  .face .tag { position: absolute; top: 12px; left: 16px; }
+  .face .hint { position: absolute; bottom: 10px; right: 16px; font-size: 0.78rem; opacity: 0.7; }
+  .face .q { font-size: 1.25rem; font-weight: 600; margin-top: 16px; }
+  .face .a { font-size: 1.08rem; }
+  .fc-nav { display: flex; justify-content: space-between; align-items: center; max-width: 720px; margin: 14px auto 0; gap: 10px; flex-wrap: wrap; }
+  .fc-stats { color: var(--muted); font-size: 0.92rem; }
+
+  /* Misconceptions */
+  .misc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+  .misc { border: 1px solid #f2c4cb; background: #fff7f8; border-radius: var(--radius); padding: 14px 16px; }
+  .misc h4 { margin: 0 0 6px; color: var(--user-accent); font-size: 1rem; }
+  .misc .label { font-weight: 700; }
+
+  /* Self-check */
+  .selfcheck { border: 2px dashed var(--user-primary); border-radius: var(--radius); padding: 16px 18px; margin-top: 30px; background: var(--tint); }
+  .selfcheck h3 { margin-top: 0; }
+  .opts { display: grid; gap: 8px; margin: 8px 0 4px; }
+  .opt {
+    text-align: left; background: #fff; border: 2px solid var(--line); border-radius: 9px; padding: 9px 12px;
+    color: var(--ink);
+  }
+  .opt:hover:not(:disabled) { border-color: var(--user-primary); }
+  .opt.correct { border-color: var(--ok); background: var(--ok-bg); }
+  .opt.wrong { border-color: var(--bad); background: var(--bad-bg); }
+  .opt:disabled { cursor: default; }
+  .feedback { margin: 6px 0 0; padding: 9px 12px; border-radius: 8px; display: none; }
+  .feedback.show { display: block; }
+  .feedback.good { background: var(--ok-bg); color: #13502a; }
+  .feedback.bad { background: var(--bad-bg); color: #7d1a14; }
+  .confidence { margin-top: 12px; }
+  .confidence button { margin: 4px 6px 4px 0; }
+
+  /* Worked example */
+  .step { border-left: 4px solid var(--user-primary); background: #fff; padding: 10px 14px; margin: 12px 0; border-radius: 0 10px 10px 0; box-shadow: var(--shadow); }
+  .step h4 { margin: 0 0 4px; color: var(--user-primary); }
+  .step .why { background: var(--warn-bg); border-radius: 8px; padding: 8px 10px; margin-top: 6px; font-size: 0.95rem; }
+  .step.hidden { display: none; }
+  .scenario { background: var(--tint); border-radius: var(--radius); padding: 14px 16px; }
+  .scenario strong { color: var(--user-primary); }
+  pre.blanks input {
+    font-family: Consolas, "Courier New", monospace; font-size: 0.92rem; width: 7ch;
+    background: #24365e; color: #fff; border: 1px solid #7c97c9; border-radius: 4px; padding: 1px 4px;
+  }
+  pre.blanks input.ok { border-color: #59d17f; background: #1f4d34; }
+  pre.blanks input.no { border-color: #ff8a80; background: #5a2323; }
+
+  /* Quiz */
+  .q-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 0.9rem; flex-wrap: wrap; gap: 8px; }
+  .q-text { font-size: 1.1rem; font-weight: 600; margin: 8px 0; }
+  .dots { display: flex; gap: 5px; flex-wrap: wrap; margin: 8px 0 4px; }
+  .dots span { width: 14px; height: 14px; border-radius: 50%; background: var(--line); }
+  .dots span.cur { outline: 2px solid var(--user-primary); }
+  .dots span.r { background: var(--ok); }
+  .dots span.w { background: var(--bad); }
+  .score-big { font-size: 2.6rem; font-weight: 800; color: var(--user-primary); }
+
+  /* Matching */
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .match-col { display: grid; gap: 8px; align-content: start; }
+  .m-item {
+    text-align: left; background: #fff; border: 2px solid var(--line); border-radius: 9px; padding: 10px 12px; color: var(--ink);
+  }
+  .m-item.sel { border-color: var(--user-primary); background: var(--tint); }
+  .m-item.matched { border-color: var(--ok); background: var(--ok-bg); cursor: default; }
+  .m-item.shake { animation: shake 0.35s; border-color: var(--bad); }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+  /* Higher-order */
+  textarea {
+    width: 100%; min-height: 110px; border: 2px solid var(--line); border-radius: 9px; padding: 10px;
+    font: inherit; resize: vertical;
+  }
+  textarea.code { font-family: Consolas, "Courier New", monospace; font-size: 0.92rem; min-height: 230px; }
+  .wordcount { font-size: 0.85rem; color: var(--muted); }
+  .reveal { display: none; margin-top: 12px; }
+  .reveal.show { display: block; }
+  .rubric label { display: block; margin: 6px 0; }
+  .expert { background: var(--ok-bg); border-radius: 10px; padding: 12px 14px; }
+  footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 20px; border-top: 1px solid var(--line); }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (max-width: 640px) {
+    .match-grid { grid-template-columns: 1fr; }
+    header h1 { font-size: 1.35rem; }
+    .flash { min-height: 340px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .flash, .progress > span { transition: none; }
+    .m-item.shake { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="kicker">San Joaquin Delta College · CSP31A C++ Programming I</div>
+    <h1>Structs &amp; Enumerated Types: Study Lab</h1>
+    <p>Work through the sections in order. Each one builds on the last and ends with a quick self-check.</p>
+    <div class="progress-row">
+      <span>Progress</span>
+      <div class="progress" role="progressbar" aria-label="Sections completed" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><span id="progBar"></span></div>
+      <span id="progText">0 of 5 sections</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Study sections">
+      <button role="tab" aria-selected="true" aria-controls="s1" id="t1"><span class="num">1</span>Flashcards</button>
+      <button role="tab" aria-selected="false" aria-controls="s2" id="t2"><span class="num">2</span>Worked Example</button>
+      <button role="tab" aria-selected="false" aria-controls="s3" id="t3"><span class="num">3</span>Quiz</button>
+      <button role="tab" aria-selected="false" aria-controls="s4" id="t4"><span class="num">4</span>Matching</button>
+      <button role="tab" aria-selected="false" aria-controls="s5" id="t5"><span class="num">5</span>Think Deeper</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ============ SECTION 1: FLASHCARDS ============ -->
+  <section class="panel active" id="s1" role="tabpanel" aria-labelledby="t1">
+    <h2>1. Flashcards</h2>
+    <p class="lead">Start with <strong>Remember</strong> cards, then move to <strong>Understand</strong> and <strong>Apply</strong>. Click a card (or press <kbd>Space</kbd>) to flip it. Use <kbd>←</kbd> and <kbd>→</kbd> to move between cards.</p>
+
+    <div class="fc-controls" role="group" aria-label="Filter by level">
+      <button class="chip" data-level="All" aria-pressed="true">All</button>
+      <button class="chip" data-level="Remember" aria-pressed="false">Remember</button>
+      <button class="chip" data-level="Understand" aria-pressed="false">Understand</button>
+      <button class="chip" data-level="Apply" aria-pressed="false">Apply</button>
+      <button class="chip" id="fcReviewOnly" aria-pressed="false">Review pile only</button>
+      <button class="btn ghost" id="fcShuffle">Shuffle</button>
+    </div>
+
+    <div class="flash-stage">
+      <button class="flash" id="flash" aria-label="Flashcard. Activate to flip.">
+        <div class="face front"><span class="tag" id="fcTagF"></span><div class="q" id="fcFront"></div><span class="hint">Click to flip</span></div>
+        <div class="face back"><span class="tag" id="fcTagB"></span><div class="a" id="fcBack"></div><span class="hint">Click to flip back</span></div>
+      </button>
+    </div>
+    <div class="fc-nav">
+      <button class="btn ghost" id="fcPrev" aria-label="Previous card">← Prev</button>
+      <span class="fc-stats" id="fcCount" aria-live="polite"></span>
+      <div class="row">
+        <button class="btn ghost" id="fcAgain">Review again</button>
+        <button class="btn" id="fcGot">Got it ✓</button>
+      </div>
+      <button class="btn ghost" id="fcNext" aria-label="Next card">Next →</button>
+    </div>
+    <p class="fc-stats" style="text-align:center" id="fcMastery"></p>
+
+    <h3>Misconception Alerts</h3>
+    <p class="lead">These are the mistakes CSP31A students make most often with structs. Read why each one is wrong.</p>
+    <div class="misc-grid" id="miscGrid"></div>
+
+    <div class="selfcheck" data-selfcheck="1"></div>
+  </section>
+
+  <!-- ============ SECTION 2: WORKED EXAMPLE ============ -->
+  <section class="panel" id="s2" role="tabpanel" aria-labelledby="t2" hidden>
+    <h2>2. Worked Example, Then Your Turn</h2>
+    <p class="lead"><span class="bloom">Apply</span>First, follow an expert solution step by step with the reasoning shown. Then solve a similar problem yourself.</p>
+
+    <div class="scenario">
+      <strong>Real-world scenario: Delta College Bookstore.</strong> The campus bookstore tracks each textbook's ISBN, title, price, and number of copies on the shelf. The manager wants a program that reports the dollar value of the copies in stock for any textbook. Keeping four parallel arrays in sync is error-prone, so we'll model one textbook as a <code>struct</code>.
+    </div>
+
+    <div id="workedSteps"></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="nextStep">Show next step</button>
+      <button class="btn ghost" id="allSteps">Show all steps</button>
+    </div>
+
+    <h3>Your Turn: Delta Cafeteria Menu</h3>
+    <div class="scenario">
+      <strong>Scenario:</strong> The campus cafeteria stores each menu item's name, price, and calories. Complete the program so it computes the total cost of buying several of the same item. Use the bookstore example as your model: declare the struct, pass it efficiently without allowing changes, and access the right member.
+    </div>
+<pre class="blanks" id="blankCode" aria-label="Fill in the blanks code exercise"><span class="mono"><input aria-label="Blank 1: keyword to declare the type" data-ans="struct" size="6"> MenuItem
+{
+    string name;
+    double price;
+    int calories;
+}<input aria-label="Blank 2: symbol that ends the declaration" data-ans=";" style="width:3ch">
+
+double totalCost(<input aria-label="Blank 3: keyword that prevents changes" data-ans="const" style="width:6ch"> MenuItem <input aria-label="Blank 4: symbol for pass by reference" data-ans="&amp;" style="width:3ch">item, int count)
+{
+    return item.<input aria-label="Blank 5: member to multiply" data-ans="price" style="width:6ch"> * count;
+}
+
+int main()
+{
+    MenuItem burrito = {"Bean Burrito", 6.50, 520};
+    cout &lt;&lt; totalCost(burrito, 3);   <span class="cm">// Output: </span><input aria-label="Blank 6: predicted output" data-ans="19.5" style="width:6ch">
+    return 0;
+}</span></pre>
+    <div class="row">
+      <button class="btn" id="checkBlanks">Check my answers</button>
+      <button class="btn ghost" id="hintBlanks">Hint</button>
+      <button class="btn ghost" id="showBlanks">Show solution</button>
+    </div>
+    <div class="feedback" id="blankFb" aria-live="polite"></div>
+
+    <div class="selfcheck" data-selfcheck="2"></div>
+  </section>
+
+  <!-- ============ SECTION 3: QUIZ ============ -->
+  <section class="panel" id="s3" role="tabpanel" aria-labelledby="t3" hidden>
+    <h2>3. Interactive Quiz</h2>
+    <p class="lead">Twelve questions, from easiest to hardest. The early questions check recall; the later ones ask you to analyze code and evaluate design choices. Every answer includes an explanation.</p>
+    <div class="card-box" id="quizBox"></div>
+    <div class="selfcheck" data-selfcheck="3"></div>
+  </section>
+
+  <!-- ============ SECTION 4: MATCHING ============ -->
+  <section class="panel" id="s4" role="tabpanel" aria-labelledby="t4" hidden>
+    <h2>4. Matching Activity</h2>
+    <p class="lead"><span class="bloom">Understand</span>Select a term on the left, then the description or code on the right that matches it.</p>
+    <div class="row" style="justify-content:space-between;margin-bottom:10px">
+      <span id="matchStatus" aria-live="polite">Matched 0 of 8 · Mistakes: 0</span>
+      <button class="btn ghost" id="matchReset">Reset and shuffle</button>
+    </div>
+    <div class="match-grid">
+      <div class="match-col" id="matchLeft" aria-label="Terms"></div>
+      <div class="match-col" id="matchRight" aria-label="Descriptions"></div>
+    </div>
+    <div class="feedback" id="matchFb"></div>
+    <div class="selfcheck" data-selfcheck="4"></div>
+  </section>
+
+  <!-- ============ SECTION 5: THINK DEEPER ============ -->
+  <section class="panel" id="s5" role="tabpanel" aria-labelledby="t5" hidden>
+    <h2>5. Think Deeper: Analyze, Evaluate, Create</h2>
+    <p class="lead">These tasks have no single auto-graded answer. Write your reasoning first, then compare it with an expert's response.</p>
+
+    <div class="card-box">
+      <h3 style="margin-top:0"><span class="bloom high">Analyze</span>Task A: Why Didn't the GPA Change?</h3>
+      <p>A student wrote this function to give everyone a bonus. After it runs, <code>stu.gpa</code> is still <code>3.2</code>. Trace the code and explain exactly why, then state the one-character fix.</p>
+<pre>void addBonus(Student s)
+{
+    s.gpa = s.gpa + 0.3;
+}
+
+int main()
+{
+    Student stu = {123456, "Maria", 2, 3.2};
+    addBonus(stu);
+    cout &lt;&lt; stu.gpa;   <span class="cm">// prints 3.2, not 3.5</span>
+}</pre>
+      <textarea id="taA" aria-label="Your analysis for Task A" placeholder="Explain what happens in memory when addBonus is called..."></textarea>
+      <div class="row"><span class="wordcount" id="wcA">0 words (aim for 25+)</span><button class="btn" data-reveal="revA" data-ta="taA">Compare with expert</button></div>
+      <div class="reveal" id="revA"><div class="expert"><strong>Expert reasoning:</strong> <code>s</code> is a <em>value</em> parameter, so the call copies every member of <code>stu</code> into a brand-new local struct. The function changes the copy's <code>gpa</code>, and the copy is destroyed when the function returns, so <code>stu</code> in <code>main</code> never changes. <strong>Fix:</strong> make it a reference parameter, <code>void addBonus(Student &amp;s)</code>. The call stays <code>addBonus(stu);</code>, with no <code>&amp;</code> in the call.</div></div>
+    </div>
+
+    <div class="card-box">
+      <h3 style="margin-top:0"><span class="bloom high">Evaluate</span>Task B: Choose and Defend a Function Header</h3>
+      <p>The bookstore's <code>printReceipt</code> function displays a <code>Textbook</code> but must <strong>never</strong> change it. Which header is best? Pick one and justify it by comparing it with the other two.</p>
+<pre>(1) void printReceipt(Textbook b)
+(2) void printReceipt(Textbook &amp;b)
+(3) void printReceipt(const Textbook &amp;b)</pre>
+      <div class="opts" role="group" aria-label="Choose a header">
+        <button class="opt" data-choiceb="1">Header (1): pass by value</button>
+        <button class="opt" data-choiceb="2">Header (2): pass by reference</button>
+        <button class="opt" data-choiceb="3">Header (3): pass by const reference</button>
+      </div>
+      <textarea id="taB" aria-label="Your justification for Task B" placeholder="Justify your choice. Mention speed and memory, and safety..."></textarea>
+      <div class="row"><span class="wordcount" id="wcB">0 words (aim for 30+)</span><button class="btn" data-reveal="revB" data-ta="taB">Compare with expert</button></div>
+      <div class="reveal" id="revB"><div class="expert"><strong>Expert evaluation:</strong> <strong>(3) is best.</strong> (1) is safe, but it copies the whole struct, including the strings, on every call, which wastes time and memory. (2) avoids the copy, but the function <em>could</em> accidentally change the textbook, and the compiler wouldn't stop it. (3) gets both benefits: no copy, and the compiler blocks any change. Rule of thumb: <em>pass a struct by <code>const</code> reference when the function only needs to read it.</em></div></div>
+    </div>
+
+    <div class="card-box">
+      <h3 style="margin-top:0"><span class="bloom high">Create</span>Task C: Design a Campus Parking Permit System</h3>
+      <div class="scenario"><strong>Scenario:</strong> Delta College Campus Police issue parking permits. Each permit has a permit number, an expiration year, a permit type (Student, Staff, or Motorcycle), and the vehicle it belongs to (make, model, license plate). Write C++ declarations that model this, plus a function that prints one permit.</div>
+      <p><strong>Requirements:</strong> use an <code>enum</code> for permit type, a nested <code>struct</code> for the vehicle, a default value for at least one member, and a print function with an appropriate parameter type.</p>
+      <textarea class="code" id="taC" aria-label="Your C++ design for Task C" spellcheck="false" placeholder="enum PermitType { ... };&#10;&#10;struct Vehicle&#10;{&#10;    ...&#10;};&#10;&#10;struct Permit&#10;{&#10;    ...&#10;};&#10;&#10;void printPermit(...)"></textarea>
+      <p><strong>Self-assess your design against this checklist:</strong></p>
+      <div class="rubric" id="rubricC">
+        <label><input type="checkbox"> An <code>enum PermitType</code> with three enumerators, such as <code>STUDENT, STAFF, MOTORCYCLE</code></label>
+        <label><input type="checkbox"> A separate <code>struct Vehicle</code> with make, model, and plate members</label>
+        <label><input type="checkbox"> <code>struct Permit</code> contains a <code>Vehicle</code> member (nesting) and a <code>PermitType</code> member</label>
+        <label><input type="checkbox"> At least one default member value, such as <code>int expYear = 2027;</code></label>
+        <label><input type="checkbox"> Every struct declaration ends with <code>};</code></label>
+        <label><input type="checkbox"> The print function uses <code>const Permit &amp;</code> and accesses nested members such as <code>p.car.plate</code></label>
+      </div>
+      <div class="row"><span class="wordcount" id="rubricScore">0 of 6 criteria met</span><button class="btn" data-reveal="revC" data-ta="taC">Show a model solution</button></div>
+      <div class="reveal" id="revC">
+<pre>enum PermitType { STUDENT, STAFF, MOTORCYCLE };
+
+struct Vehicle
+{
+    string make;
+    string model;
+    string plate;
+};
+
+struct Permit
+{
+    int permitNum = 0;
+    int expYear = 2027;            <span class="cm">// default value</span>
+    PermitType type = STUDENT;     <span class="cm">// enum member</span>
+    Vehicle car;                   <span class="cm">// nested struct</span>
+};
+
+void printPermit(const Permit &amp;p)  <span class="cm">// read-only, no copy</span>
+{
+    string names[] = {"Student", "Staff", "Motorcycle"};
+    cout &lt;&lt; "Permit #" &lt;&lt; p.permitNum
+         &lt;&lt; " (" &lt;&lt; names[p.type] &lt;&lt; ") expires " &lt;&lt; p.expYear &lt;&lt; endl;
+    cout &lt;&lt; p.car.make &lt;&lt; " " &lt;&lt; p.car.model
+         &lt;&lt; ", plate " &lt;&lt; p.car.plate &lt;&lt; endl;
+}</pre>
+        <div class="expert"><strong>Why this design works:</strong> the enum limits permit type to three valid values and works as an array subscript to look up a readable name. Making <code>Vehicle</code> a separate struct means it can be reused, for example in a citation system. The default values guarantee no garbage, and <code>const Permit &amp;</code> avoids a copy while preventing accidental changes.</div>
+      </div>
+    </div>
+
+    <div class="selfcheck" data-selfcheck="5"></div>
+  </section>
+</main>
+
+<footer>CSP31A C++ Programming I · San Joaquin Delta College · Structs, Enums &amp; Structures as Function Arguments</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- helpers ---------- */
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
+  const esc = s => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // inline formatter: `code` -> <code>, **bold** -> <strong>
+  const fmt = s => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>").replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  const codeBlock = s => "<pre>" + esc(s).replace(/(\/\/[^\n]*)/g, '<span class="cm">$1</span>') + "</pre>";
+  const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+  const words = t => (t.trim().match(/\S+/g) || []).length;
+
+  /* ---------- progress ---------- */
+  const completed = new Set();
+  function markDone(n) {
+    if (completed.has(n)) return;
+    completed.add(n);
+    $("#t" + n).classList.add("done");
+    const pct = completed.size / 5 * 100;
+    $("#progBar").style.width = pct + "%";
+    $(".progress").setAttribute("aria-valuenow", completed.size);
+    $("#progText").textContent = completed.size + " of 5 sections";
+  }
+
+  /* ---------- tabs ---------- */
+  const tabs = $$('[role="tab"]');
+  function openTab(tab) {
+    tabs.forEach(t => {
+      const sel = t === tab;
+      t.setAttribute("aria-selected", sel);
+      t.tabIndex = sel ? 0 : -1;
+      const p = $("#" + t.getAttribute("aria-controls"));
+      p.hidden = !sel; p.classList.toggle("active", sel);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  tabs.forEach((t, i) => {
+    t.addEventListener("click", () => openTab(t));
+    t.addEventListener("keydown", e => {
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
+        n.focus(); openTab(n);
+      }
+    });
+  });
+
+  /* ---------- 1. FLASHCARDS ---------- */
+  const cards = [
+    { l: "Remember", f: "What is a `struct` in C++?", b: "A programmer-defined (user-defined) data type that groups related variables, called **members**, under one name. The members can have different data types." },
+    { l: "Remember", f: "What symbol must follow the closing brace of a struct declaration?", b: "A semicolon: `};`. Forgetting it is one of the most common compiler errors." },
+    { l: "Remember", f: "Which operator accesses a member of a struct variable?", b: "The **dot operator** `.`, for example `stu1.gpa = 3.75;`" },
+    { l: "Remember", f: "What is an Abstract Data Type (ADT)?", b: "A data type that specifies the **values** that can be stored and the **operations** that can be done on them, without the user needing to know how it is implemented." },
+    { l: "Remember", f: "What is an enumerator?", b: "A named integer constant inside an `enum`. In `enum Day { MONDAY, TUESDAY };`, `MONDAY` is 0 and `TUESDAY` is 1." },
+    { l: "Remember", f: "Which keyword defines an enumerated data type?", b: "`enum`, as in `enum Day { MONDAY, TUESDAY, WEDNESDAY };`" },
+    { l: "Remember", f: "What is the **structure tag**?", b: "The name of the struct type, such as `Student` in `struct Student { ... };`. You use it to define variables: `Student stu;`" },
+    { l: "Understand", f: "Does a struct declaration allocate memory?", b: "**No.** The declaration is only a blueprint for a new type. Memory is allocated when you define a variable, such as `Student stu;`" },
+    { l: "Understand", f: "Why use an array of structs instead of parallel arrays?", b: "All data for one record stays together in one element, so it can't fall out of sync. It's easier to sort, pass to functions, and read: `list[i].name` instead of `names[i]`." },
+    { l: "Understand", f: "What does `s2 = s1;` do when both are `Student` variables?", b: "It copies **every member** of `s1` into `s2`. Assignment works for whole structs." },
+    { l: "Understand", f: "Can you write `if (s1 == s2)` for two structs?", b: "**No.** C++ doesn't define `==` for your struct. Compare member by member: `s1.studentID == s2.studentID`." },
+    { l: "Understand", f: "Value vs. reference parameter: what's the difference for a struct?", b: "A **value** parameter receives a copy (slower, and changes are lost). A **reference** parameter (`Student &s`) refers to the original (no copy, and changes persist)." },
+    { l: "Understand", f: "Why use a `const` reference parameter?", b: "`const Student &s` avoids copying the struct **and** prevents the function from changing it. It's the best choice for read-only functions such as `print`." },
+    { l: "Understand", f: "What is a nested structure?", b: "A struct that has another struct as a member, such as a `Student` containing a `PersonInfo pData;`. You access it with two dots: `stu.pData.city`." },
+    { l: "Understand", f: "Why give members default values, e.g. `double gpa = 0.0;`?", b: "Without them, members of a local struct variable hold **garbage** until they are assigned. Default values (C++11) guarantee a known starting state." },
+    { l: "Understand", f: "Why must enumerators be unique within the same scope?", b: "Each enumerator is a named constant in that scope. If `ROOSEVELT` appeared in two enums in the same scope, one name would have two values, which is a compiler error." },
+    { l: "Apply", f: "Write the statement to print the ID of the **6th** student in `Student stuList[20];`", b: "`cout << stuList[5].studentID;` Subscripts start at 0, so the 6th element is index 5." },
+    { l: "Apply", f: "Set the city of `stu` to \"Stockton\", where `Student` has a member `PersonInfo pData` and `PersonInfo` has `string city`.", b: "`stu.pData.city = \"Stockton\";` Use one dot for each level of nesting." },
+    { l: "Apply", f: "`enum Day { MONDAY, TUESDAY, WEDNESDAY };`\nWhat does `cout << WEDNESDAY;` print?", b: "It prints **2**. Enumerators are stored as integers starting at 0, not as strings." },
+    { l: "Apply", f: "Fix this line: `Day workDay = 3;`", b: "You can't assign an int to an enum variable directly. Cast it: `workDay = static_cast<Day>(3);`" },
+    { l: "Apply", f: "Initialize `Rectangle r = ...` with length 10 and width 4.6 in one line.", b: "`Rectangle r = {10, 4.6};` The values are assigned to the members in the order they are declared." },
+    { l: "Apply", f: "Write the prototype of `getData`, which fills in a `Student` passed from `main`.", b: "`void getData(Student &s);` Call it with `getData(stu);`. There is no `&` in the call." },
+    { l: "Apply", f: "Write a loop that prints every name in `vector<Student> roster;`", b: "`for (const Student &s : roster)`\n`    cout << s.name << endl;`" },
+    { l: "Apply", f: "`enum Day { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY };`\nStore 1500.83 as Tuesday's sales in `double sales[5];`", b: "`sales[TUESDAY] = 1500.83;` Because `TUESDAY` is 1, this is the same element as `sales[1]`." }
+  ];
+  let level = "All", reviewOnly = false, deck = cards.map((c, i) => i), pos = 0;
+  const status = cards.map(() => "new"); // new | got | again
+
+  function filtered() {
+    return deck.filter(i => (level === "All" || cards[i].l === level) && (!reviewOnly || status[i] === "again"));
+  }
+  function renderCard() {
+    const list = filtered();
+    const flash = $("#flash");
+    flash.classList.remove("flipped");
+    if (!list.length) {
+      $("#fcFront").innerHTML = reviewOnly ? "Your review pile is empty. Nice work!" : "No cards match this filter.";
+      $("#fcBack").innerHTML = ""; $("#fcTagF").innerHTML = $("#fcTagB").innerHTML = "";
+      $("#fcCount").textContent = "0 cards";
+    } else {
+      if (pos >= list.length) pos = 0;
+      const c = cards[list[pos]];
+      const tag = `<span class="bloom">${c.l}</span>`;
+      $("#fcTagF").innerHTML = tag; $("#fcTagB").innerHTML = tag;
+      $("#fcFront").innerHTML = c.f.split("\n").map(fmt).join("<br>");
+      $("#fcBack").innerHTML = c.b.split("\n").map(fmt).join("<br>");
+      $("#fcCount").textContent = `Card ${pos + 1} of ${list.length}`;
+    }
+    const got = status.filter(s => s === "got").length, again = status.filter(s => s === "again").length;
+    $("#fcMastery").textContent = `Mastered: ${got} / ${cards.length} · Review pile: ${again}`;
+    if (got >= Math.ceil(cards.length * 0.6)) markDoneSoft(1);
+  }
+  const flipCard = () => { if (filtered().length) $("#flash").classList.toggle("flipped"); };
+  $("#flash").addEventListener("click", flipCard);
+  $("#fcNext").addEventListener("click", () => { pos = (pos + 1) % Math.max(filtered().length, 1); renderCard(); });
+  $("#fcPrev").addEventListener("click", () => { const n = Math.max(filtered().length, 1); pos = (pos - 1 + n) % n; renderCard(); });
+  function rate(s) {
+    const list = filtered(); if (!list.length) return;
+    status[list[pos]] = s;
+    if (!(reviewOnly && s === "got")) pos++;
+    renderCard();
+  }
+  $("#fcGot").addEventListener("click", () => rate("got"));
+  $("#fcAgain").addEventListener("click", () => rate("again"));
+  $("#fcShuffle").addEventListener("click", () => { deck = shuffle(deck); pos = 0; renderCard(); });
+  $$(".chip[data-level]").forEach(ch => ch.addEventListener("click", () => {
+    $$(".chip[data-level]").forEach(c => c.setAttribute("aria-pressed", c === ch));
+    level = ch.dataset.level; pos = 0; renderCard();
+  }));
+  $("#fcReviewOnly").addEventListener("click", e => {
+    reviewOnly = !reviewOnly; e.currentTarget.setAttribute("aria-pressed", reviewOnly); pos = 0; renderCard();
+  });
+  document.addEventListener("keydown", e => {
+    if ($("#s1").hidden || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
+    if (e.key === "ArrowRight") $("#fcNext").click();
+    else if (e.key === "ArrowLeft") $("#fcPrev").click();
+    else if (e.key === " " && document.activeElement !== $("#flash") && document.activeElement.tagName !== "BUTTON") { e.preventDefault(); flipCard(); }
+  });
+
+  /* ---------- misconceptions ---------- */
+  const misconceptions = [
+    { m: "\"Declaring a struct creates a variable.\"", w: "`struct Student { ... };` only describes a new **type**, like a blueprint. No memory is allocated and no variable exists.", r: "Define a variable separately: `Student stu;`. That's when memory is allocated." },
+    { m: "\"I can compare whole structs with `==`.\"", w: "C++ doesn't know how *you* define two students being equal, so `if (s1 == s2)` is a compiler error. (Assignment with `=` does work.)", r: "Compare the members that matter: `if (s1.studentID == s2.studentID)`." },
+    { m: "\"Pass by reference means putting `&` in the call: `showData(&stu);`\"", w: "`&stu` in a call means **the address of** `stu`, which doesn't match a reference parameter, so it won't compile.", r: "Put the `&` in the parameter list only: `void showData(Student &s);`, then call it with `showData(stu);`." },
+    { m: "\"Enumerators are strings, so `cout << WEDNESDAY;` prints WEDNESDAY.\"", w: "Enumerators are **named integer constants**. The compiler stores `WEDNESDAY` as 2.", r: "To print a name, use an array of strings indexed by the enum: `names[WEDNESDAY]`." }
+  ];
+  $("#miscGrid").innerHTML = misconceptions.map((x, i) => `
+    <article class="misc"><h4>⚠ Misconception ${i + 1}</h4>
+      <p><span class="label">Belief:</span> ${fmt(x.m)}</p>
+      <p><span class="label">Why it's wrong:</span> ${fmt(x.w)}</p>
+      <p style="margin-bottom:0"><span class="label">Correct reasoning:</span> ${fmt(x.r)}</p></article>`).join("");
+
+  /* ---------- 2. WORKED EXAMPLE ---------- */
+  const steps = [
+    { h: "Step 1 · Identify the data that belongs together",
+      t: "One textbook has four facts: ISBN (text), title (text), price (decimal), and copies on the shelf (whole number). They describe **one thing**, so they belong in one struct.",
+      why: "Ask yourself: \"Do these values describe the same real-world object?\" If yes, group them. Choose each member's type from the kind of value it holds." },
+    { h: "Step 2 · Declare the struct type",
+      code: "struct Textbook\n{\n    string isbn;\n    string title;\n    double price;   // dollars per copy\n    int    qty;     // copies on the shelf\n};              // <-- semicolon required!",
+      why: "This creates a new **type** named `Textbook`. No memory is allocated yet. The `;` after `}` is required." },
+    { h: "Step 3 · Choose the function's parameter type",
+      code: "double stockValue(const Textbook &b)\n{\n    return b.price * b.qty;\n}",
+      why: "The function only **reads** the textbook, so `const` reference is best: `&` avoids copying two strings and two numbers, and `const` makes the compiler block any accidental change. Inside, the dot operator reaches each member." },
+    { h: "Step 4 · Create and initialize a variable, then call the function",
+      code: "int main()\n{\n    Textbook cpp = {\"978-0135\", \"Starting Out with C++\", 125.00, 8};\n    cout << fixed << setprecision(2);\n    cout << \"Stock value: $\" << stockValue(cpp) << endl;\n    return 0;\n}",
+      why: "The brace list assigns values in member order: isbn, title, price, qty. Notice the call is `stockValue(cpp)`, with no `&`. The reference is set up by the parameter list." },
+    { h: "Step 5 · Trace it and check the result",
+      t: "`b` refers to `cpp`, so `b.price * b.qty` = 125.00 × 8 = **1000.00**. Output: `Stock value: $1000.00`",
+      why: "Always trace by hand with real numbers. If the output were wrong, you would check member order in the initializer first." }
+  ];
+  let shown = 0;
+  $("#workedSteps").innerHTML = steps.map((s, i) => `
+    <div class="step hidden" id="ws${i}"><h4>${s.h}</h4>${s.t ? "<p>" + fmt(s.t) + "</p>" : ""}${s.code ? codeBlock(s.code) : ""}
+    <div class="why"><strong>Reasoning:</strong> ${fmt(s.why)}</div></div>`).join("");
+  function showStep() {
+    if (shown < steps.length) { $("#ws" + shown).classList.remove("hidden"); shown++; }
+    if (shown === steps.length) { $("#nextStep").disabled = true; $("#nextStep").textContent = "All steps shown"; }
+  }
+  showStep();
+  $("#nextStep").addEventListener("click", showStep);
+  $("#allSteps").addEventListener("click", () => { while (shown < steps.length) showStep(); });
+
+  const norm = s => s.replace(/\s+/g, "").toLowerCase();
+  $("#checkBlanks").addEventListener("click", () => {
+    let right = 0; const ins = $$("#blankCode input");
+    ins.forEach(inp => {
+      let v = norm(inp.value), a = norm(inp.dataset.ans);
+      const ok = inp.dataset.ans === "19.5" ? Math.abs(parseFloat(v) - 19.5) < 1e-9 : v === a;
+      inp.classList.toggle("ok", ok); inp.classList.toggle("no", !ok); if (ok) right++;
+    });
+    const fb = $("#blankFb");
+    fb.className = "feedback show " + (right === ins.length ? "good" : "bad");
+    fb.innerHTML = right === ins.length
+      ? "All 6 correct! You declared the type, passed it by `const` reference, and traced 6.50 × 3 = 19.5.".replace(/`([^`]+)`/g, "<code>$1</code>")
+      : `${right} of ${ins.length} correct. Look at the red boxes and compare them with Steps 2–5 of the worked example.`;
+    if (right === ins.length) markDoneSoft(2);
+  });
+  $("#hintBlanks").addEventListener("click", () => {
+    const fb = $("#blankFb"); fb.className = "feedback show good";
+    fb.innerHTML = "Hint: the declaration starts with a keyword and ends with a symbol. The function only reads the item, so use the same two words as Step 3. For the output, multiply the price by the count.";
+  });
+  $("#showBlanks").addEventListener("click", () => {
+    $$("#blankCode input").forEach(inp => { inp.value = inp.dataset.ans; inp.classList.add("ok"); inp.classList.remove("no"); });
+    const fb = $("#blankFb"); fb.className = "feedback show good";
+    fb.innerHTML = "Solution filled in. Try to explain each blank aloud before you move on.";
+  });
+
+  /* ---------- 3. QUIZ ---------- */
+  const quiz = [
+    { b: "Remember", q: "Which keyword declares a new structure type in C++?", o: ["`class`", "`struct`", "`record`", "`typedef`"], a: 1, e: "`struct` declares a structure type. (`class` also exists, but it's covered later in the course.)" },
+    { b: "Remember", q: "Which operator accesses a member of a struct **variable** such as `stu`?", o: ["`#`", "`::`", "`.`", "`*`"], a: 2, e: "The dot operator: `stu.gpa`. Write the variable name, a dot, and then the member name." },
+    { b: "Understand", q: "What happens in memory when the compiler reads `struct Student { int id; double gpa; };`?", o: ["Memory for one Student is allocated", "Memory for id and gpa is allocated", "No memory is allocated; a new type is defined", "An array of Students is created"], a: 2, e: "A declaration is a blueprint. Memory is allocated only when a variable such as `Student stu;` is defined." },
+    { b: "Understand", q: "`Student s2; s2 = s1;` Which statement is true?", o: ["It's a compiler error; structs can't be assigned", "Only the first member is copied", "Every member of s1 is copied into s2", "s2 becomes another name for s1"], a: 2, e: "Assignment copies all members. `s2` is a separate copy, not an alias, so changing `s2` later doesn't affect `s1`." },
+    { b: "Apply", q: "Given `Student stuList[20];`, which statement prints the ID of the **6th** student?", o: ["`cout << stuList.studentID[5];`", "`cout << stuList[6].studentID;`", "`cout << stuList[5].studentID;`", "`cout << studentID.stuList[5];`"], a: 2, e: "Subscript the array first, then use the dot operator. Index 5 is the 6th element because indexes start at 0." },
+    { b: "Apply", q: "`Student` has a member `PersonInfo pData`, and `PersonInfo` has a member `city`. How do you set the city?", o: ["`stu.city = \"Lodi\";`", "`stu.pData.city = \"Lodi\";`", "`stu.pData[city] = \"Lodi\";`", "`PersonInfo.city = \"Lodi\";`"], a: 1, e: "Use one dot for each level: `stu` → `pData` → `city`. Square brackets are only for array subscripts." },
+    { b: "Apply", q: "`enum Color { RED, GREEN, BLUE };` What does `cout << BLUE;` display?", o: ["BLUE", "3", "2", "A compiler error"], a: 2, e: "Enumerators are integer constants starting at 0: RED=0, GREEN=1, BLUE=2. They aren't strings (Misconception 4)." },
+    { b: "Apply", q: "A Delta College registration program fills a student's data in a function. Which **prototype and call** pair is correct?", o: ["`void getData(Student s);` / `getData(stu);`", "`void getData(Student &s);` / `getData(&stu);`", "`void getData(Student &s);` / `getData(stu);`", "`void getData(Student s);` / `getData(&stu);`"], a: 2, e: "The function must change the caller's variable, so use a reference parameter. The `&` goes in the parameter list only; the call is `getData(stu);`." },
+    { b: "Analyze", q: "Which line causes a **compiler error**?", code: "Student a = {1, \"Ana\", 1, 3.4};   // line 1\nStudent b;                         // line 2\nb = a;                             // line 3\nif (a == b) cout << \"same\";        // line 4", o: ["Line 1", "Line 2", "Line 3", "Line 4"], a: 3, e: "`==` isn't defined for structs. Line 3 is fine because assignment copies all members." },
+    { b: "Analyze", q: "What does this code print?", code: "Student list[3] = {{1, \"Ana\", 1, 3.0},\n                   {2, \"Ben\", 2, 3.6},\n                   {3, \"Cy\",  1, 3.2}};\nint best = 0;\nfor (int i = 1; i < 3; i++)\n    if (list[i].gpa > list[best].gpa)\n        best = i;\ncout << list[best].name;", o: ["Ana", "Ben", "Cy", "1"], a: 1, e: "The loop keeps the **index** of the highest GPA seen so far. Ben's 3.6 beats Ana's 3.0 (best = 1), and Cy's 3.2 doesn't beat 3.6, so `list[1].name` prints Ben. The answer 1 confuses the index with the name." },
+    { b: "Evaluate", q: "A function prints a struct holding 50 members and must not change it. Which parameter type is the **best** choice?", o: ["`Record r` (value)", "`Record &r` (reference)", "`const Record &r` (const reference)", "`int r` (pass only the record number)"], a: 2, e: "Value copies all 50 members, which is slow. A plain reference avoids the copy but allows changes. A `const` reference gives no copy and no changes." },
+    { b: "Evaluate", q: "The bookstore tracks 500 textbooks with ISBN, title, price, and quantity. Which design is best, and why?", o: ["Four parallel arrays, because they use less memory", "One array of `Textbook` structs, because each record's data stays together and can be passed as one unit", "One array of strings, because every value can be stored as text", "Four separate variables, because they're simpler"], a: 1, e: "An array of structs keeps related data together. Sorting or passing a record moves every field at once, so nothing gets out of sync. Parallel arrays don't save meaningful memory, and they're error-prone." }
+  ];
+  let qi = 0, qScore = 0; const qRes = [];
+  function renderQ() {
+    const box = $("#quizBox");
+    if (qi >= quiz.length) {
+      const pct = Math.round(qScore / quiz.length * 100);
+      const msg = pct >= 85 ? "Excellent. You're ready for the lab." : pct >= 65 ? "Good progress. Review the explanations for the questions you missed, then retake the quiz." : "Revisit the flashcards and the worked example, then try again.";
+      box.innerHTML = `<div style="text-align:center"><div class="score-big">${qScore} / ${quiz.length}</div><p>${pct}% · ${msg}</p>
+        <div class="dots" style="justify-content:center">${qRes.map(r => `<span class="${r ? "r" : "w"}"></span>`).join("")}</div>
+        <button class="btn" id="qRetry">Retake quiz</button></div>`;
+      $("#qRetry").addEventListener("click", () => { qi = 0; qScore = 0; qRes.length = 0; renderQ(); });
+      markDoneSoft(3); return;
+    }
+    const q = quiz[qi], high = /Analyze|Evaluate/.test(q.b);
+    box.innerHTML = `
+      <div class="q-meta"><span>Question ${qi + 1} of ${quiz.length}</span><span>Score: ${qScore}</span></div>
+      <div class="dots" aria-hidden="true">${quiz.map((_, k) => `<span class="${k < qRes.length ? (qRes[k] ? "r" : "w") : ""}${k === qi ? " cur" : ""}"></span>`).join("")}</div>
+      <p class="q-text"><span class="bloom${high ? " high" : ""}">${q.b}</span>${fmt(q.q)}</p>
+      ${q.code ? codeBlock(q.code) : ""}
+      <div class="opts" role="group" aria-label="Answer choices">${shuffle(q.o.map((_, k) => k)).map((k, pos) => `<button class="opt" data-k="${k}">${String.fromCharCode(65 + pos)}. ${fmt(q.o[k])}</button>`).join("")}</div>
+      <div class="feedback" id="qFb" aria-live="polite"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="qNext" hidden>${qi === quiz.length - 1 ? "See results" : "Next question →"}</button></div>`;
+    $$(".opt", box).forEach(btn => btn.addEventListener("click", () => {
+      const k = +btn.dataset.k, ok = k === q.a;
+      $$(".opt", box).forEach(b => { b.disabled = true; if (+b.dataset.k === q.a) b.classList.add("correct"); });
+      if (!ok) btn.classList.add("wrong");
+      if (ok) qScore++; qRes.push(ok);
+      const fb = $("#qFb"); fb.className = "feedback show " + (ok ? "good" : "bad");
+      fb.innerHTML = (ok ? "<strong>Correct.</strong> " : "<strong>Not quite.</strong> ") + fmt(q.e);
+      const nx = $("#qNext"); nx.hidden = false; nx.focus();
+      nx.addEventListener("click", () => { qi++; renderQ(); });
+    }));
+  }
+  renderQ();
+
+  /* ---------- 4. MATCHING ---------- */
+  const pairs = [
+    ["struct", "Groups related variables of different types into one new data type"],
+    ["Dot operator .", "Accesses a member of a struct variable: `stu.gpa`"],
+    ["Array of structures", "Each element is a whole struct: `list[2].gpa`"],
+    ["Member", "One variable declared inside a struct, such as `double gpa;`"],
+    ["Enumerator", "A named integer constant such as `MONDAY` (value 0)"],
+    ["const reference parameter", "`const Student &s`: no copy and read-only"],
+    ["Nested structure", "A struct used as a member of another struct: `stu.pData.city`"],
+    ["Default member value", "`double gpa = 0.0;`, which prevents garbage values (C++11)"]
+  ];
+  let selL = null, selR = null, matched = 0, mistakes = 0;
+  function buildMatch() {
+    matched = 0; mistakes = 0; selL = selR = null;
+    const L = shuffle(pairs.map((p, i) => i)), R = shuffle(pairs.map((p, i) => i));
+    $("#matchLeft").innerHTML = L.map(i => `<button class="m-item mono" data-i="${i}" data-side="L">${esc(pairs[i][0])}</button>`).join("");
+    $("#matchRight").innerHTML = R.map(i => `<button class="m-item" data-i="${i}" data-side="R">${fmt(pairs[i][1])}</button>`).join("");
+    $("#matchFb").className = "feedback"; updMatch();
+    $$(".m-item").forEach(b => b.addEventListener("click", () => pick(b)));
+  }
+  function updMatch() { $("#matchStatus").textContent = `Matched ${matched} of ${pairs.length} · Mistakes: ${mistakes}`; }
+  function pick(b) {
+    if (b.classList.contains("matched")) return;
+    const side = b.dataset.side;
+    $$(`.m-item[data-side="${side}"]`).forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel");
+    if (side === "L") selL = b; else selR = b;
+    if (selL && selR) {
+      if (selL.dataset.i === selR.dataset.i) {
+        [selL, selR].forEach(x => { x.classList.remove("sel"); x.classList.add("matched"); x.setAttribute("aria-disabled", "true"); });
+        matched++;
+      } else {
+        mistakes++;
+        [selL, selR].forEach(x => { x.classList.remove("sel"); x.classList.add("shake"); setTimeout(() => x.classList.remove("shake"), 400); });
+      }
+      selL = selR = null; updMatch();
+      if (matched === pairs.length) {
+        const fb = $("#matchFb"); fb.className = "feedback show good";
+        fb.textContent = mistakes === 0 ? "Perfect: all 8 matched with no mistakes!" : `All matched with ${mistakes} mistake(s). Reset and try for a perfect round.`;
+        markDoneSoft(4);
+      }
+    }
+  }
+  $("#matchReset").addEventListener("click", buildMatch);
+  buildMatch();
+
+  /* ---------- 5. THINK DEEPER ---------- */
+  [["taA", "wcA", 25], ["taB", "wcB", 30]].forEach(([ta, wc, goal]) => {
+    $("#" + ta).addEventListener("input", e => { const n = words(e.target.value); $("#" + wc).textContent = `${n} words (aim for ${goal}+)`; });
+  });
+  $$("[data-choiceb]").forEach(b => b.addEventListener("click", () => {
+    $$("[data-choiceb]").forEach(x => x.classList.remove("correct", "wrong"));
+    b.classList.add(b.dataset.choiceb === "3" ? "correct" : "wrong");
+  }));
+  $$("#rubricC input").forEach(cb => cb.addEventListener("change", () => {
+    $("#rubricScore").textContent = `${$$("#rubricC input:checked").length} of 6 criteria met`;
+  }));
+  const revealed = new Set();
+  $$("[data-reveal]").forEach(btn => btn.addEventListener("click", () => {
+    const ta = $("#" + btn.dataset.ta);
+    const min = btn.dataset.ta === "taC" ? 15 : 10;
+    if (words(ta.value) < min) {
+      ta.focus(); ta.setAttribute("placeholder", "Write your own answer first; committing to an answer is how you learn. (At least " + min + " words or tokens.)");
+      ta.style.borderColor = "var(--user-accent)"; return;
+    }
+    ta.style.borderColor = "";
+    $("#" + btn.dataset.reveal).classList.add("show"); revealed.add(btn.dataset.reveal);
+    if (revealed.size === 3) markDoneSoft(5);
+  }));
+
+  /* ---------- SELF-CHECKS ---------- */
+  const selfChecks = {
+    1: [
+      { q: "Which line correctly defines a variable of type `Student`?", o: ["`struct Student;`", "`Student stu;`", "`Student.stu;`"], a: 1, e: "The type name comes first, then the variable name." },
+      { q: "`enum Size { SMALL, MEDIUM, LARGE };` What is the value of `LARGE`?", o: ["3", "\"LARGE\"", "2"], a: 2, e: "Enumerators count up from 0." }
+    ],
+    2: [
+      { q: "In the worked example, why is the parameter `const Textbook &b`?", o: ["To change the textbook's price", "To avoid a copy and prevent changes", "Because structs can't be passed by value"], a: 1, e: "Structs **can** be passed by value; `const &` is just more efficient and safer for read-only use." },
+      { q: "How should `stockValue` be called?", o: ["`stockValue(&cpp);`", "`stockValue(cpp);`", "`stockValue(Textbook cpp);`"], a: 1, e: "The reference is set up by the parameter list, not the call." }
+    ],
+    3: [
+      { q: "Which of these is legal for two `Student` variables `a` and `b`?", o: ["`a = b;`", "`if (a == b)`", "`cout << a;`"], a: 0, e: "Only assignment works on whole structs. Compare and print member by member." },
+      { q: "Which parameter type should a read-only `print` function use?", o: ["`Student s`", "`Student &s`", "`const Student &s`"], a: 2, e: "A `const` reference avoids the copy and blocks changes." }
+    ],
+    4: [
+      { q: "Which statement accesses the GPA of the **3rd** student in `Student list[10];`?", o: ["`list.gpa[2]`", "`list[2].gpa`", "`list[3].gpa`"], a: 1, e: "Subscript first, then the dot. The 3rd element is index 2." },
+      { q: "`stu.pData.city` is an example of…", o: ["An array of structs", "A nested structure", "An enumerator"], a: 1, e: "`pData` is a struct inside `Student`." }
+    ],
+    5: [
+      { q: "A value parameter receives a **copy** of the struct. What happens to changes made to it?", o: ["They update the original", "They're lost when the function returns", "They cause a compiler error"], a: 1, e: "That's exactly the bug in Task A." },
+      { q: "In Task C, why model the vehicle as its own struct?", o: ["C++ requires it", "It can be reused and keeps the design organized", "It uses less memory"], a: 1, e: "Nesting groups related data and lets other structs reuse `Vehicle`." }
+    ]
+  };
+  const confAdvice = {
+    1: "Revisit this section's flashcards or steps before moving on.",
+    2: "Good. Review any item you missed, then continue.",
+    3: "Great! You're ready for the next section."
+  };
+  $$("[data-selfcheck]").forEach(box => {
+    const n = box.dataset.selfcheck, items = selfChecks[n];
+    let answered = 0;
+    box.innerHTML = `<h3>✔ Self-Check: Section ${n}</h3><p class="lead" style="margin-bottom:8px">Two quick questions to check your understanding before you move on.</p>` +
+      items.map((it, j) => `<div class="sc-item" data-j="${j}"><p style="margin:10px 0 4px"><strong>${j + 1}.</strong> ${fmt(it.q)}</p>
+        <div class="opts">${shuffle(it.o.map((_, k) => k)).map(k => `<button class="opt" data-k="${k}">${fmt(it.o[k])}</button>`).join("")}</div>
+        <div class="feedback"></div></div>`).join("") +
+      `<div class="confidence"><strong>How confident do you feel?</strong><br>
+        <button class="btn ghost" data-c="1">Not yet</button><button class="btn ghost" data-c="2">Getting there</button><button class="btn ghost" data-c="3">Confident</button>
+        <div class="feedback"></div></div>` +
+      (n < 5 ? `<div class="row" style="margin-top:12px"><button class="btn accent" data-go="${+n + 1}">Continue to Section ${+n + 1} →</button></div>` : "");
+    $$(".sc-item", box).forEach(item => {
+      const it = items[item.dataset.j];
+      $$(".opt", item).forEach(b => b.addEventListener("click", () => {
+        const ok = +b.dataset.k === it.a;
+        $$(".opt", item).forEach(x => { x.disabled = true; if (+x.dataset.k === it.a) x.classList.add("correct"); });
+        if (!ok) b.classList.add("wrong");
+        const fb = $(".feedback", item); fb.className = "feedback show " + (ok ? "good" : "bad");
+        fb.innerHTML = (ok ? "✓ " : "✗ ") + fmt(it.e);
+        if (++answered === items.length) markDone(+n);
+      }));
+    });
+    $$("[data-c]", box).forEach(b => b.addEventListener("click", () => {
+      const fb = $(".confidence .feedback", box); fb.className = "feedback show " + (b.dataset.c === "1" ? "bad" : "good");
+      fb.textContent = confAdvice[b.dataset.c];
+    }));
+    const go = $("[data-go]", box);
+    if (go) go.addEventListener("click", () => openTab($("#t" + go.dataset.go)));
+  });
+  function markDoneSoft() { /* section activity finished; completion is recorded when its self-check is answered */ }
+
+  renderCard();
+})();
+</script>
+</body>
+</html>
